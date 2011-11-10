@@ -1,7 +1,5 @@
 package uk.gov.gds.router.repository.route
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import uk.gov.gds.router.mongodb.MongoDatabase._
@@ -9,7 +7,6 @@ import uk.gov.gds.router.repository.application.Applications
 import uk.gov.gds.router.repository.route.Routes._
 import uk.gov.gds.router.model._
 
-@RunWith(classOf[JUnitRunner])
 class RoutesTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
 
   val testApplication = Application("unit-tests", "test.backend.server")

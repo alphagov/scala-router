@@ -1,7 +1,5 @@
 package uk.gov.gds.router.repository.application
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.util.Logging
@@ -9,7 +7,6 @@ import uk.gov.gds.router.model.{Conflict, NewlyCreated, Application}
 import uk.gov.gds.router.repository.application.Applications._
 import uk.gov.gds.router.mongodb.MongoDatabase.onSameDatabaseServer
 
-@RunWith(classOf[JUnitRunner])
 class ApplicationsTest extends FunSuite with ShouldMatchers with Logging {
 
   test("canCreateApplication") {

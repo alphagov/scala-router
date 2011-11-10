@@ -1,19 +1,25 @@
 package uk.gov.gds.router.integration
 
-import uk.gov.gds.router.util.JsonSerializer._
-import uk.gov.gds.router.model.{Route, Application}
-import uk.gov.gds.router.TestThatRequiresRunningRouter
-import org.junit.{After, Test}
+import gov.uk.gds.router.ApplicationsUnderTest
+import uk.gov.gds.router.HttpTestInterface
 import uk.gov.gds.router.mongodb.MongoDatabase.database
+import uk.gov.gds.router.util.JsonSerializer._
+import org.scalatest.matchers.ShouldMatchers
+import uk.gov.gds.router.model.{Route, Application}
+import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
-class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
-
+class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach with HttpTestInterface {
+  private val apiRoot = "http://localhost:8080/router"
   private val sholdCleanOutDatabaseAfterEachTest = true
   private val backendUrl = "localhost:8080/router"
 
-  @After
-  override def tearDown() {
-    super.tearDown();
+  override protected def beforeEach() {
+    ApplicationsUnderTest.start()
+  }
+
+  override protected def afterEach() {
+    ApplicationsUnderTest.stopUnlessSomeoneCallsStartAgainSoon()
+    CookieStore.requestCookies.clear()
 
     if (sholdCleanOutDatabaseAfterEachTest) {
       database("applications").drop()
@@ -21,8 +27,11 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     }
   }
 
-  @Test
-  def testCanCreateUpdateAndDeleteApplications() {
+  private def uniqueIdForTest = "integration-test-" + System.currentTimeMillis()
+
+  override def buildUrl(path: String) = apiRoot + path
+
+  test("can create and delete applications") {
     //create
     val applicationId = uniqueIdForTest
 
@@ -60,14 +69,12 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     response.status should be(404)
   }
 
-  @Test
-  def testCannotUpdateApplicationThatDoesNotExist() {
+  test("canot create route on application that does not exist") {
     val response = put("/applications/this-app-does-not-exist", Map("backend_url" -> "foo"))
     response.status should be(404)
   }
 
-  @Test
-  def testCanCreatePrefixRoutes() {
+  test("Can create prefix routes") {
     //setup
     val applicationId = createTestApplication
     val routeId = uniqueIdForTest
@@ -113,8 +120,7 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     response.status should be(404)
   }
 
-  @Test
-  def testCanProxyFilesToBackendServer() {
+  test("can proxy files from backend server") {
     //setup
     val applicationId = uniqueIdForTest
 
@@ -133,8 +139,7 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     response.body.contains("router prefix route") should be(true)
   }
 
-  @Test
-  def testCanPostFormSubmissionsToBackendServer() {
+  test("can post form submissions to backend server") {
     val applicationId = createTestApplication
 
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
@@ -145,16 +150,7 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     response.body.contains("second=chips") should be(true)
   }
 
-  @Test
-  def testCanPostMultipleInstancesOfSameParameterToBackendServer(){
-     val applicationId = createTestApplication
-
-    post("/routes/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-
-  }
-
-  @Test
-  def testCanProxyFilesWithQueryString() {
+  test("query parameters are passed to backend server") {
     val applicationId = createTestApplication
 
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
@@ -166,22 +162,19 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     response.body.contains("second=chips") should be(true)
   }
 
-  @Test
-  def testCannotCreatePrefixRoutesWithMoreThanOnePathElement() {
+  test("Cannot create prefix routes with more than one path element") {
     val applicationId = createTestApplication
     val response = post("/routes/invalid/prefix/route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     response.status should be(500)
   }
 
-  @Test
-  def testCanCreateFullRoutesWIthMoreThanOnePathElement() {
+  test("Can create full routes with more than one path element") {
     val applicationId = createTestApplication
     val response = post("/routes/valid/full/route", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
   }
 
-  @Test
-  def testCannotCreateAFullRouteThatConflictsWithAnExistingPrefixRoute() {
+  test("cannot create a full route that conficts with an existing prefix route") {
     val applicationId = createTestApplication
 
     val creationResponse = post("/routes/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
@@ -194,8 +187,7 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     conflictedRoute.incoming_path should be("a-prefix-route")
   }
 
-  @Test
-  def testCannotCreateAFullRouteThatConflictsWithAnExistingFullRoute() {
+  test("Cannot create a full route that conflicts with an existing full route") {
     val applicationId = createTestApplication
 
     createRoute(routePath = "foo/bar", applicationId = applicationId, routeType = "full")
@@ -207,8 +199,7 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     conflictedRoute.incoming_path should be("foo/bar")
   }
 
-  @Test
-  def testOverlappingPrefixRoutesShouldBePossibleAndShouldMapToTheCorrectApplication() {
+  test("Overlapping prefix routes should be possible and should map to the correct application") {
     val fooApplicationId = createTestApplication
     val footballApplicationId = createTestApplication
 
@@ -243,4 +234,5 @@ class RouterIntegrationJunitTest extends TestThatRequiresRunningRouter {
     post("/applications/" + id, Map("backend_url" -> backendUrl))
     id
   }
+
 }
