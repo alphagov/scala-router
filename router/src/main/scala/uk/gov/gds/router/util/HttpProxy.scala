@@ -12,8 +12,8 @@ import org.apache.http.message.BasicNameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import collection.JavaConversions._
 import org.apache.http.client.params.HttpClientParams
-import org.apache.http.params.BasicHttpParams
 import org.apache.http.Header
+import org.apache.http.params.{HttpConnectionParams, BasicHttpParams}
 
 object HttpProxy extends Logging {
 
@@ -22,12 +22,15 @@ object HttpProxy extends Logging {
   val httpClient = new DefaultHttpClient(connectionManager)
   val httpParams = new BasicHttpParams()
 
+  HttpConnectionParams.setConnectionTimeout(httpParams, 2000);
+  HttpConnectionParams.setSoTimeout(httpParams, 2000);
   HttpClientParams.setRedirecting(httpParams, false)
   schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
   schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
   connectionManager.setMaxTotal(300)
   connectionManager.setDefaultMaxPerRoute(100)
   httpClient.setParams(httpParams)
+
 
   def get(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
     proxy(new HttpGet(targetUrl(route)))
