@@ -121,13 +121,7 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("can proxy files from backend server") {
-    //setup
-    val applicationId = uniqueIdForTest
-
-    // create test application & routes
-    post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
-    post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-    post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
+    val applicationId = createTestApplication
 
     // Get a URL through the router
     var response = get("/route/fulltest/test.html")
@@ -140,9 +134,7 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("can post form submissions to backend server") {
-    val applicationId = createTestApplication
-
-    post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
+    createTestApplication
 
     val response = post("/route/test/test-harness", Map("first" -> "sausage", "second" -> "chips"))
     response.status should be(200)
@@ -150,12 +142,13 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     response.body.contains("second=chips") should be(true)
   }
 
+  test("can post form submissions featuring duplicated parameters to backend server") {
+
+  }
+
   test("query parameters are passed to backend server") {
-    val applicationId = createTestApplication
+    createTestApplication
 
-    post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
-
-    // get a url through the router
     val response = get("/route/test/test-harness?first=sausage&second=chips")
     response.status should be(200)
     response.body.contains("first=sausage") should be(true)
@@ -230,9 +223,12 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     applicationId
   }
 
-  private def createTestApplication(id: String): String = {
-    post("/applications/" + id, Map("backend_url" -> backendUrl))
-    id
+  private def createTestApplication(applicationId: String): String = {
+    post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+    post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
+    applicationId
   }
 
 }
