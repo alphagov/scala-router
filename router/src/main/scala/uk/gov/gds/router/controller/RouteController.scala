@@ -20,6 +20,4 @@ class RouteController() extends ControllerBase {
       case Some(route) => HttpProxy.post(route)
     }
   }
-
-
 }

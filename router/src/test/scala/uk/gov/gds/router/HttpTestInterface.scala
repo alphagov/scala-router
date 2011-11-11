@@ -7,12 +7,17 @@ import org.apache.http.message.BasicNameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import scala.collection.JavaConversions._
 import org.apache.http.{HttpResponse, HttpEntityEnclosingRequest}
+import org.apache.http.params.BasicHttpParams
+import org.apache.http.client.params.HttpClientParams
 
 trait HttpTestInterface {
 
   private type PutOrPost = HttpEntityEnclosingRequest with HttpUriRequest
   private val httpClient = new DefaultHttpClient()
+  val httpParams = new BasicHttpParams()
 
+  HttpClientParams.setRedirecting(httpParams, false)
+  httpClient.setParams(httpParams)
   httpClient.setCookieStore(CookieStore.requestCookies)
 
   def buildUrl(path: String): String
@@ -25,7 +30,7 @@ trait HttpTestInterface {
 
   def put(url: String, params: Map[String, String] = Map.empty) = Response(new HttpPut(buildUrl(url)), params)
 
-  case class Response(status: Int, body: String)
+  case class Response(status: Int, body: String, rawResponse: HttpResponse)
 
   object Response {
 
@@ -45,7 +50,8 @@ trait HttpTestInterface {
       body = Option(httpResponse.getEntity) match {
         case Some(response) => EntityUtils.toString(response, "UTF-8")
         case _ => ""
-      }
+      },
+      rawResponse = httpResponse
     )
   }
 

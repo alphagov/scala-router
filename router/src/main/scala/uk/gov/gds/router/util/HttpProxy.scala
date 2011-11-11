@@ -11,17 +11,23 @@ import org.apache.http.client.methods.{HttpPost, HttpGet, HttpUriRequest}
 import org.apache.http.message.BasicNameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import collection.JavaConversions._
+import org.apache.http.client.params.HttpClientParams
+import org.apache.http.params.BasicHttpParams
+import org.apache.http.Header
 
 object HttpProxy extends Logging {
 
   val schemeRegistry = new SchemeRegistry
   val connectionManager = new ThreadSafeClientConnManager(schemeRegistry)
   val httpClient = new DefaultHttpClient(connectionManager)
+  val httpParams = new BasicHttpParams()
 
+  HttpClientParams.setRedirecting(httpParams, false)
   schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
   schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
   connectionManager.setMaxTotal(300)
   connectionManager.setDefaultMaxPerRoute(100)
+  httpClient.setParams(httpParams)
 
   def get(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
     proxy(new HttpGet(targetUrl(route)))
@@ -29,21 +35,25 @@ object HttpProxy extends Logging {
 
   def post(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
     val postRequest = new HttpPost(targetUrl(route))
-    val paramsList = requestInfo.multiParams.map {
-      case (param, values) =>
-        values map {
-          value =>
-            new BasicNameValuePair(param, value)
-        }
-    }.flatten.toList
 
-    postRequest.setEntity(new UrlEncodedFormEntity(paramsList, "UTF-8"))
-    HttpProxy.proxy(postRequest)
+    val params = requestInfo.multiParams.map {
+      case (param, values) => values.map(new BasicNameValuePair(param, _))
+    }
+
+    postRequest.setEntity(new UrlEncodedFormEntity(params.flatten.toList, "UTF-8"))
+    proxy(postRequest)
   }
 
-  private def proxy(message: HttpUriRequest)(implicit response: HttpServletResponse) {
+  private def proxy(message: HttpUriRequest)(implicit responseToClient: HttpServletResponse) {
     logger.info("Proxying {} {}", message.getMethod, message.getURI)
-    httpClient.execute(message).getEntity.writeTo(response.getOutputStream)
+    val responseFromTargetApp = httpClient.execute(message)
+
+    responseToClient.setStatus(responseFromTargetApp.getStatusLine.getStatusCode)
+
+    for (header: Header <- responseFromTargetApp.getAllHeaders)
+      responseToClient.setHeader(header.getName, header.getValue)
+
+    responseFromTargetApp.getEntity.writeTo(responseToClient.getOutputStream)
   }
 
   private def targetUrl(route: Route)(implicit requestInfo: RequestInfo) =

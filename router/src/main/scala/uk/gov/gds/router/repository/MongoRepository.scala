@@ -3,10 +3,12 @@ package uk.gov.gds.router.repository
 import uk.gov.gds.router.mongodb.MongoDatabase._
 import com.mongodb.DBObject
 import com.novus.salat._
-import com.novus.salat.global._
+import com.novus.salat.global.NoTypeHints
 import com.mongodb.casbah.Imports._
 
 abstract class MongoRepository[A <: CaseClass](collectionName: String) extends Repository[A] {
+
+  protected implicit val ctx = NoTypeHints
 
   protected val collection = database(collectionName)
   collection.slaveOk()

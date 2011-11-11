@@ -7,9 +7,11 @@ import uk.gov.gds.router.util.JsonSerializer._
 import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.model.{Route, Application}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import org.slf4j.LoggerFactory
 
 class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach with HttpTestInterface {
 
+  private val logger = LoggerFactory.getLogger(this.getClass)
   private val sholdCleanOutDatabaseAfterEachTest = true
   private val apiRoot = "http://localhost:8080/router"
   private val backendUrl = "localhost:8080/router"
@@ -119,6 +121,31 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     response.body.contains("second=chips") should be(true)
   }
 
+  test("Returns an error when route is not defined"){
+    val response = get("/route/test/this-route-does-not-exist")
+    response.status should be(404)
+  }
+
+  test("Returns 404 when backend returns 404") {
+    val response = get("/route/test/this-route-does-not-exist-on-the-backend-server")
+    response.status should be(404)
+  }
+
+  test("Returns a 500 when the backend returns 500") {
+    val response = get("/route/test/this-route-returns-an-error")
+    response.status should be(500)
+  }
+
+  test("Can handle a get request that returns a redirect") {
+    val response = get("/route/test/redirect")
+    response.status should be(302)
+  }
+
+  test("Can handle forms that return a redirect from backend server") {
+    val response = post("/route/test/redirect")
+    response.status should be(302)
+  }
+
   test("can post form submissions featuring duplicated parameters to backend server") {
     val response = post("/route/test/test-harness?first=cheese", Map("first" -> "sausage", "second" -> "chips"))
     response.status should be(200)
@@ -220,6 +247,9 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/redirect", Map("application_id"-> applicationId, "route_type" -> "full"))
+    post("/routes/test/this-route-does-not-exist-on-the-backend-server", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/this-route-returns-an-error", Map("application_id" -> applicationId, "route_type" -> "full"))
     applicationId
   }
 }
