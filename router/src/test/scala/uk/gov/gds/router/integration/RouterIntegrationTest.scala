@@ -12,9 +12,11 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   private val apiRoot = "http://localhost:8080/router"
   private val sholdCleanOutDatabaseAfterEachTest = true
   private val backendUrl = "localhost:8080/router"
+  private var applicationId: String = ""
 
   override protected def beforeEach() {
     ApplicationsUnderTest.start()
+    applicationId = createTestApplication
   }
 
   override protected def afterEach() {
@@ -75,8 +77,6 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("Can create prefix routes") {
-    //setup
-    val applicationId = createTestApplication
     val routeId = uniqueIdForTest
 
     // create our route
@@ -121,9 +121,6 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("can proxy files from backend server") {
-    val applicationId = createTestApplication
-
-    // Get a URL through the router
     var response = get("/route/fulltest/test.html")
     response.status should be(200)
     response.body.contains("router flat route") should be(true)
@@ -134,8 +131,6 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("can post form submissions to backend server") {
-    createTestApplication
-
     val response = post("/route/test/test-harness", Map("first" -> "sausage", "second" -> "chips"))
     response.status should be(200)
     response.body.contains("first=sausage") should be(true)
@@ -147,8 +142,6 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("query parameters are passed to backend server") {
-    createTestApplication
-
     val response = get("/route/test/test-harness?first=sausage&second=chips")
     response.status should be(200)
     response.body.contains("first=sausage") should be(true)
@@ -156,20 +149,16 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("Cannot create prefix routes with more than one path element") {
-    val applicationId = createTestApplication
     val response = post("/routes/invalid/prefix/route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     response.status should be(500)
   }
 
   test("Can create full routes with more than one path element") {
-    val applicationId = createTestApplication
     val response = post("/routes/valid/full/route", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
   }
 
   test("cannot create a full route that conficts with an existing prefix route") {
-    val applicationId = createTestApplication
-
     val creationResponse = post("/routes/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     creationResponse.status should be(201)
 
@@ -181,8 +170,6 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("Cannot create a full route that conflicts with an existing full route") {
-    val applicationId = createTestApplication
-
     createRoute(routePath = "foo/bar", applicationId = applicationId, routeType = "full")
 
     val confictedResponse = createRoute(routePath = "foo/bar", routeType = "full", applicationId = applicationId)
