@@ -17,5 +17,5 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
     }
   }
 
-  protected implicit def requestInfo = RequestInfo(request, params, multiParams)
+  protected def requestInfo = RequestInfo(request, params, multiParams)
 }

@@ -5,6 +5,7 @@ import org.scalatra.ScalatraKernel
 
 case class RequestInfo(pathParameter: String,
                        targetUrl: String,
+                       multiParams: ScalatraKernel.MultiParams,
                        requestParameters: Map[String, String],
                        queryString: Option[String])
 
@@ -25,6 +26,7 @@ object RequestInfo {
     RequestInfo(pathParameter = targetPath,
       targetUrl = slashed(targetUrl),
       queryString = queryString,
+      multiParams = multiParams - "splat",
       requestParameters = requestParams)
   }
 

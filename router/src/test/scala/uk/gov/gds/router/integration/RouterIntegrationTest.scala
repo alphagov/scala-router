@@ -120,7 +120,11 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   test("can post form submissions featuring duplicated parameters to backend server") {
-
+    val response = post("/route/test/test-harness?first=cheese", Map("first" -> "sausage", "second" -> "chips"))
+    response.status should be(200)
+    response.body.contains("first=cheese") should be(true)
+    response.body.contains("first=sausage") should be(true)
+    response.body.contains("second=chips") should be(true)
   }
 
   test("query parameters are passed to backend server") {

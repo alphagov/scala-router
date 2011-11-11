@@ -9,15 +9,14 @@ class TestHarnessController extends ScalatraFilter with Logging {
 
   // TODO Should not be part of the main application
 
-  private def output(first: String, second: String) = {
+  private def output(block: => String) = {
     val output =
       <html>
         <head>
           <title>Test harness</title>
         </head>
         <body>
-          first={first}
-          second={second}
+          {block}
         </body>
       </html>
 
@@ -25,29 +24,31 @@ class TestHarnessController extends ScalatraFilter with Logging {
     output
   }
 
-  private def fooApplication = output("fooOnly", "fooOnly")
-
+  private def dumpParams = multiParams.map {
+    case (paramName, values) => values.map(paramName + "=" + _)
+  }.flatten.mkString("\n")
+  
   get("/test/test-harness") {
-    output(params("first"), params("second"))
+    output(dumpParams)
   }
 
   get("/test/test-harness/") {
-    output(params("first"), params("second"))
+    output(dumpParams)
   }
 
   post("/test/test-harness") {
-    output(params("first"), params("second"))
+    output(dumpParams)
   }
 
   get("/foo") {
-    fooApplication
+    output("fooOnly")
   }
 
   get("/foo/*") {
-    fooApplication
+    output("fooOnly")
   }
 
   get("/football") {
-    output("football", "football")
+    output("football")
   }
 }
