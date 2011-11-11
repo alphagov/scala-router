@@ -15,7 +15,7 @@ class RouterApiController() extends ControllerBase {
   val allowedApplicationUpdateParams = List("application_id", "backend_url")
 
   post("/routes/*") {
-    val incomingPath = getRequestInfo.pathParameter
+    val incomingPath = requestInfo.pathParameter
     val applicationId = params("application_id")
     val routeType = params("route_type")
 
@@ -32,7 +32,7 @@ class RouterApiController() extends ControllerBase {
   }
 
   put("/routes/*") {
-    val requestInfo = checkRequestParametersContainOnly(allowedRouteUpdateParams)
+    checkRequestParametersContainOnly(allowedRouteUpdateParams)
 
     onSameDatabaseServer {
       status(Routes.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters))
@@ -41,21 +41,21 @@ class RouterApiController() extends ControllerBase {
   }
 
   delete("/routes/*") {
-    status(Routes.delete(getRequestInfo.pathParameter).statusCode)
+    status(Routes.delete(requestInfo.pathParameter).statusCode)
   }
 
   get("/route-for/*") {
-    Routes.load(getRequestInfo.pathParameter).getOrElse(halt(404))
+    Routes.load(requestInfo.pathParameter).getOrElse(halt(404))
   }
 
   post("/applications/*") {
-    val newApplication = Application(getRequestInfo.pathParameter, params("backend_url"))
+    val newApplication = Application(requestInfo.pathParameter, params("backend_url"))
     status(Applications.store(newApplication))
     newApplication
   }
 
   put("/applications/*") {
-    val requestInfo = checkRequestParametersContainOnly(allowedApplicationUpdateParams)
+    checkRequestParametersContainOnly(allowedApplicationUpdateParams)
 
     onSameDatabaseServer {
       status(Applications.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters))
@@ -72,14 +72,10 @@ class RouterApiController() extends ControllerBase {
   }
 
   private def checkRequestParametersContainOnly(validParams: List[String]) = {
-    val requestInfo = getRequestInfo
-
     requestInfo.requestParameters map {
       case (key, _) if (!validParams.contains(key)) => throw new InvalidParameterException(key, validParams)
       case _ =>
     }
-
-    requestInfo
   }
 
   class InvalidParameterException(invalidParam: String, validParams: List[String])
