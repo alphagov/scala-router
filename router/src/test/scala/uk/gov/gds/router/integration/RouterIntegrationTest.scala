@@ -9,29 +9,11 @@ import uk.gov.gds.router.model.{Route, Application}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 
 class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach with HttpTestInterface {
-  private val apiRoot = "http://localhost:8080/router"
+
   private val sholdCleanOutDatabaseAfterEachTest = true
+  private val apiRoot = "http://localhost:8080/router"
   private val backendUrl = "localhost:8080/router"
   private var applicationId: String = ""
-
-  override protected def beforeEach() {
-    ApplicationsUnderTest.start()
-    applicationId = createTestApplication
-  }
-
-  override protected def afterEach() {
-    ApplicationsUnderTest.stopUnlessSomeoneCallsStartAgainSoon()
-    CookieStore.requestCookies.clear()
-
-    if (sholdCleanOutDatabaseAfterEachTest) {
-      database("applications").drop()
-      database("routes").drop()
-    }
-  }
-
-  private def uniqueIdForTest = "integration-test-" + System.currentTimeMillis()
-
-  override def buildUrl(path: String) = apiRoot + path
 
   test("can create and delete applications") {
     //create
@@ -201,6 +183,25 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     response.body.contains("football") should be(true)
   }
 
+  override protected def beforeEach() {
+    ApplicationsUnderTest.start()
+    applicationId = createTestApplication
+  }
+
+  override protected def afterEach() {
+    ApplicationsUnderTest.stopUnlessSomeoneCallsStartAgainSoon()
+    CookieStore.requestCookies.clear()
+
+    if (sholdCleanOutDatabaseAfterEachTest) {
+      database("applications").drop()
+      database("routes").drop()
+    }
+  }
+
+  private def uniqueIdForTest = "integration-test-" + System.currentTimeMillis()
+
+  override def buildUrl(path: String) = apiRoot + path
+
   private def createRoute(applicationId: String, routePath: String, routeType: String) =
     post("/routes/" + routePath, Map("application_id" -> applicationId, "route_type" -> routeType))
 
@@ -217,5 +218,4 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
     applicationId
   }
-
 }
