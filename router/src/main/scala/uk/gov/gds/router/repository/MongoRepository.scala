@@ -41,19 +41,16 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
   }
 
   override def simpleAtomicUpdate(id: String, params: Map[String, Any]) = {
+    val builder = MongoDBObject.newBuilder
+    for ((k, v) <- params) builder += k -> v
+
     val updateResult = collection.findAndModify(
       query = MongoDBObject(idProperty -> id),
-      update = executeAtomicUpdate(params))
+      update = MongoDBObject("$set" -> builder.result.asDBObject))
 
     updateResult match {
       case Some(_) => Updated
       case None => NotFound
     }
-  }
-
-  private def executeAtomicUpdate(params: Map[String, Any]) = {
-    val builder = MongoDBObject.newBuilder
-    for ((k, v) <- params) builder += k -> v
-    MongoDBObject("$set" -> builder.result.asDBObject)
   }
 }
