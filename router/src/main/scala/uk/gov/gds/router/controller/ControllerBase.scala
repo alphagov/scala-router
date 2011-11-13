@@ -1,21 +1,21 @@
 package uk.gov.gds.router.controller
 
 import org.scalatra.ScalatraFilter
-import runtime.BoxedUnit
-import uk.gov.gds.router.util.{JsonSerializer, Logging}
+import uk.gov.gds.router.util.Logging
+import util.DynamicVariable
 
 abstract class ControllerBase extends ScalatraFilter with Logging {
 
-  override def renderResponseBody(actionResult: Any) {
-    actionResult match {
-      case _: BoxedUnit =>
-      case None => status(404)
-      case result: AnyRef => {
-        response.setContentType("application/json")
-        response.getWriter.print(JsonSerializer.toJson(result))
-      }
-    }
+  private val thisThreadRequestInfo = new DynamicVariable[RequestInfo](null)
+
+  after() {
+    thisThreadRequestInfo.value_=(null)
   }
 
-  protected implicit def requestInfo = RequestInfo(request, params, multiParams)
+  protected implicit def requestInfo = {
+    if (thisThreadRequestInfo.value == null)
+      thisThreadRequestInfo.value_=(RequestInfo(request, params, multiParams))
+
+    thisThreadRequestInfo.value
+  }
 }

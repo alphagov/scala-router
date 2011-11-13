@@ -14,6 +14,17 @@ object RequestInfo {
   def apply(request: HttpServletRequest,
             params: Map[String, String],
             multiParams: ScalatraKernel.MultiParams): RequestInfo = {
+
+    def unslashed(s: String) = if (s.startsWith("/"))
+      s.replaceFirst("/", "")
+    else
+      s
+
+    def slashed(s: String) = if (!s.startsWith("/"))
+      "/" + s
+    else
+      s
+
     val queryString = Option(request.getQueryString)
     val requestParams = params - "splat"
     val targetPath = unslashed(multiParams("splat").mkString("/"))
@@ -23,21 +34,11 @@ object RequestInfo {
       case None => targetPath
     }
 
-    RequestInfo(pathParameter = targetPath,
+    RequestInfo(
+      pathParameter = targetPath,
       targetUrl = slashed(targetUrl),
       queryString = queryString,
       multiParams = multiParams - "splat",
       requestParameters = requestParams)
   }
-
-  private def unslashed(string: String) = if (string.startsWith("/"))
-    string.replaceFirst("/", "")
-  else
-    string
-
-  private def slashed(string: String) =
-    if (!string.startsWith("/"))
-      "/" + string
-    else
-      string
 }
