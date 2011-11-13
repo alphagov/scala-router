@@ -6,6 +6,7 @@ import com.novus.salat._
 import com.novus.salat.global.NoTypeHints
 import com.mongodb.casbah.Imports._
 import uk.gov.gds.router.model._
+import uk.gov.gds.router.mongodb.MongoDatabase
 
 abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: String, idProperty: String)(implicit m: Manifest[A])
   extends Repository[A] with MongoIndexTypes {

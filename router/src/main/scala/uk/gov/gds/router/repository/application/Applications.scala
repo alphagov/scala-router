@@ -13,7 +13,8 @@ object Applications extends MongoRepository[Application]("applications", "applic
     Complete.index)
 
   override def delete(applicationId: String) = {
+    val result = super.delete(applicationId)
     Routes.deleteAllRoutesForApplication(applicationId)
-    super.delete(applicationId)
+    result
   }
 }
