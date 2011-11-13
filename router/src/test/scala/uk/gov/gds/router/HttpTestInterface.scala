@@ -15,18 +15,10 @@ import org.apache.http.client.params.{CookiePolicy, HttpClientParams}
 import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
 
 trait HttpTestInterface extends Logging {
+  private type PutOrPost = HttpEntityEnclosingRequest with HttpUriRequest
 
   protected val cookieStore = new BasicCookieStore
-
-  private type PutOrPost = HttpEntityEnclosingRequest with HttpUriRequest
-  private val httpClient = new DefaultHttpClient()
-
-  val httpParams = new BasicHttpParams()
-
-  HttpClientParams.setRedirecting(httpParams, false)
-  HttpClientParams.setCookiePolicy(httpParams, CookiePolicy.RFC_2109);
-  httpClient.setParams(httpParams)
-  httpClient.setCookieStore(cookieStore)
+  private val httpClient = configureHttpClient
 
   def buildUrl(path: String): String
 
@@ -55,6 +47,17 @@ trait HttpTestInterface extends Logging {
         cookie
     }
     cookieList.foreach(cookieStore.addCookie(_))
+  }
+
+  private def configureHttpClient = {
+    val httpClient = new DefaultHttpClient()
+    val httpParams = new BasicHttpParams()
+
+    HttpClientParams.setRedirecting(httpParams, false)
+    HttpClientParams.setCookiePolicy(httpParams, CookiePolicy.RFC_2109);
+    httpClient.setParams(httpParams)
+    httpClient.setCookieStore(cookieStore)
+    httpClient
   }
 
   case class Response(status: Int, body: String, cookies: List[Cookie])
