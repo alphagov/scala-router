@@ -16,8 +16,8 @@ class RouteController() extends ControllerBase {
 
   post("/route/*") {
     Routes.load(requestInfo.pathParameter) match {
-      case None => halt(404)
       case Some(route) => HttpProxy.post(route)
+      case None => halt(404)
     }
   }
 }

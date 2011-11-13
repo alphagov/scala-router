@@ -17,11 +17,11 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
 
   protected implicit def mongoObj2DomainObj(o: Option[collection.T]) = o map (grater[A].asObject(_))
 
-  protected def addIndex(index: DBObject, unique: Boolean, indexing: Boolean) =
+  protected def addIndex(index: DBObject, unique: Boolean, sparse: Boolean) =
     collection.underlying.ensureIndex(index, MongoDBObject(
       "unique" -> unique,
       "background" -> true,
-      "sparse" -> indexing))
+      "sparse" -> sparse))
 
   override def store(obj: A) = load(obj.id) match {
     case Some(_) => Conflict
