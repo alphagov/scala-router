@@ -12,25 +12,11 @@ import org.apache.http.message.BasicNameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import collection.JavaConversions._
 import org.apache.http.client.params.HttpClientParams
-import org.apache.http.Header
 import org.apache.http.params.{HttpConnectionParams, BasicHttpParams}
 
 object HttpProxy extends Logging {
 
-  val schemeRegistry = new SchemeRegistry
-  val connectionManager = new ThreadSafeClientConnManager(schemeRegistry)
-  val httpClient = new DefaultHttpClient(connectionManager)
-  val httpParams = new BasicHttpParams()
-
-  HttpConnectionParams.setConnectionTimeout(httpParams, 2000);
-  HttpConnectionParams.setSoTimeout(httpParams, 2000);
-  HttpClientParams.setRedirecting(httpParams, false)
-  schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
-  schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
-  connectionManager.setMaxTotal(300)
-  connectionManager.setDefaultMaxPerRoute(100)
-  httpClient.setParams(httpParams)
-
+  private val httpClient = configureHttpClient
 
   def get(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
     proxy(new HttpGet(targetUrl(route)))
@@ -47,18 +33,32 @@ object HttpProxy extends Logging {
     proxy(postRequest)
   }
 
-  private def proxy(message: HttpUriRequest)(implicit responseToClient: HttpServletResponse) {
+  private def proxy(message: HttpUriRequest)(implicit clientResponse: HttpServletResponse) {
     logger.info("Proxying {} {}", message.getMethod, message.getURI)
-    val responseFromTargetApp = httpClient.execute(message)
+    val targetResponse = httpClient.execute(message)
 
-    responseToClient.setStatus(responseFromTargetApp.getStatusLine.getStatusCode)
-
-    for (header: Header <- responseFromTargetApp.getAllHeaders)
-      responseToClient.setHeader(header.getName, header.getValue)
-
-    responseFromTargetApp.getEntity.writeTo(responseToClient.getOutputStream)
+    clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
+    targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+    targetResponse.getEntity.writeTo(clientResponse.getOutputStream)
   }
 
-  private def targetUrl(route: Route)(implicit requestInfo: RequestInfo) =
-    "http://".concat(route.application.backend_url.concat(requestInfo.targetUrl))
+  private def targetUrl(route: Route)(implicit request: RequestInfo) =
+    "http://".concat(route.application.backend_url.concat(request.targetUrl))
+
+  private def configureHttpClient = {
+    val schemeRegistry = new SchemeRegistry
+    val connectionManager = new ThreadSafeClientConnManager(schemeRegistry)
+    val httpClient = new DefaultHttpClient(connectionManager)
+    val httpParams = new BasicHttpParams()
+
+    HttpConnectionParams.setConnectionTimeout(httpParams, 2000);
+    HttpConnectionParams.setSoTimeout(httpParams, 2000);
+    HttpClientParams.setRedirecting(httpParams, false)
+    schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
+    schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
+    connectionManager.setMaxTotal(300)
+    connectionManager.setDefaultMaxPerRoute(100)
+    httpClient.setParams(httpParams)
+    httpClient
+  }
 }

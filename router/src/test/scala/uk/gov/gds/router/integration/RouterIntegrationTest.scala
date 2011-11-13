@@ -7,11 +7,9 @@ import uk.gov.gds.router.util.JsonSerializer._
 import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.model.{Route, Application}
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
-import org.slf4j.LoggerFactory
 
 class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach with HttpTestInterface {
 
-  private val logger = LoggerFactory.getLogger(this.getClass)
   private val sholdCleanOutDatabaseAfterEachTest = true
   private val apiRoot = "http://localhost:8080/router"
   private val backendUrl = "localhost:8080/router"
@@ -121,7 +119,7 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     response.body.contains("second=chips") should be(true)
   }
 
-  test("Returns an error when route is not defined"){
+  test("Returns an error when route is not defined") {
     val response = get("/route/test/this-route-does-not-exist")
     response.status should be(404)
   }
@@ -164,6 +162,21 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   test("Cannot create prefix routes with more than one path element") {
     val response = post("/routes/invalid/prefix/route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     response.status should be(500)
+  }
+
+  test("Cookies that are send from backends come through router") {
+    val response = get("/route/test/outgoing-cookies")
+    response.cookies.size should be(1)
+
+    val cookie = response.cookies.head
+    cookie.getName should be("test-cookie")
+    cookie.getValue should be("this is a cookie")
+
+    cookieStore.getCookies.size should be(1)
+
+    val responseWithCookiesFromServer = get("/route/test/incoming-cookies")
+    logger.info(responseWithCookiesFromServer.body)
+    responseWithCookiesFromServer.body.contains("test-cookie=this is a cookie") should be(true)
   }
 
   test("Can create full routes with more than one path element") {
@@ -217,11 +230,11 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   override protected def beforeEach() {
     ApplicationsUnderTest.start()
     applicationId = createTestApplication
+    cookieStore.clear()
   }
 
   override protected def afterEach() {
     ApplicationsUnderTest.stopUnlessSomeoneCallsStartAgainSoon()
-    CookieStore.requestCookies.clear()
 
     if (sholdCleanOutDatabaseAfterEachTest) {
       database("applications").drop()
@@ -247,9 +260,11 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
-    post("/routes/test/redirect", Map("application_id"-> applicationId, "route_type" -> "full"))
+    post("/routes/test/redirect", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/this-route-does-not-exist-on-the-backend-server", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/this-route-returns-an-error", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/incoming-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/outgoing-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     applicationId
   }
 }
