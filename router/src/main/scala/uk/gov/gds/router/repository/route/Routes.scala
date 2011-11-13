@@ -11,12 +11,12 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
     Enforced.uniqueness,
     Complete.index)
 
-  override def load(id: String):Option[Route] = super.load(id) match {
+  override def load(id: String)= super.load(id) match {
     case None => collection.findOne(MongoDBObject("incoming_path" -> id.split("/").take(1).mkString("/")))
     case Some(route) => Some(route)
   }
 
-  private[repository] def deleteAllRoutesForApplication(applicationId: String) {
-    collection -= MongoDBObject("application.application_id" -> applicationId)
+  private[repository] def deleteAllRoutesForApplication(id: String) {
+    collection -= MongoDBObject("application.application_id" -> id)
   }
 }
