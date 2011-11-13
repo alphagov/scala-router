@@ -1,21 +1,21 @@
 package uk.gov.gds.router.controller
 
-import org.scalatra.ScalatraFilter
 import uk.gov.gds.router.util.Logging
 import util.DynamicVariable
+import org.scalatra.ScalatraFilter
 
 abstract class ControllerBase extends ScalatraFilter with Logging {
 
-  private val thisThreadRequestInfo = new DynamicVariable[RequestInfo](null)
+  private val threadRequestInfo = new DynamicVariable[RequestInfo](null)
 
   after() {
-    thisThreadRequestInfo.value_=(null)
+    threadRequestInfo.value_=(null)
   }
 
   protected implicit def requestInfo = {
-    if (thisThreadRequestInfo.value == null)
-      thisThreadRequestInfo.value_=(RequestInfo(request, params, multiParams))
+    if (threadRequestInfo.value == null)
+      threadRequestInfo.value_=(RequestInfo(request, params, multiParams))
 
-    thisThreadRequestInfo.value
+    threadRequestInfo.value
   }
 }

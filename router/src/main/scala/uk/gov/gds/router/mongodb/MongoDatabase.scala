@@ -13,6 +13,12 @@ object MongoDatabase {
 
   database.setWriteConcern(WriteConcern.SAFE)
 
+  def getCollection(collectionName: String) = {
+    val collection = database(collectionName)
+    collection.slaveOk()
+    collection
+  }
+
   def onSameDatabaseServer[A](operation: => A) = try {
     DatabaseOperation.begin
     operation

@@ -2,17 +2,25 @@ package uk.gov.gds.router.model
 
 import uk.gov.gds.router.repository.application.Applications
 
+trait HasIdentity {
+  def id: String
+}
+
 case class Application(application_id: String,
-                       backend_url: String)
+                       backend_url: String) extends HasIdentity {
+  def id = application_id
+}
 
 case class Route(application: Application,
                  incoming_path: String,
-                 route_type: String) {
+                 route_type: String) extends HasIdentity {
   def proxyType = route_type match {
     case "full" => FullRoute
     case "prefix" => PrefixRoute
     case _ => throw new Exception("Unknown route type")
   }
+
+  def id = incoming_path
 }
 
 object Route {

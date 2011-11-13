@@ -15,15 +15,8 @@ object RequestInfo {
             params: Map[String, String],
             multiParams: ScalatraKernel.MultiParams): RequestInfo = {
 
-    def unslashed(s: String) = if (s.startsWith("/"))
-      s.replaceFirst("/", "")
-    else
-      s
-
-    def slashed(s: String) = if (!s.startsWith("/"))
-      "/" + s
-    else
-      s
+    def unslashed(s: String) = if (s.startsWith("/")) s.replaceFirst("/", "") else s
+    def slashed(s: String) = if (!s.startsWith("/")) "/" + s else s
 
     val queryString = Option(request.getQueryString)
     val requestParams = params - "splat"

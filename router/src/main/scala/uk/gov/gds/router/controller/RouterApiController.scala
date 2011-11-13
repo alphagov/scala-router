@@ -5,7 +5,6 @@ import uk.gov.gds.router.mongodb.MongoDatabase._
 import uk.gov.gds.router.repository.route.Routes
 import uk.gov.gds.router.repository.application.Applications
 import uk.gov.gds.router.model.{Route, Application, PersistenceStatus}
-import runtime.BoxedUnit
 import uk.gov.gds.router.util.JsonSerializer
 
 @Singleton
@@ -86,7 +85,6 @@ class RouterApiController() extends ControllerBase {
 
   override def renderResponseBody(actionResult: Any) {
     actionResult match {
-      case _: BoxedUnit =>
       case None => status(404)
       case result: AnyRef => response.getWriter.print(JsonSerializer.toJson(result))
     }
@@ -94,4 +92,5 @@ class RouterApiController() extends ControllerBase {
 
   class InvalidParameterException(invalidParam: String, validParams: List[String])
     extends RuntimeException("Parameter " + invalidParam + " is invalid for this operation. Valid keys are: " + validParams.mkString(" "))
+
 }

@@ -5,17 +5,17 @@ import com.mongodb.DBObject
 import com.novus.salat._
 import com.novus.salat.global.NoTypeHints
 import com.mongodb.casbah.Imports._
+import uk.gov.gds.router.model._
 
-abstract class MongoRepository[A <: CaseClass](collectionName: String) extends Repository[A] {
+abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: String, idProperty: String)(implicit m: Manifest[A])
+  extends Repository[A] with MongoIndexTypes {
 
-  protected implicit val ctx = NoTypeHints
+  protected val collection = getCollection(collectionName)
+  private implicit val ctx = NoTypeHints
 
-  protected val collection = database(collectionName)
-  collection.slaveOk()
+  protected implicit def domainObj2mongoObj(o: A) = grater[A].asDBObject(o)
 
-  protected implicit def domainObject2mongoObject(o: A)(implicit m: Manifest[A]) = grater[A].asDBObject(o)
-
-  protected implicit def mongoObjectOption2domainObject(o: Option[collection.T])(implicit m: Manifest[A]) = o map (grater[A].asObject(_))
+  protected implicit def mongoObj2DomainObj(o: Option[collection.T]) = o map (grater[A].asObject(_))
 
   protected def addIndex(index: DBObject, unique: Boolean, indexing: Boolean) =
     collection.underlying.ensureIndex(index, MongoDBObject(
@@ -23,21 +23,37 @@ abstract class MongoRepository[A <: CaseClass](collectionName: String) extends R
       "background" -> true,
       "sparse" -> indexing))
 
-  protected def atomicUpdate(params: Map[String, Any]) = {
-    val bldr = MongoDBObject.newBuilder
-    for ((k, v) <- params) bldr += k -> v
-    MongoDBObject("$set" -> bldr.result.asDBObject)
+  override def store(obj: A) = load(obj.id) match {
+    case Some(_) => Conflict
+    case None =>
+      collection += obj
+      NewlyCreated
   }
 
-  sealed abstract class Order(val order: Int)
-  case object Ascending extends Order(1)
-  case object Descending extends Order(-1)
+  override def load(id: String) = collection.findOne(MongoDBObject(idProperty -> id))
 
-  sealed abstract class IndexType(val index: Boolean)
-  case object Sparse extends IndexType(true)
-  case object Complete extends IndexType(false)
+  override def delete(id: String) = load(id) match {
+    case Some(route) =>
+      collection -= MongoDBObject(idProperty -> id)
+      Deleted
 
-  sealed abstract class Uniqueness(val uniqueness: Boolean)
-  case object Enforced extends Uniqueness(true)
-  case object Unenforced extends Uniqueness(false)
+    case None => NotFound
+  }
+
+  override def simpleAtomicUpdate(id: String, params: Map[String, Any]) = {
+    val updateResult = collection.findAndModify(
+      query = MongoDBObject(idProperty -> id),
+      update = executeAtomicUpdate(params))
+
+    updateResult match {
+      case Some(_) => Updated
+      case None => NotFound
+    }
+  }
+
+  private def executeAtomicUpdate(params: Map[String, Any]) = {
+    val builder = MongoDBObject.newBuilder
+    for ((k, v) <- params) builder += k -> v
+    MongoDBObject("$set" -> builder.result.asDBObject)
+  }
 }
