@@ -3,9 +3,10 @@ package uk.gov.gds.router.repository.application
 import org.scalatest.FunSuite
 import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.util.Logging
-import uk.gov.gds.router.model.{Conflict, NewlyCreated, Application}
+import uk.gov.gds.router.model.Application
 import uk.gov.gds.router.repository.application.Applications._
 import uk.gov.gds.router.mongodb.MongoDatabase.onSameDatabaseServer
+import uk.gov.gds.router.repository.{Conflict, NewlyCreated}
 
 class ApplicationsTest extends FunSuite with ShouldMatchers with Logging {
 

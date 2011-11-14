@@ -6,6 +6,7 @@ import uk.gov.gds.router.mongodb.MongoDatabase._
 import uk.gov.gds.router.repository.application.Applications
 import uk.gov.gds.router.repository.route.Routes._
 import uk.gov.gds.router.model._
+import uk.gov.gds.router.repository.{Deleted, Conflict, NewlyCreated}
 
 class RoutesTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
 

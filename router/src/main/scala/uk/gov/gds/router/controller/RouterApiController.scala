@@ -4,7 +4,8 @@ import com.google.inject.Singleton
 import uk.gov.gds.router.mongodb.MongoDatabase._
 import uk.gov.gds.router.repository.route.Routes
 import uk.gov.gds.router.repository.application.Applications
-import uk.gov.gds.router.model.{Route, Application, PersistenceStatus}
+import uk.gov.gds.router.repository.PersistenceStatus
+import uk.gov.gds.router.model.{Route, Application}
 import uk.gov.gds.router.util.JsonSerializer
 
 @Singleton
