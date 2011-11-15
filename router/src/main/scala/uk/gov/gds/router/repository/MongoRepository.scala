@@ -12,6 +12,7 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
 
   protected val collection = getCollection(collectionName)
   private implicit val ctx = NoTypeHints
+  createIndexes
 
   protected implicit def domainObj2mongoObj(o: A) = grater[A].asDBObject(o)
 
@@ -22,6 +23,13 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
       "unique" -> unique,
       "background" -> true,
       "sparse" -> sparse))
+
+  protected def createIndexes {
+    addIndex(
+      MongoDBObject(idProperty -> Ascending.order),
+      Enforced.uniqueness,
+      Complete.index)
+  }
 
   override def store(obj: A) = load(obj.id) match {
     case Some(_) => Conflict
