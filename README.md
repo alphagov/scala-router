@@ -19,7 +19,7 @@ To build and run the router itself, enter the following in a shell:
 
     ./sbt
     test
-    jetty-run
+    container:start
 
 You should now have a scala router running on port 8080 on your local machine.
 
