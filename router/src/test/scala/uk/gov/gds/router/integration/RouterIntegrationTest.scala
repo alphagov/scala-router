@@ -20,7 +20,7 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     val applicationId = uniqueIdForTest
 
     var response = post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
-    response.status should be(418)
+    response.status should be(201)
 
     var application = fromJson[Application](response.body)
     application.application_id should be(applicationId)
