@@ -8,8 +8,6 @@ scalaVersion := "2.9.0-1"
 
 seq(webSettings :_*)
 
-port := 8081
-
 libraryDependencies ++= Seq(
         "com.mongodb.casbah" %% "casbah" % "2.1.5-1",
         "com.gu" %% "integration-tools" % "1.3" % "test",
