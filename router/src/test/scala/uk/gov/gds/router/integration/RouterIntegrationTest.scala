@@ -11,8 +11,8 @@ import org.scalatest.{BeforeAndAfterEach, FunSuite}
 class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach with HttpTestInterface {
 
   private val sholdCleanOutDatabaseAfterEachTest = true
-  private val apiRoot = "http://localhost:8080/router"
-  private val backendUrl = "localhost:8080/router"
+  private val apiRoot = "http://localhost:4000/router"
+  private val backendUrl = "localhost:4000/router"
   private var applicationId: String = ""
 
   test("can create and delete applications") {

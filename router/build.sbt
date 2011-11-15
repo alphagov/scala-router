@@ -29,6 +29,8 @@ libraryDependencies ++= Seq(
 	    "com.novus" %% "salat-core" % "0.0.8-SNAPSHOT"
     )
 
+port in container.Configuration := 4000
+
 ivyXML := <dependencies>
 	         <exclude module="log4j"/>
 	         <exclude module="commons-logging"/>
