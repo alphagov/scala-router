@@ -12,23 +12,22 @@ running mongodb on your machine you should stop it before running this step)
 
 To configure mongodb enter the following in a shell:
 
-`cd mongodb
-./dev-router-mongo.sh`
+    cd mongodb
+    ./router-single-node.sh
 
 To build and run the router itself, enter the following in a shell:
 
-`cd router-spike
-./sbt
-test
-jetty-run`
+    ./sbt
+    test
+    jetty-run
 
-You should now have a scala router running on port 8080 on your local machine. 
+You should now have a scala router running on port 8080 on your local machine.
 
 # To run the performance tests
 
 Install jmeter somewhere.
 
-`cd router-performance-tests/jmeter-tests
-JMETER_HOME=path-to-jmeter-home ./run-performance-tests.sh`
+    cd router-performance-tests/jmeter-tests
+    JMETER_HOME=path-to-jmeter-home ./run-performance-tests.sh
 
 
