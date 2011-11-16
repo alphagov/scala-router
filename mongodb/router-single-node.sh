@@ -51,7 +51,7 @@ esac
 if [ ! -f "$cachedir/$mongoFile" ]; then
         destMongofile=$cachedir/$mongoFile
 	echo "Downloading http://fastdl.mongodb.org/$mongoOs/$mongoFile"
-	wget "http://fastdl.mongodb.org/$mongoOs/$mongoFile" -O $destMongofile
+	curl "http://fastdl.mongodb.org/$mongoOs/$mongoFile" -o $destMongofile
 fi	
 
 if [ ! -d "$mongodir/$mongoPath" ]; then
