@@ -22,6 +22,12 @@ trait HttpTestInterface extends Logging {
 
   def buildUrl(path: String): String
 
+  def head(url: String, cookies: Map[String, String] = Map.empty) = {
+    val httpHead = new HttpHead(buildUrl(url))
+    handleCookies(cookies)
+    Response(httpHead)
+  }
+
   def get(url: String, cookies: Map[String, String] = Map.empty) = {
     val httpGet = new HttpGet(buildUrl(url))
     handleCookies(cookies)
