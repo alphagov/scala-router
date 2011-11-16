@@ -102,7 +102,7 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     response.status should be(404)
   }
 
-  test("can proxy files from backend server") {
+  test("can proxy requests to and return responses from backend server") {
     var response = get("/route/fulltest/test.html")
     response.status should be(200)
     response.body.contains("router flat route") should be(true)
