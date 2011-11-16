@@ -112,6 +112,16 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     response.body.contains("router prefix route") should be(true)
   }
 
+  test("can proxy HEAD requests to and return responses from backend server") {
+    var response = head("/route/fulltest/test.html")
+    response.status should be(200)
+    response.body should be("")
+
+    response = head("/route/prefixtest/bang/test.html")
+    response.status should be(200)
+    response.body should be("")
+  }
+
   test("can post form submissions to backend server") {
     val response = post("/route/test/test-harness", Map("first" -> "sausage", "second" -> "chips"))
     response.status should be(200)
