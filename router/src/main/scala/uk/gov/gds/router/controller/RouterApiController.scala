@@ -7,6 +7,7 @@ import uk.gov.gds.router.repository.application.Applications
 import uk.gov.gds.router.repository.PersistenceStatus
 import uk.gov.gds.router.model.{Route, Application}
 import uk.gov.gds.router.util.JsonSerializer
+import runtime.BoxedUnit
 
 @Singleton
 class RouterApiController() extends ControllerBase {
@@ -86,6 +87,7 @@ class RouterApiController() extends ControllerBase {
 
   override def renderResponseBody(actionResult: Any) {
     actionResult match {
+      case _: BoxedUnit =>
       case None => status(404)
       case result: AnyRef => response.getWriter.print(JsonSerializer.toJson(result))
     }

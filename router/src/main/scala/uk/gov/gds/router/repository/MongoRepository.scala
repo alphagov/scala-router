@@ -18,6 +18,8 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
 
   protected implicit def mongoObj2DomainObj(o: Option[collection.T]) = o map (grater[A].asObject(_))
 
+  protected implicit def listOfMongoObjects2listOfDomainObjects(l: List[DBObject]) = l map (grater[A].asObject(_))
+
   protected def addIndex(index: DBObject, unique: Boolean, sparse: Boolean) =
     collection.underlying.ensureIndex(index, MongoDBObject(
       "unique" -> unique,
@@ -61,4 +63,6 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
       case None => NotFound
     }
   }
+
+  def all = collection.find().toList
 }

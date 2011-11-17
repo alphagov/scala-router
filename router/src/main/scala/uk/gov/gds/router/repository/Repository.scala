@@ -10,4 +10,5 @@ trait Repository[A] {
 
   def simpleAtomicUpdate(id: String, params: Map[String, Any]): PersistenceStatus
 
+  def all: Seq[A]
 }

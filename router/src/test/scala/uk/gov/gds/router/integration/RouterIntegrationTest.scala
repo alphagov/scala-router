@@ -1,16 +1,14 @@
 package uk.gov.gds.router.integration
 
 import gov.uk.gds.router.ApplicationsUnderTest
-import uk.gov.gds.router.HttpTestInterface
-import uk.gov.gds.router.mongodb.MongoDatabase.database
 import uk.gov.gds.router.util.JsonSerializer._
 import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.model.{Route, Application}
-import org.scalatest.{BeforeAndAfterEach, FunSuite}
+import xml.XML
+import uk.gov.gds.router.{MongoDatabaseBackedTest, HttpTestInterface}
 
-class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach with HttpTestInterface {
+class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers  with HttpTestInterface {
 
-  private val sholdCleanOutDatabaseAfterEachTest = true
   private val apiRoot = "http://localhost:4000/router"
   private val backendUrl = "localhost:4000/router"
   private var applicationId: String = ""
@@ -51,6 +49,14 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
     // check it's gone
     response = get("/applications/" + applicationId)
     response.status should be(404)
+  }
+
+  test("Application metrics are created when application is created") {
+    val statusInfomation = XML.loadString(get("/management/status").body)
+    val testApplicationMetricts = statusInfomation \ "applications" \ applicationId
+
+    (testApplicationMetricts \ "count").text should be("0")
+    (testApplicationMetricts \ "totalTimeInMillis").text should be("0")
   }
 
   test("canot create route on application that does not exist") {
@@ -238,18 +244,15 @@ class RouterIntegrationTest extends FunSuite with ShouldMatchers with BeforeAndA
   }
 
   override protected def beforeEach() {
+    super.beforeEach()
     ApplicationsUnderTest.start()
     applicationId = createTestApplication
     cookieStore.clear()
   }
 
   override protected def afterEach() {
+    super.afterEach()
     ApplicationsUnderTest.stopUnlessSomeoneCallsStartAgainSoon()
-
-    if (sholdCleanOutDatabaseAfterEachTest) {
-      database("applications").drop()
-      database("routes").drop()
-    }
   }
 
   private def uniqueIdForTest = "integration-test-" + System.currentTimeMillis()

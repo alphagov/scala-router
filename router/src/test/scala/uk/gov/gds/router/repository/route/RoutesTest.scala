@@ -1,17 +1,16 @@
 package uk.gov.gds.router.repository.route
 
 import org.scalatest.matchers.ShouldMatchers
-import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import uk.gov.gds.router.mongodb.MongoDatabase._
 import uk.gov.gds.router.repository.application.Applications
 import uk.gov.gds.router.repository.route.Routes._
 import uk.gov.gds.router.model._
 import uk.gov.gds.router.repository.{Deleted, Conflict, NewlyCreated}
+import uk.gov.gds.router.MongoDatabaseBackedTest
 
-class RoutesTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
+class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
 
   val testApplication = Application("unit-tests", "test.backend.server")
-  Applications.store(testApplication)
 
   val testFullRoute = Route(
     application = testApplication,
@@ -23,8 +22,9 @@ class RoutesTest extends FunSuite with ShouldMatchers with BeforeAndAfterEach {
     route_type = "prefix",
     incoming_path = "overridden")
 
-  override protected def beforeEach() {
-    deleteAllRoutesForApplication(testApplication.application_id)
+  override protected def beforeEach() = {
+    super.beforeEach()
+    Applications.store(testApplication)
   }
 
   test("can create and retrieve full routes") {

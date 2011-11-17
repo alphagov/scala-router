@@ -2,9 +2,49 @@ package uk.gov.gds.router.management
 
 import com.google.inject.Singleton
 import com.gu.management._
+import com.gu.management.ManagementPage
+import com.gu.management.Metric
 import request.RequestLoggingFilter
+import scala.collection.mutable.{Map => MutableMap}
+import javax.servlet.http.HttpServletRequest
+import uk.gov.gds.router.repository.application.Applications
 
 @Singleton
 class RouterRequestLoggingFilter extends RequestLoggingFilter(metric = Requests, shouldLogParametersOnNonGetRequests = true)
 
+@Singleton
+class RouterManagementFilter extends ManagementFilter {
+  lazy val pages = List(new ApplicationStatusPage(List(Requests)))
+}
+
 object Requests extends TimingMetric("requests")
+
+object ApplicationMetrics {
+
+  private val metrics = MutableMap[String,  Metric]()
+
+  def metric(applicationId: String) = {
+    metrics.get(applicationId) match {
+      case Some(metric) => metric
+      case None =>
+        val metric = new TimingMetric(applicationId)
+        metrics(applicationId) = metric
+        metric
+    }
+  }
+
+  def all = Applications.all.map(app => metric(app.application_id) )
+}
+
+class ApplicationStatusPage(metrics: Seq[Metric]) extends ManagementPage {
+  val path = "/management/status"
+
+  def get(req: HttpServletRequest) = XmlResponse(
+    <status>
+      {metrics map { _.toXml }}
+      <applications>
+        { ApplicationMetrics.all map { _.toXml } }
+      </applications>
+    </status>)
+}
+

@@ -8,7 +8,7 @@ object MongoDatabase {
 
   private lazy val inOperation = new DynamicVariable[Boolean](false)
   private val mongoConnection = MongoConnection(List(
-    new ServerAddress("127.0.0.1", 27017)))
+    new ServerAddress("127.0.0.1")))
 
   val database = mongoConnection("router-dev");
   database.setWriteConcern(WriteConcern.SAFE)
@@ -34,3 +34,4 @@ object MongoDatabase {
     inOperation.value_=(false)
   }
 }
+

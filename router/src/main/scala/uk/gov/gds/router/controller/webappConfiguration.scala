@@ -4,7 +4,7 @@ import com.google.inject.Guice
 import com.google.inject.servlet.{ServletModule, GuiceServletContextListener}
 import javax.servlet.Filter
 import uk.gov.gds.router.util.Logging
-import uk.gov.gds.router.management.RouterRequestLoggingFilter
+import uk.gov.gds.router.management.{RouterManagementFilter, RouterRequestLoggingFilter}
 
 class RouterModule extends ServletModule with Logging {
 
@@ -13,6 +13,7 @@ class RouterModule extends ServletModule with Logging {
     serve("/*", classOf[RouteController])
     serve("/*", classOf[RouterApiController])
     serve("/*", classOf[TestHarnessController])
+    serve("/*", classOf[RouterManagementFilter])
   }
 
   private def serve[A <: Filter](path: String, filterClass: Class[A]) = {
