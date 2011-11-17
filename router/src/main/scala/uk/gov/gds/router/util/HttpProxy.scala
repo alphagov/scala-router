@@ -13,13 +13,14 @@ import org.apache.http.client.entity.UrlEncodedFormEntity
 import collection.JavaConversions._
 import org.apache.http.client.params.HttpClientParams
 import org.apache.http.params.{HttpConnectionParams, BasicHttpParams}
+import uk.gov.gds.router.management.ApplicationMetrics.time
 
 object HttpProxy extends Logging {
 
   private val httpClient = configureHttpClient
 
   def get(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
-    proxy(new HttpGet(targetUrl(route)))
+    time(route, proxy(new HttpGet(targetUrl(route))))
   }
 
   def post(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
@@ -30,7 +31,7 @@ object HttpProxy extends Logging {
     }
 
     postRequest.setEntity(new UrlEncodedFormEntity(params.flatten.toList, "UTF-8"))
-    proxy(postRequest)
+    time(route, proxy(postRequest))
   }
 
   private def proxy(message: HttpUriRequest)(implicit clientResponse: HttpServletResponse) {

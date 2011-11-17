@@ -8,6 +8,7 @@ import request.RequestLoggingFilter
 import scala.collection.mutable.{Map => MutableMap}
 import javax.servlet.http.HttpServletRequest
 import uk.gov.gds.router.repository.application.Applications
+import uk.gov.gds.router.model.Route
 
 @Singleton
 class RouterRequestLoggingFilter extends RequestLoggingFilter(metric = Requests, shouldLogParametersOnNonGetRequests = true)
@@ -21,7 +22,11 @@ object Requests extends TimingMetric("requests")
 
 object ApplicationMetrics {
 
-  private val metrics = MutableMap[String,  Metric]()
+  private val metrics = MutableMap[String,  TimingMetric]()
+
+  def all = Applications.all.map(app => metric(app.application_id) )
+
+  def time[T](route: Route, block: => T) = metric(route.application.application_id).measure(block)
 
   def metric(applicationId: String) = {
     metrics.get(applicationId) match {
@@ -32,8 +37,6 @@ object ApplicationMetrics {
         metric
     }
   }
-
-  def all = Applications.all.map(app => metric(app.application_id) )
 }
 
 class ApplicationStatusPage(metrics: Seq[Metric]) extends ManagementPage {

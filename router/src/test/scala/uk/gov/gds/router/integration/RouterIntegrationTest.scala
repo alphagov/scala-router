@@ -7,7 +7,7 @@ import uk.gov.gds.router.model.{Route, Application}
 import xml.XML
 import uk.gov.gds.router.{MongoDatabaseBackedTest, HttpTestInterface}
 
-class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers  with HttpTestInterface {
+class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers with HttpTestInterface {
 
   private val apiRoot = "http://localhost:4000/router"
   private val backendUrl = "localhost:4000/router"
@@ -52,11 +52,26 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   }
 
   test("Application metrics are created when application is created") {
-    val statusInfomation = XML.loadString(get("/management/status").body)
-    val testApplicationMetricts = statusInfomation \ "applications" \ applicationId
+    val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
 
     (testApplicationMetricts \ "count").text should be("0")
     (testApplicationMetricts \ "totalTimeInMillis").text should be("0")
+  }
+
+  test("Routing GET traffic through an application increments the counter") {
+    get("/route/fulltest/test.html")
+    val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
+
+    (testApplicationMetricts \ "count").text should be("1")
+    //(testApplicationMetricts \ "totalTimeInMillis").text should be("0")
+  }
+
+  test("Routing POST traffic through an application increments the counter") {
+    post("/route/fulltest/test.html")
+    val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
+
+    (testApplicationMetricts \ "count").text should be("1")
+    //(testApplicationMetricts \ "totalTimeInMillis").text should be("0")
   }
 
   test("canot create route on application that does not exist") {
