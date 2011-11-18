@@ -55,23 +55,23 @@ module Router
 
     def response(response)
       case response
-	when Net::HTTPConflict
-	  raise Conflict
-	when String
-	  to_ostruct JSON.parse(response)
-	else
-	  to_ostruct JSON.parse(response.body)
-      end
+      when Net::HTTPConflict
+	raise Conflict
+      when String
+	to_ostruct JSON.parse(response)
+      else
+	to_ostruct JSON.parse(response.body)
+    end
     end
 
     def to_ostruct(obj)
       case obj
-	when Hash
-	  values = {}
-	  obj.each { |key, value| values[key] = to_ostruct(value) }
-	  OpenStruct.new(values)
-	else
-	  obj
+      when Hash
+	values = {}
+	obj.each { |key, value| values[key] = to_ostruct(value) }
+	OpenStruct.new(values)
+      else
+	obj
       end
     end
   end
