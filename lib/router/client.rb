@@ -7,7 +7,7 @@ module Router
   end
 
   class Client
-    def initialize(base_url)
+    def initialize(base_url = "http://router.cluster")
       @base_url = base_url
     end
 

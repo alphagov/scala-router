@@ -1,26 +1,26 @@
 require "test_helper"
 
-class ClientTest < Test::Unit::TestCase
+class ApplicationCrudTest < Test::Unit::TestCase
 
   def setup
-    @router_client = Router::Client.new("http://router.gov.uk")
+    @router_client = Router::Client.new("http://router.cluster")
 
     # Create application
-    stub_request(:post, "http://router.gov.uk/applications/test-application").
+    stub_request(:post, "http://router.cluster/applications/test-application").
         with(:body => {"backend_url"=>"http://jobs.alphagov.co.uk"}).
         to_return(:status => 201, :body => '{"application_id":"test-application","backend_url":"http://jobs.alphagov.co.uk"}')
 
     # Get created application
-    stub_request(:get, "http://router.gov.uk/applications/test-application").
+    stub_request(:get, "http://router.cluster/applications/test-application").
         to_return(:status => 200, :body => '{"application_id":"test-application","backend_url":"http://jobs.alphagov.co.uk"}')
 
     # Update application
-    stub_request(:put, "http://router.gov.uk/applications/test-application").
+    stub_request(:put, "http://router.cluster/applications/test-application").
         with(:body => {"backend_url"=>"http://sausages.alphagov.co.uk"}).
         to_return(:status => 200, :body => '{"application_id":"test-application","backend_url":"http://sausages.alphagov.co.uk"}')
 
     # Delete application
-    stub_request(:delete, "http://router.gov.uk/applications/test-application").
+    stub_request(:delete, "http://router.cluster/applications/test-application").
         with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
         to_return(:status => 200, :body => "", :headers => {})
   end
@@ -32,7 +32,7 @@ class ClientTest < Test::Unit::TestCase
     assert_equal("http://jobs.alphagov.co.uk", application.backend_url)
 
     # Attempt to re-create application
-    stub_request(:post, "http://router.gov.uk/applications/test-application").
+    stub_request(:post, "http://router.cluster/applications/test-application").
         with(:body => {"backend_url"=>"http://jobs.alphagov.co.uk"}).
         to_return(:status => 409, :body => '{"application_id":"test-application","backend_url":"http://jobs.alphagov.co.uk"}')
 
