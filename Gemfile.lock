@@ -1,0 +1,24 @@
+PATH
+  remote: .
+  specs:
+    router-ruby-client (0.1)
+      builder
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    addressable (2.2.6)
+    builder (3.0.0)
+    crack (0.3.1)
+    test-unit (2.4.1)
+    webmock (1.7.7)
+      addressable (~> 2.2, > 2.2.5)
+      crack (>= 0.1.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  router-ruby-client!
+  test-unit
+  webmock
