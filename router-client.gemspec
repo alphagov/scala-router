@@ -2,11 +2,11 @@
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
-require 'router/version'
+require 'router/client/version'
 
 Gem::Specification.new do |spec|
-  spec.name = "router-ruby-client"
-  spec.version = "0.1"
+  spec.name = "router-client"
+  spec.version = Router::Client::VERSION
   spec.platform = Gem::Platform::RUBY
   spec.authors = ["Mat Wall"]
   spec.email = ["team@alphagov.gov.uk"]
@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'builder'
 
   spec.test_files = Dir['test/**/*']
+  spec.add_development_dependency 'rake'
   spec.add_development_dependency 'test-unit'
   spec.add_development_dependency 'webmock'
 end

@@ -1,11 +1,9 @@
-require "test/unit"
-require "webmock/test_unit"
-require_relative '../lib/router'
+require "test_helper"
 
-class RouterTest < Test::Unit::TestCase
+class ClientTest < Test::Unit::TestCase
 
   def setup
-    @router_client = RouterClient.new("http://router.gov.uk")
+    @router_client = Router::Client.new("http://router.gov.uk")
 
     # Create application
     stub_request(:post, "http://router.gov.uk/applications/test-application").
@@ -38,7 +36,7 @@ class RouterTest < Test::Unit::TestCase
         with(:body => {"backend_url"=>"http://jobs.alphagov.co.uk"}).
         to_return(:status => 409, :body => '{"application_id":"test-application","backend_url":"http://jobs.alphagov.co.uk"}')
 
-    assert_raise Conflict do
+    assert_raise Router::Conflict do
       @router_client.create_application "test-application", "http://jobs.alphagov.co.uk"
     end
 
