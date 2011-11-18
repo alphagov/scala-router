@@ -3,12 +3,12 @@ package uk.gov.gds.router.mongodb
 import util.DynamicVariable
 import com.mongodb._
 import com.mongodb.casbah.MongoConnection
+import uk.gov.gds.router.configuration.RouterConfig
 
 object MongoDatabase {
 
   private lazy val inOperation = new DynamicVariable[Boolean](false)
-  private val mongoConnection = MongoConnection(List(
-    new ServerAddress("127.0.0.1")))
+  private val mongoConnection = MongoConnection(RouterConfig.databaseHosts.map(new ServerAddress(_)))
 
   val database = mongoConnection("router-dev");
   database.setWriteConcern(WriteConcern.SAFE)
