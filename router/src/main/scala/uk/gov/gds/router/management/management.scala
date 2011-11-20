@@ -7,7 +7,7 @@ import com.gu.management.Metric
 import request.RequestLoggingFilter
 import javax.servlet.http.HttpServletRequest
 import uk.gov.gds.router.repository.application.Applications
-import uk.gov.gds.router.model.Route
+import uk.gov.gds.router.model.{Route, Application}
 import java.util.concurrent.ConcurrentHashMap
 
 @Singleton
@@ -22,17 +22,17 @@ object Requests extends TimingMetric("requests")
 
 object ApplicationMetrics {
 
-  private val metrics = new ConcurrentHashMap[String, TimingMetric]()
+  private val metrics = new ConcurrentHashMap[Application, TimingMetric]()
 
-  def all = Applications.all.map(app => metric(app.application_id))
+  def all = Applications.all.map(timer(_))
 
-  def time[T](route: Route, block: => T) = metric(route.application.application_id).measure(block)
+  def time[T](route: Route, block: => T) = timer(route.application).measure(block)
 
-  def metric(applicationId: String) = Option(metrics.get(applicationId)) match {
+  private def timer(app: Application) = Option(metrics.get(app)) match {
     case Some(metric) => metric
     case None =>
-      val metric = new TimingMetric(applicationId)
-      metrics.put(applicationId, metric)
+      val metric = new TimingMetric(app.id)
+      metrics.put(app, metric)
       metric
   }
 }
