@@ -71,7 +71,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
 
     (testApplicationMetricts \ "count").text should be("1")
-    //(testApplicationMetricts \ "totalTimeInMillis").text should be("0")
+    (testApplicationMetricts \ "totalTimeInMillis").text should not be("0")
   }
 
   test("canot create route on application that does not exist") {
