@@ -5,6 +5,10 @@ class RouteCrudTest < Test::Unit::TestCase
     @router = Router::Client.new "http://router.cluster"
   end
 
+  def teardown
+    WebMock.reset!
+  end
+
 # A route looks like this:
 #     {
 #       "applicationId": "publisher",
@@ -12,7 +16,7 @@ class RouteCrudTest < Test::Unit::TestCase
 #       "incomingPath": "/foo"
 #     }
 
-  def post_body_for hash
+  def encoded_body_for hash
     hash.map do |key, value|
       encoded_key = CGI.escape key.to_s
       encoded_value = CGI.escape value.to_s
@@ -23,7 +27,7 @@ class RouteCrudTest < Test::Unit::TestCase
   def assert_route_creation route
     payload = route.dup
     id = payload.delete :incoming_path
-    body = post_body_for payload
+    body = encoded_body_for payload
     stub_request(:post, "http://router.cluster/routes#{id}").
       to_return(:status => 200)
     @router.routes.create route
@@ -47,23 +51,41 @@ class RouteCrudTest < Test::Unit::TestCase
   end
 
   def test_create_overlapping_route_raises_conflict
-    assert_route_creation :application_id => "publisher",
-      :route_type => :prefix, :incoming_path => "/bar/*"
-    assert_route_creation :application_id => "publisher",
-      :route_type => :full, :incoming_path => "/bar/quuz"
+    stub_request(:post, "http://router.cluster/routes/quux").
+      to_return(:status => 406)
+    assert_raise Router::RouteApi::ConflictingRoute do
+      @router.routes.create :application_id => "jobs", :route_type => :full,
+        :incoming_path => "/quux"
+    end
   end
 
   def test_delete_route
-    
-  end
-
-  def test_delete_nonexistent_route
+    stub_request(:delete, "http://router.cluster/routes/foo").
+      to_return(:status => 204)
+    @router.routes.delete '/foo'
+    assert_requested :delete, "http://router.cluster/routes/foo", :times => 1
   end
 
   def test_update_route
+    body = encoded_body_for :application_id => "publisher",
+      :route_type => :full
+    stub_request(:put, "http://router.cluster/routes/bar").
+      to_return(:status => 200)
+    @router.routes.update :application_id => "publisher",
+      :route_type => :full, :incoming_path => '/bar'
+    assert_requested :put, "http://router.cluster/routes/bar",
+      :body => body, :times => 1
   end
 
   def test_update_nonexistent_route
+    body = encoded_body_for :application_id => "publisher",
+      :route_type => :full
+    stub_request(:put, "http://router.cluster/routes/bar").
+      to_return(:status => 404)
+    assert_raise Router::RouteApi::NoSuchRoute do
+      @router.routes.update :application_id => "publisher",
+        :route_type => :full, :incoming_path => '/bar'
+    end
   end
 
   def test_get_information_for_route
@@ -71,12 +93,5 @@ class RouteCrudTest < Test::Unit::TestCase
 
   def test_get_information_for_nonexistant_route
   end
-
-  def stub_post path, options
-    stub_request(:post, "http://router.cluster/routes").
-      with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
-      to_return(:status => 200, :body => "", :headers => {})
-  end
-
 end
 
