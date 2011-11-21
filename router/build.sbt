@@ -18,7 +18,7 @@ libraryDependencies ++= Seq(
         "com.google.inject.extensions" % "guice-servlet" % "3.0-rc2",
         "org.scalatra" %% "scalatra" % "2.0.1",
         "org.scalatra" %% "scalatra-scalate" % "2.0.1",
-        "org.eclipse.jetty" % "jetty-webapp" % "7.4.5.v20110725" % "container",
+        "org.eclipse.jetty" % "jetty-webapp" % "7.4.5.v20110725" % "jetty",
         "javax.servlet" % "servlet-api" % "2.5" % "provided",
 	    "org.slf4j" % "log4j-over-slf4j" % "1.6.1" % "test",
 	    "org.slf4j" % "jcl-over-slf4j" % "1.6.1" % "test",
@@ -29,7 +29,9 @@ libraryDependencies ++= Seq(
 	    "com.novus" %% "salat-core" % "0.0.8-SNAPSHOT"
     )
 
-port in container.Configuration := 4000
+jettyPort := 4000
+
+jettyContext := "/router"
 
 ivyXML := <dependencies>
 	         <exclude module="log4j"/>
