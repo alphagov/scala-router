@@ -55,18 +55,12 @@ module Router
     end
 
     def get(uri_str)
-      Net::HTTP.get(router_url uri_str)
+      Net::HTTP.get_response(router_url uri_str)
     end
 
     def response(response)
-      case response
-      when Net::HTTPConflict
-        raise Conflict
-      when String
-        to_ostruct JSON.parse(response)
-      else
-        to_ostruct JSON.parse(response.body)
-      end
+      raise Conflict if response.kind_of? Net::HTTPConflict
+      to_ostruct JSON.parse(response.body)
     end
 
     def to_ostruct(obj)

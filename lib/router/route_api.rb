@@ -28,5 +28,18 @@ module Router
       response = client.put '/routes' + incoming_path, route
       raise NoSuchRoute if response.code.to_i == 404
     end
+
+    def find path
+      response = client.get '/routes' + path
+      return if response.code.to_i == 404
+      route = JSON.parse response.body
+      # FIXME: With a lot of invalid route_type values I could probably craft a
+      # way to fill up local memory with unused symbols.
+      {
+        :application_id => route['application_id'],
+        :route_type     => route['route_type'].to_sym,
+        :incoming_path  => route['incoming_path']
+      }
+    end
   end
 end

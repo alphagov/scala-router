@@ -17,11 +17,7 @@ class RouteCrudTest < Test::Unit::TestCase
 #     }
 
   def encoded_body_for hash
-    hash.map do |key, value|
-      encoded_key = CGI.escape key.to_s
-      encoded_value = CGI.escape value.to_s
-      "#{encoded_key}=#{encoded_value}"
-    end.join '&'
+    URI.encode_www_form hash
   end
 
   def assert_route_creation route
@@ -89,9 +85,24 @@ class RouteCrudTest < Test::Unit::TestCase
   end
 
   def test_get_information_for_route
+    route = {
+      :application_id => 'need-o-tron',
+      :route_type => :full,
+      :incoming_path => 'gorge'
+    }
+    stub_request(:get, "http://router.cluster/routes/gorge").
+      to_return(:status => 200, :body => route.to_json)
+
+    hash = @router.routes.find '/gorge'
+    assert_equal hash, route
   end
 
   def test_get_information_for_nonexistant_route
+    stub_request(:get, "http://router.cluster/routes/gorply").
+      to_return(:status => 404)
+
+    route = @router.routes.find '/gorply'
+    assert_equal nil, route
   end
 end
 
