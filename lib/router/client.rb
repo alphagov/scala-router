@@ -1,6 +1,7 @@
 require 'net/http'
 require 'ostruct'
 require 'json'
+require 'router/route_api'
 
 module Router
   class Conflict < RuntimeError
@@ -9,6 +10,10 @@ module Router
   class Client
     def initialize(base_url = "http://router.cluster")
       @base_url = base_url
+    end
+
+    def routes
+      Router::RouteApi.new self
     end
 
     def create_application(application_id, backend_url)
@@ -27,10 +32,10 @@ module Router
       delete "/applications/#{application_id}"
     end
 
-    private
     def router_url(uri)
       URI.parse(@base_url + uri)
     end
+    private :router_url
 
     def post(uri, params)
       Net::HTTP.post_form(router_url(uri), params)
@@ -61,7 +66,7 @@ module Router
         to_ostruct JSON.parse(response)
       else
         to_ostruct JSON.parse(response.body)
-    end
+      end
     end
 
     def to_ostruct(obj)
@@ -74,5 +79,6 @@ module Router
         obj
       end
     end
+    private :to_ostruct
   end
 end
