@@ -68,7 +68,6 @@ class TestHarnessController extends ScalatraFilter with Logging {
         </body>
       </html>
 
-    logger.info("Response: {}", output)
     output
   }
 

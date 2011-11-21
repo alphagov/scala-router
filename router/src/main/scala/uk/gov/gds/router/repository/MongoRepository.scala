@@ -33,16 +33,16 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
       Complete.index)
   }
 
-  override def store(obj: A) = load(obj.id) match {
+  def store(obj: A) = load(obj.id) match {
     case Some(_) => Conflict
     case None =>
       collection += obj
       NewlyCreated
   }
 
-  override def load(id: String) = collection.findOne(MongoDBObject(idProperty -> id))
+  def load(id: String) = collection.findOne(MongoDBObject(idProperty -> id))
 
-  override def delete(id: String) = load(id) match {
+  def delete(id: String) = load(id) match {
     case Some(route) =>
       collection -= MongoDBObject(idProperty -> id)
       Deleted
@@ -50,7 +50,7 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
     case None => NotFound
   }
 
-  override def simpleAtomicUpdate(id: String, params: Map[String, Any]) = {
+  def simpleAtomicUpdate(id: String, params: Map[String, Any]) = {
     val builder = MongoDBObject.newBuilder
     for ((k, v) <- params) builder += k -> v
 
