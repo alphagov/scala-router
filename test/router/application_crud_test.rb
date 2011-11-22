@@ -3,54 +3,53 @@ require "test_helper"
 class ApplicationCrudTest < Test::Unit::TestCase
 
   def setup
-    @router_client = Router::Client.new("http://router.cluster")
-
-    # Create application
-    stub_request(:post, "http://router.cluster/applications/test-application").
-        with(:body => {"backend_url"=>"http://jobs.alphagov.co.uk"}).
-        to_return(:status => 201, :body => '{"application_id":"test-application","backend_url":"http://jobs.alphagov.co.uk"}')
-
-    # Get created application
-    stub_request(:get, "http://router.cluster/applications/test-application").
-        to_return(:status => 200, :body => '{"application_id":"test-application","backend_url":"http://jobs.alphagov.co.uk"}')
-
-    # Update application
-    stub_request(:put, "http://router.cluster/applications/test-application").
-        with(:body => {"backend_url"=>"http://sausages.alphagov.co.uk"}).
-        to_return(:status => 200, :body => '{"application_id":"test-application","backend_url":"http://sausages.alphagov.co.uk"}')
-
-    # Delete application
-    stub_request(:delete, "http://router.cluster/applications/test-application").
-        with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
-        to_return(:status => 200, :body => "", :headers => {})
+    @router_api = Router::API.new("http://router.cluster")
+    @params = {
+      application_id: "test-application", 
+      backend_url: "http://jobs.alphagov.co.uk"
+    }
   end
 
-  def test_can_create_update_and_delete_applications
-    # Create application
-    application = @router_client.create_application "test-application", "http://jobs.alphagov.co.uk"
-    assert_equal("test-application", application.application_id)
-    assert_equal("http://jobs.alphagov.co.uk", application.backend_url)
-
-    # Attempt to re-create application
-    stub_request(:post, "http://router.cluster/applications/test-application").
-        with(:body => {"backend_url"=>"http://jobs.alphagov.co.uk"}).
-        to_return(:status => 409, :body => '{"application_id":"test-application","backend_url":"http://jobs.alphagov.co.uk"}')
-
+  def test_create_sends_http_post_to_router
+    stub_request(:post, "http://router.cluster/applications/#{@params[:application_id]}").
+        with(:body => {"backend_url"=>@params[:backend_url]}).
+        to_return(:status => 201, :body => @params.to_json)
+    application = @router_api.applications.create(@params)
+    assert_equal @params[:application_id], application[:application_id]
+    assert_equal @params[:backend_url], application[:backend_url]
+  end
+  
+  def test_router_reported_conflict_on_create_raises_conflict_error
+    stub_request(:post, "http://router.cluster/applications/#{@params[:application_id]}").
+        to_return(:status => 409, :body => @params.to_json)
     assert_raise Router::Conflict do
-      @router_client.create_application "test-application", "http://jobs.alphagov.co.uk"
+      @router_api.applications.create @params
     end
+  end
+  
+  def test_find_sends_http_get
+    stub_request(:get, "http://router.cluster/applications/#{@params[:application_id]}").
+        to_return(:status => 200, :body => @params.to_json)
+    application = @router_api.applications.find @params[:application_id]
+    assert_equal(@params[:application_id], application[:application_id])
+    assert_equal(@params[:backend_url], application[:backend_url])
+  end
 
-    # Get created application
-    application = @router_client.get_application "test-application"
-    assert_equal("test-application", application.application_id)
-    assert_equal("http://jobs.alphagov.co.uk", application.backend_url)
-
-    # Update application
-    application = @router_client.update_application "test-application", {"backend_url" => "http://sausages.alphagov.co.uk"}
-    assert_equal("test-application", application.application_id)
-    assert_equal("http://sausages.alphagov.co.uk", application.backend_url)
-
-    # Delete application
-    @router_client.delete_application "test-application"
+  def test_update_sends_http_put
+    stub_request(:put, "http://router.cluster/applications/#{@params[:application_id]}").
+        with(:body => {"backend_url"=>@params[:backend_url]}).
+        to_return(:status => 200, :body => @params.to_json)
+    application = @router_api.applications.update @params
+    assert_equal(@params[:application_id], application[:application_id])
+    assert_equal(@params[:backend_url], application[:backend_url])
+  end
+  
+  def test_can_delete_an_application
+    application_id = "test-application"
+    stub_request(:delete, "http://router.cluster/applications/#{application_id}").
+        with(:headers => {'Accept'=>'*/*', 'User-Agent'=>'Ruby'}).
+        to_return(:status => 200, :body => "", :headers => {})
+    @router_api.applications.delete application_id
+    assert_requested :delete, "http://router.cluster/applications/#{application_id}", :times => 1
   end
 end

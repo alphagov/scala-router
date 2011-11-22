@@ -8,9 +8,23 @@ GEM
   remote: http://rubygems.org/
   specs:
     addressable (2.2.6)
+    archive-tar-minitar (0.5.2)
     builder (3.0.0)
+    columnize (0.3.4)
     crack (0.3.1)
+    linecache19 (0.5.12)
+      ruby_core_source (>= 0.1.4)
     rake (0.9.2)
+    ruby-debug-base19 (0.11.25)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby_core_source (>= 0.1.4)
+    ruby-debug19 (0.11.6)
+      columnize (>= 0.3.1)
+      linecache19 (>= 0.5.11)
+      ruby-debug-base19 (>= 0.11.19)
+    ruby_core_source (0.1.5)
+      archive-tar-minitar (>= 0.5.2)
     test-unit (2.4.1)
     webmock (1.7.7)
       addressable (~> 2.2, > 2.2.5)
@@ -22,5 +36,6 @@ PLATFORMS
 DEPENDENCIES
   rake
   router-client!
+  ruby-debug19
   test-unit
   webmock

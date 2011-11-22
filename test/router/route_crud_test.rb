@@ -2,7 +2,7 @@ require "test_helper"
 
 class RouteCrudTest < Test::Unit::TestCase
   def setup
-    @router = Router::Client.new "http://router.cluster"
+    @router = Router::API.new "http://router.cluster"
   end
 
   def teardown
@@ -48,10 +48,22 @@ class RouteCrudTest < Test::Unit::TestCase
 
   def test_create_overlapping_route_raises_conflict
     stub_request(:post, "http://router.cluster/routes/quux").
-      to_return(:status => 406)
-    assert_raise Router::RouteApi::ConflictingRoute do
+      to_return(:status => 409)
+    assert_raise Router::Conflict do
       @router.routes.create :application_id => "jobs", :route_type => :full,
         :incoming_path => "/quux"
+    end
+  end
+
+  def test_other_400_error_raises_remote_error
+    stub_request(:post, "http://router.cluster/routes/quux").
+      to_return(:status => 456)
+    begin
+      @router.routes.create :application_id => "jobs", :route_type => :full,
+        :incoming_path => "/quux"
+      fail "Expected exception"
+    rescue Router::RemoteError => e
+      assert_equal 456, e.response.code.to_i
     end
   end
 
@@ -78,7 +90,7 @@ class RouteCrudTest < Test::Unit::TestCase
       :route_type => :full
     stub_request(:put, "http://router.cluster/routes/bar").
       to_return(:status => 404)
-    assert_raise Router::RouteApi::NoSuchRoute do
+    assert_raise Router::NotFound do
       @router.routes.update :application_id => "publisher",
         :route_type => :full, :incoming_path => '/bar'
     end
@@ -93,8 +105,8 @@ class RouteCrudTest < Test::Unit::TestCase
     stub_request(:get, "http://router.cluster/routes/gorge").
       to_return(:status => 200, :body => route.to_json)
 
-    hash = @router.routes.find '/gorge'
-    assert_equal hash, route
+    found_route = @router.routes.find '/gorge'
+    assert_equal route, found_route
   end
 
   def test_get_information_for_nonexistant_route
