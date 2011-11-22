@@ -1,13 +1,16 @@
 module Router
   class HttpClient
+    attr_accessor :base_url
+    private :base_url=, :base_url
+
     def initialize(base_url, logger = nil)
-      @base_url = base_url
+      self.base_url = base_url
       @logger = logger || NullLogger.instance
       @logger.debug "Base url: #{@base_url}"
     end
 
     def router_url(partial_uri)
-      URI.parse(@base_url + partial_uri)
+      URI.parse(base_url + partial_uri)
     end
     private :router_url
 
