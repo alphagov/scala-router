@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RouteCrudTest < Test::Unit::TestCase
+class RoutesTest < Test::Unit::TestCase
   def setup
     @router = Router::API.new "http://router.cluster"
   end
