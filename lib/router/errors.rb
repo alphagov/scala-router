@@ -1,12 +1,13 @@
 module Router
   class RouterError < StandardError; end
-  
+
   class RemoteError < RouterError
-    attr_reader :response
+    attr_accessor :response
+    private :response=
 
     def initialize(message, response)
       super(message)
-      @response = response
+      self.response = response
     end
   end
 
