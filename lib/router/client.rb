@@ -4,7 +4,7 @@ require 'router/routes'
 require 'router/applications'
 
 module Router
-  class API
+  class Client
     def initialize(base_url = "http://router.cluster")
       @http_client = HttpClient.new(base_url)
     end

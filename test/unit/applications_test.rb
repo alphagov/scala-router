@@ -3,7 +3,7 @@ require "test_helper"
 class ApplicationsTest < Test::Unit::TestCase
 
   def setup
-    @router_api = Router::API.new("http://router.cluster")
+    @router_api = Router::Client.new("http://router.cluster")
     @params = {
       application_id: "test-application", 
       backend_url: "http://jobs.alphagov.co.uk"
