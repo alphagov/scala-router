@@ -27,7 +27,7 @@ module Router
       do_request Net::HTTP::Get, partial_uri
     end
 
-  protected
+    protected
     def do_request(verb, partial_uri, form_data = nil)
       uri = router_url(partial_uri)
       request = verb.new(uri.path)
