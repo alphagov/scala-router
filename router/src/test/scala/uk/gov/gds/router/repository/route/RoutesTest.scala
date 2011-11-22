@@ -13,12 +13,12 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
   val testApplication = Application("unit-tests", "test.backend.server")
 
   val testFullRoute = Route(
-    application = testApplication,
+    application_id = testApplication.application_id,
     route_type = "full",
     incoming_path = "overridden")
 
   val testPrefixRoute = Route(
-    application = testApplication,
+    application_id = testApplication.application_id,
     route_type = "prefix",
     incoming_path = "overridden")
 
@@ -41,7 +41,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
           loadedRoute.incoming_path should be("foo/bar")
       }
 
-      store(Route(applicationId = "unit-tests", routeType = "full", incomingPath = "foo/bar")) should be(Conflict)
+      store(Route(application_id = "unit-tests", route_type= "full", incoming_path = "foo/bar")) should be(Conflict)
     }
   }
 
@@ -59,7 +59,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
           loadedRoute.incoming_path should be("foo")
       }
 
-      store(Route(applicationId = "unit-tests", routeType = "prefix", incomingPath = "foo")) should be(Conflict)
+      store(Route(application_id = "unit-tests", route_type = "prefix", incoming_path = "foo")) should be(Conflict)
     }
   }
 

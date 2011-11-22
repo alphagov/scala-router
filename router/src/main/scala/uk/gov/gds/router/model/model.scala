@@ -11,28 +11,24 @@ case class Application(application_id: String,
   def id = application_id
 }
 
-case class Route(application: Application,
+case class Route(application_id: String,
                  incoming_path: String,
                  route_type: String) extends HasIdentity {
+
+  if ("prefix" == route_type && 1 != incoming_path.split("/").length)
+    throw new RuntimeException("Invalid route: prefix routes may only have one segment")
+
   def proxyType = route_type match {
     case "full" => FullRoute
     case "prefix" => PrefixRoute
     case _ => throw new Exception("Unknown route type")
   }
 
-  def id = incoming_path
-}
-
-object Route {
-  def apply(applicationId: String, routeType: String, incomingPath: String): Route = {
-    if ("prefix" == routeType && 1 != incomingPath.split("/").length)
-      throw new RuntimeException("Invalid route: prefix routes may only have one segment")
-
-    Route(
-      application = Applications.load(applicationId).getOrElse(throw new Exception("Can't find application for route")),
-      incoming_path = incomingPath,
-      route_type = routeType)
+  def application = {
+    Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route"))
   }
+
+  def id = incoming_path
 }
 
 sealed abstract class RouteType

@@ -12,6 +12,6 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
   }
 
   private[repository] def deleteAllRoutesForApplication(id: String) {
-    collection -= MongoDBObject("application.application_id" -> id)
+    collection -= MongoDBObject("application_id" -> id)
   }
 }

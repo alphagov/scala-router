@@ -91,14 +91,14 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     // check it
     response.status should be(201)
     var route = fromJson[Route](response.body)
-    route.application.application_id should be(applicationId)
+    route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
 
     // get it
     response = get("/routes/" + routeId)
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application.application_id should be(applicationId)
+    route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
 
     val newApplicationId = createTestApplication("update-application")
@@ -106,12 +106,12 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     // update
     response = put("/routes/" + routeId,
       Map(
-        "application.application_id" -> newApplicationId,
+        "application_id" -> newApplicationId,
         "route_type" -> "full"))
 
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application.application_id should be(newApplicationId)
+    route.application_id should be(newApplicationId)
     route.incoming_path should be(routeId)
 
     // delete

@@ -14,7 +14,7 @@ class RouterApiController() extends ControllerBase {
 
   private implicit def persistenceStatus2httpStatus(ps: PersistenceStatus) = ps.statusCode
 
-  val allowedRouteUpdateParams = List("application.application_id", "incoming_path", "route_type")
+  val allowedRouteUpdateParams = List("application_id", "incoming_path", "route_type")
   val allowedApplicationUpdateParams = List("application_id", "backend_url")
 
   before() {
@@ -29,9 +29,9 @@ class RouterApiController() extends ControllerBase {
     onSameDatabaseServer {
       val persistenceStatus = Routes.store(
         Route(
-          applicationId = applicationId,
-          routeType = routeType,
-          incomingPath = incomingPath))
+          application_id = applicationId,
+          route_type = routeType,
+          incoming_path = incomingPath))
 
       status(persistenceStatus)
       Routes.load(incomingPath)
