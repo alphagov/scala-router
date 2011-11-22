@@ -5,7 +5,7 @@ require 'null_logger'
 
 module Router
 
-  class Client
+  class HttpClient
     def initialize(base_url, logger = nil)
       @base_url = base_url
       @logger = logger || NullLogger.instance

@@ -1,20 +1,20 @@
 require 'router/errors'
-require 'router/client'
+require 'router/http_client'
 require 'router/routes'
 require 'router/applications'
 
 module Router
   class API
     def initialize(base_url = "http://router.cluster")
-      @client = Client.new(base_url)
+      @http_client = HttpClient.new(base_url)
     end
 
     def routes
-      Router::Routes.new(@client)
+      Router::Routes.new(@http_client)
     end
 
     def applications
-      Router::Applications.new(@client)
+      Router::Applications.new(@http_client)
     end
   end
 end
