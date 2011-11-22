@@ -25,7 +25,7 @@ class RouteCrudTest < Test::Unit::TestCase
     id = payload.delete :incoming_path
     body = encoded_body_for payload
     stub_request(:post, "http://router.cluster/routes#{id}").
-      to_return(:status => 200)
+      to_return(:status => 201)
     @router.routes.create route
     assert_requested :post, "http://router.cluster/routes#{id}",
       :body => body, :times => 1
@@ -61,9 +61,21 @@ class RouteCrudTest < Test::Unit::TestCase
     begin
       @router.routes.create :application_id => "jobs", :route_type => :full,
         :incoming_path => "/quux"
-      fail "Expected exception"
+      fail "Expected exception, but none raised"
     rescue Router::RemoteError => e
       assert_equal 456, e.response.code.to_i
+    end
+  end
+
+  def test_other_500_error_raises_remote_error
+    stub_request(:post, "http://router.cluster/routes/quux").
+      to_return(:status => 500)
+    begin
+      @router.routes.create :application_id => "jobs", :route_type => :full,
+        :incoming_path => "/quux"
+      fail "Expected exception, but none raised"
+    rescue Router::RemoteError => e
+      assert_equal 500, e.response.code.to_i
     end
   end
 
