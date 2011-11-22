@@ -95,7 +95,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     route.incoming_path should be(routeId)
 
     // get it
-    response = get("/route-for/" + routeId)
+    response = get("/routes/" + routeId)
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application.application_id should be(applicationId)
@@ -119,7 +119,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(204)
 
     // check it's gone
-    response = get("/route-for/" + routeId)
+    response = get("/routes/" + routeId)
     response.status should be(404)
   }
 

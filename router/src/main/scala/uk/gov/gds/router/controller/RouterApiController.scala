@@ -51,7 +51,7 @@ class RouterApiController() extends ControllerBase {
     status(Routes.delete(requestInfo.pathParameter).statusCode)
   }
 
-  get("/route-for/*") {
+  get("/routes/*") {
     Routes.load(requestInfo.pathParameter).getOrElse(halt(404))
   }
 
