@@ -1,8 +1,3 @@
-require 'net/http'
-require 'ostruct'
-require 'json'
-require 'null_logger'
-
 module Router
   class HttpClient
     def initialize(base_url, logger = nil)

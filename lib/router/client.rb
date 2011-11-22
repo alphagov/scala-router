@@ -1,3 +1,9 @@
+require 'net/http'
+require 'ostruct'
+require 'json'
+require 'null_logger'
+
+require 'router/restful_resource_collection'
 require 'router/errors'
 require 'router/http_client'
 require 'router/routes'
@@ -8,7 +14,7 @@ module Router
     def initialize(http_client = nil)
       @http_client = http_client || default_http_client
     end
-    
+
     def default_http_client
       HttpClient.new("http://router.cluster/router")
     end
