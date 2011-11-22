@@ -16,7 +16,6 @@ Gem::Specification.new do |spec|
   spec.files = Dir.glob("lib/**/*") + %w(README.md)
   spec.require_path = 'lib'
   spec.add_runtime_dependency 'builder'
-  spec.add_runtime_dependency 'null_logger'
 
   spec.test_files = Dir['test/**/*']
   spec.add_development_dependency 'rake'

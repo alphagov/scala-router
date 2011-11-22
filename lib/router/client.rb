@@ -1,7 +1,6 @@
 require 'net/http'
 require 'ostruct'
 require 'json'
-require 'null_logger'
 require 'router/route_api'
 
 module Router
@@ -9,23 +8,12 @@ module Router
   end
 
   class Client
-    attr_accessor :logger
-    private :logger=, :logger
-
-    def initialize options = nil
-      if options.kind_of? String
-        @base_url = options
-      else
-        options ||= {}
-        @base_url = options[:base_url] || "http://router.cluster/router"
-        self.logger = options[:logger]
-      end
-      self.logger = NullLogger.instance if logger.nil?
-      logger.debug "Base url: #{@base_url}"
+    def initialize(base_url = "http://router.cluster")
+      @base_url = base_url
     end
 
     def routes
-      Router::RouteApi.new self, logger
+      Router::RouteApi.new self
     end
 
     def create_application(application_id, backend_url)
