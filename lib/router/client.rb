@@ -5,8 +5,12 @@ require 'router/applications'
 
 module Router
   class Client
-    def initialize(base_url = "http://router.cluster")
-      @http_client = HttpClient.new(base_url)
+    def initialize(http_client = nil)
+      @http_client = http_client || default_http_client
+    end
+    
+    def default_http_client
+      HttpClient.new("http://router.cluster/router")
     end
 
     def routes
