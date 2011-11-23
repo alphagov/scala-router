@@ -4,6 +4,7 @@ import org.scalatra.ScalatraFilter
 import uk.gov.gds.router.util.Logging
 import com.google.inject.Singleton
 import javax.servlet.http.Cookie
+import scala.collection.JavaConversions._
 
 @Singleton
 class TestHarnessController extends ScalatraFilter with Logging {
@@ -49,6 +50,10 @@ class TestHarnessController extends ScalatraFilter with Logging {
     halt(500)
   }
 
+  get("/test/incoming-headers") {
+    output(dumpHeaders)
+  }
+
   get("/test/incoming-cookies") {
     output(dumpCookies)
   }
@@ -69,6 +74,12 @@ class TestHarnessController extends ScalatraFilter with Logging {
       </html>
 
     output
+  }
+
+  private def dumpHeaders = {
+    request.getHeaderNames().toSeq.map {
+      case headerName:java.lang.String => headerName + "=" + request.getHeader(headerName)
+    }.mkString("\n")
   }
 
   private def dumpCookies = request.multiCookies.map {

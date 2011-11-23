@@ -2,9 +2,11 @@ package uk.gov.gds.router.controller
 
 import javax.servlet.http.HttpServletRequest
 import org.scalatra.ScalatraKernel
+import collection.mutable.{HashMap => MutableMap}
 
 case class RequestInfo(pathParameter: String,
                        targetUrl: String,
+                       headers: Map[String, String],
                        multiParams: ScalatraKernel.MultiParams,
                        requestParameters: Map[String, String],
                        queryString: Option[String])
@@ -30,8 +32,18 @@ object RequestInfo {
     RequestInfo(
       pathParameter = targetPath,
       targetUrl = slashed(targetUrl),
+      headers = extractHeaders(request),
       queryString = queryString,
       multiParams = multiParams - "splat",
       requestParameters = requestParams)
+  }
+
+  def extractHeaders(request: HttpServletRequest) = {
+    var headers = new MutableMap[String, String]
+    Option(request.getHeader("Authorization")) match {
+      case Some(header) => headers.put("Authorization", header)
+      case None => Unit
+    }
+    headers.toMap
   }
 }

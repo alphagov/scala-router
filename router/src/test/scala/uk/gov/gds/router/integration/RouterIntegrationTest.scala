@@ -6,6 +6,7 @@ import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.model.{Route, Application}
 import xml.XML
 import uk.gov.gds.router.{MongoDatabaseBackedTest, HttpTestInterface}
+import org.apache.http.client.methods.HttpGet
 
 class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers with HttpTestInterface {
 
@@ -210,6 +211,14 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     responseWithCookiesFromServer.body.contains("test-cookie=this is a cookie") should be(true)
   }
 
+  test("Basic auth request headers are sent to backend server") {
+    val httpGet = new HttpGet(buildUrl("/route/test/incoming-headers"))
+    httpGet.addHeader("Authorization", "hope-this-gets-through")
+    val response = Response(httpGet)
+    logger.info(response.body)
+    response.body.contains("Authorization=hope-this-gets-through") should be(true)
+  }
+
   test("Can create full routes with more than one path element") {
     val response = post("/routes/valid/full/route", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
@@ -291,6 +300,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/routes/test/redirect", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/this-route-does-not-exist-on-the-backend-server", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/this-route-returns-an-error", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/incoming-headers", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/incoming-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/outgoing-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     applicationId

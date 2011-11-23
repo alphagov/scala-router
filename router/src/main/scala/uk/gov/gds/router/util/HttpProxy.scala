@@ -34,12 +34,19 @@ object HttpProxy extends Logging {
     time(route, proxy(postRequest))
   }
 
-  private def proxy(message: HttpUriRequest)(implicit clientResponse: HttpServletResponse) {
+  private def proxy(message: HttpUriRequest)(implicit requestInfo: RequestInfo, clientResponse: HttpServletResponse) {
     logger.info("Proxying {} {}", message.getMethod, message.getURI)
+    requestInfo.headers.foreach {
+      case (name, value) => message.addHeader(name, value)
+    }
     val targetResponse = httpClient.execute(message)
 
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
-    targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+    targetResponse.getAllHeaders.foreach {
+      h => {
+        clientResponse.setHeader(h.getName, h.getValue)
+      }
+    }
     targetResponse.getEntity.writeTo(clientResponse.getOutputStream)
   }
 
