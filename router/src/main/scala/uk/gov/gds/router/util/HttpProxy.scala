@@ -37,7 +37,9 @@ object HttpProxy extends Logging {
   private def proxy(message: HttpUriRequest)(implicit requestInfo: RequestInfo, clientResponse: HttpServletResponse) {
     logger.info("Proxying {} {}", message.getMethod, message.getURI)
     requestInfo.headers.foreach {
-      case (name, value) => message.addHeader(name, value)
+      case (name, value) =>
+        logger.info("Adding header {} {}", name, value)
+        message.addHeader(name, value)
     }
     val targetResponse = httpClient.execute(message)
 
