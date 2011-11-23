@@ -9,7 +9,6 @@ module Router
     def initialize(base_url, logger = nil)
       self.base_url = base_url
       self.logger = logger || NullLogger.instance
-      logger.debug "Base url: #{base_url}"
     end
 
     def router_url(partial_uri)
