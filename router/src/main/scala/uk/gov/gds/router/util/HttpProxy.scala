@@ -40,7 +40,9 @@ object HttpProxy extends Logging {
     requestInfo.headers.foreach {
       case (name, value) =>
 
-        if (!(HTTP.TRANSFER_ENCODING.equalsIgnoreCase(name) || HTTP.CONTENT_LEN.equalsIgnoreCase(name))) {
+        if (!(HTTP.TRANSFER_ENCODING.equalsIgnoreCase(name)
+          || HTTP.CONTENT_LEN.equalsIgnoreCase(name)
+          || HTTP.TARGET_HOST.equalsIgnoreCase(name))) {
           logger.info("Adding header {} {}", name, value)
           message.addHeader(name, value)
         }
