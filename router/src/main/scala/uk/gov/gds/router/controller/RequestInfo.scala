@@ -2,16 +2,17 @@ package uk.gov.gds.router.controller
 
 import javax.servlet.http.HttpServletRequest
 import org.scalatra.ScalatraKernel
-import collection.mutable.{HashMap => MutableMap}
+import scala.collection.JavaConversions._
+import uk.gov.gds.router.util.Logging
 
 case class RequestInfo(pathParameter: String,
                        targetUrl: String,
-                       headers: Map[String, String],
+                       headers: List[(String, String)],
                        multiParams: ScalatraKernel.MultiParams,
                        requestParameters: Map[String, String],
                        queryString: Option[String])
 
-object RequestInfo {
+object RequestInfo extends Logging {
 
   def apply(request: HttpServletRequest,
             params: Map[String, String],
@@ -39,11 +40,13 @@ object RequestInfo {
   }
 
   def extractHeaders(request: HttpServletRequest) = {
-    var headers = new MutableMap[String, String]
-    Option(request.getHeader("Authorization")) match {
-      case Some(header) => headers.put("Authorization", header)
-      case None => Unit
+    val headers = request.getHeaderNames map {
+      headerNameObj =>
+        val headerName = headerNameObj.asInstanceOf[String]
+        logger.info("Request header: {} {}", headerName, request.getHeader(headerName))
+        (headerName, request.getHeader(headerName))
     }
-    headers.toMap
+
+    headers.toList
   }
 }

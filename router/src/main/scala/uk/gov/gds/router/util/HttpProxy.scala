@@ -14,6 +14,7 @@ import collection.JavaConversions._
 import org.apache.http.client.params.HttpClientParams
 import org.apache.http.params.{HttpConnectionParams, BasicHttpParams}
 import uk.gov.gds.router.management.ApplicationMetrics.time
+import org.apache.http.protocol.HTTP
 
 object HttpProxy extends Logging {
 
@@ -38,9 +39,13 @@ object HttpProxy extends Logging {
     logger.info("Proxying {} {}", message.getMethod, message.getURI)
     requestInfo.headers.foreach {
       case (name, value) =>
-        logger.info("Adding header {} {}", name, value)
-        message.addHeader(name, value)
+
+        if (!(HTTP.TRANSFER_ENCODING.equalsIgnoreCase(name) || HTTP.CONTENT_LEN.equalsIgnoreCase(name))) {
+          logger.info("Adding header {} {}", name, value)
+          message.addHeader(name, value)
+        }
     }
+
     val targetResponse = httpClient.execute(message)
 
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
