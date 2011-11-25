@@ -43,7 +43,6 @@ object RequestInfo extends Logging {
     val headers = request.getHeaderNames map {
       headerNameObj =>
         val headerName = headerNameObj.asInstanceOf[String]
-        logger.info("Request header: {} {}", headerName, request.getHeader(headerName))
         (headerName, request.getHeader(headerName))
     }
 
