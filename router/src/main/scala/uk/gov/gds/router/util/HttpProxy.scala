@@ -20,6 +20,11 @@ object HttpProxy extends Logging {
 
   private val httpClient = configureHttpClient
 
+  private val requestHeadersToFilter = List(
+    HTTP.TRANSFER_ENCODING,
+    HTTP.CONTENT_LEN,
+    HTTP.TARGET_HOST)
+
   def get(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
     time(route, proxy(new HttpGet(targetUrl(route))))
   }
@@ -37,25 +42,14 @@ object HttpProxy extends Logging {
 
   private def proxy(message: HttpUriRequest)(implicit requestInfo: RequestInfo, clientResponse: HttpServletResponse) {
     logger.info("Proxying {} {}", message.getMethod, message.getURI)
-    requestInfo.headers.foreach {
-      case (name, value) =>
 
-        if (!(HTTP.TRANSFER_ENCODING.equalsIgnoreCase(name)
-          || HTTP.CONTENT_LEN.equalsIgnoreCase(name)
-          || HTTP.TARGET_HOST.equalsIgnoreCase(name))) {
-          logger.info("Adding header {} {}", name, value)
-          message.addHeader(name, value)
-        }
+    requestInfo.headers.filter(h => !requestHeadersToFilter.contains(h._1)).foreach {
+      case (name, value) => message.addHeader(name, value)
     }
 
     val targetResponse = httpClient.execute(message)
-
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
-    targetResponse.getAllHeaders.foreach {
-      h => {
-        clientResponse.setHeader(h.getName, h.getValue)
-      }
-    }
+    targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
     targetResponse.getEntity.writeTo(clientResponse.getOutputStream)
   }
 
