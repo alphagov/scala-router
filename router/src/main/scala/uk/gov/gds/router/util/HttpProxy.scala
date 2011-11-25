@@ -50,7 +50,11 @@ object HttpProxy extends Logging {
     val targetResponse = httpClient.execute(message)
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
     targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
-    targetResponse.getEntity.writeTo(clientResponse.getOutputStream)
+
+    Option(targetResponse.getEntity) match {
+      case Some(entity) => entity.writeTo(clientResponse.getOutputStream)
+      case _ => logger.warn("Router detected response with no entity {} {}", targetResponse.getAllHeaders, targetResponse.getStatusLine.getStatusCode)
+    }
   }
 
   private def targetUrl(route: Route)(implicit request: RequestInfo) =

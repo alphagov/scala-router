@@ -52,6 +52,14 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(404)
   }
 
+  test("Can handle 304 responses from backend server") {
+    val response = get("/test/not-modified")
+    response.status should be(304)
+
+    val postResponse = post("/test/not-modified")
+    postResponse.status should be(304)
+  }
+
   test("Application metrics are created when application is created") {
     val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
 
@@ -64,7 +72,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
 
     (testApplicationMetricts \ "count").text should be("1")
-    //(testApplicationMetricts \ "totalTimeInMillis").text should be("0")
+    (testApplicationMetricts \ "totalTimeInMillis").text should not be ("0")
   }
 
   test("Routing POST traffic through an application increments the counter") {
@@ -72,7 +80,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
 
     (testApplicationMetricts \ "count").text should be("1")
-    (testApplicationMetricts \ "totalTimeInMillis").text should not be("0")
+    (testApplicationMetricts \ "totalTimeInMillis").text should not be ("0")
   }
 
   test("canot create route on application that does not exist") {
@@ -294,6 +302,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
 
   private def createTestApplication(applicationId: String): String = {
     post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+
     post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
@@ -303,6 +312,8 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/routes/test/incoming-headers", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/incoming-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/outgoing-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/not-modified", Map("application_id" -> applicationId, "route_type" -> "full"))
+
     applicationId
   }
 }

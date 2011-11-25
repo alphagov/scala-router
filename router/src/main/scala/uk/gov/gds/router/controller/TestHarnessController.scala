@@ -9,7 +9,7 @@ import scala.collection.JavaConversions._
 @Singleton
 class TestHarnessController extends ScalatraFilter with Logging {
 
-  before(){
+  before() {
     response.setContentType("text/html")
   }
 
@@ -62,6 +62,14 @@ class TestHarnessController extends ScalatraFilter with Logging {
     response.addCookie(new Cookie("test-cookie", "this is a cookie"))
   }
 
+  get("/test/not-modified") {
+    halt(304)
+  }
+
+  post("/test/not-modified") {
+    halt(304)
+  }
+
   private def output(block: => String) = {
     val output =
       <html>
@@ -76,11 +84,9 @@ class TestHarnessController extends ScalatraFilter with Logging {
     output
   }
 
-  private def dumpHeaders = {
-    request.getHeaderNames().toSeq.map {
-      case headerName:java.lang.String => headerName + "=" + request.getHeader(headerName)
-    }.mkString("\n")
-  }
+  private def dumpHeaders = request.getHeaderNames().toSeq.map {
+    case headerName: String => headerName + "=" + request.getHeader(headerName)
+  }.mkString("\n")
 
   private def dumpCookies = request.multiCookies.map {
     case (name, values) => values.map(name + "=" + _)

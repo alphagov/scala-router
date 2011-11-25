@@ -24,9 +24,7 @@ case class Route(application_id: String,
     case _ => throw new Exception("Unknown route type")
   }
 
-  def application = {
-    Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route"))
-  }
+  def application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route"))
 
   def id = incoming_path
 }
