@@ -11,6 +11,8 @@ import uk.gov.gds.router.MongoDatabaseBackedTest
 class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
 
   val testApplication = Application("unit-tests", "test.backend.server")
+  Applications.store(testApplication)
+
 
   val testFullRoute = Route(
     application_id = testApplication.application_id,

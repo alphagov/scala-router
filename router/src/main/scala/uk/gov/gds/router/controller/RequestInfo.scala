@@ -39,7 +39,7 @@ object RequestInfo extends Logging {
       requestParameters = requestParams)
   }
 
-  def extractHeaders(request: HttpServletRequest) = {
+  private def extractHeaders(request: HttpServletRequest) = {
     val headers = request.getHeaderNames map {
       headerNameObj =>
         val headerName = headerNameObj.asInstanceOf[String]

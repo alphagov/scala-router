@@ -52,6 +52,18 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(404)
   }
 
+  test("Can create application using put") {
+    val applicationId = uniqueIdForTest
+
+    val response = put("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+    response.status should be(201)
+  }
+
+  test("Can create routes using put") {
+    val response = put("/routes/route-created-with-put", Map("application_id" -> applicationId, "route_type" -> "full"))
+    response.status should be(201)
+  }
+
   test("Can handle 304 responses from backend server") {
     val response = get("/test/not-modified")
     response.status should be(304)
@@ -84,8 +96,8 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   }
 
   test("canot create route on application that does not exist") {
-    val response = put("/applications/this-app-does-not-exist", Map("backend_url" -> "foo"))
-    response.status should be(404)
+    val response = put("/routes/this-route-does-not-exist", Map("application_id" -> "this-app-does-not-exist", "incoming_path" -> "foo", "route_type" -> "foo"))
+    response.status should be(500)
   }
 
   test("Can create prefix routes") {

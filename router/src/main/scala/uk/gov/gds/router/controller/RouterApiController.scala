@@ -4,10 +4,10 @@ import com.google.inject.Singleton
 import uk.gov.gds.router.mongodb.MongoDatabase._
 import uk.gov.gds.router.repository.route.Routes
 import uk.gov.gds.router.repository.application.Applications
-import uk.gov.gds.router.repository.PersistenceStatus
 import uk.gov.gds.router.model.{Route, Application}
 import uk.gov.gds.router.util.JsonSerializer
 import runtime.BoxedUnit
+import uk.gov.gds.router.repository.{NotFound, PersistenceStatus}
 
 @Singleton
 class RouterApiController() extends ControllerBase {
@@ -42,7 +42,16 @@ class RouterApiController() extends ControllerBase {
     checkRequestParametersContainOnly(allowedRouteUpdateParams)
 
     onSameDatabaseServer {
-      status(Routes.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters))
+      val returnCode = Routes.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters) match {
+        case NotFound => Routes.store(Route(
+          application_id = params("application_id"),
+          route_type = params("route_type"),
+          incoming_path = requestInfo.pathParameter
+        ))
+        case ps@_ => ps
+      }
+
+      status(returnCode)
       Routes.load(requestInfo.pathParameter)
     }
   }
@@ -65,7 +74,12 @@ class RouterApiController() extends ControllerBase {
     checkRequestParametersContainOnly(allowedApplicationUpdateParams)
 
     onSameDatabaseServer {
-      status(Applications.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters))
+      val returnCode = Applications.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters) match {
+        case NotFound => Applications.store(Application(requestInfo.pathParameter, params("backend_url")))
+        case ps@_ => ps
+      }
+
+      status(returnCode)
       Applications.load(requestInfo.pathParameter)
     }
   }

@@ -15,6 +15,8 @@ case class Route(application_id: String,
                  incoming_path: String,
                  route_type: String) extends HasIdentity {
 
+  val application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route"))
+
   if ("prefix" == route_type && 1 != incoming_path.split("/").length)
     throw new RuntimeException("Invalid route: prefix routes may only have one segment")
 
@@ -23,8 +25,6 @@ case class Route(application_id: String,
     case "prefix" => PrefixRoute
     case _ => throw new Exception("Unknown route type")
   }
-
-  def application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route"))
 
   def id = incoming_path
 }
