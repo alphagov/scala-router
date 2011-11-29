@@ -1,6 +1,6 @@
 require "test_helper"
 
-class RoutesTest < Test::Unit::TestCase
+class RouteCollectionTest < Test::Unit::TestCase
   def setup
     http_client = Router::HttpClient.new("http://router.cluster")
     @router = Router::Client.new(http_client)
@@ -9,14 +9,6 @@ class RoutesTest < Test::Unit::TestCase
   def teardown
     WebMock.reset!
   end
-
-# A route looks like this:
-#     {
-#       "applicationId": "publisher",
-#       "routeType": "prefix|full",
-#       "incomingPath": "/foo"
-#     }
-
 
   def post_create_route route
     stub_request(:post, "http://router.cluster/routes#{route.incoming_path}").

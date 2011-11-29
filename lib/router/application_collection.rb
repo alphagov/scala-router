@@ -1,5 +1,5 @@
-module Router
-  class Applications < RestfulResourceCollection
+class Router
+  class ApplicationCollection < RestfulResourceCollection
     def collection_url(application_id)
       '/applications/' + application_id
     end

@@ -1,4 +1,4 @@
-module Router
+class Router
   class RouterError < StandardError; end
 
   class RemoteError < RouterError

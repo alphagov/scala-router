@@ -1,4 +1,4 @@
-module Router
+class Router
   class RestfulResourceCollection
     attr_accessor :http_client
     private :http_client=, :http_client

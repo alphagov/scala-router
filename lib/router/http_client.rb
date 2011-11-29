@@ -1,6 +1,6 @@
 require_relative 'response_parser'
 
-module Router
+class Router
   class HttpClient
     attr_accessor :base_url
     private :base_url=, :base_url

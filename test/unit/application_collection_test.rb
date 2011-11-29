@@ -1,6 +1,6 @@
 require "test_helper"
 
-class ApplicationsTest < Test::Unit::TestCase
+class ApplicationCollectionTest < Test::Unit::TestCase
 
   def setup
     http_client = Router::HttpClient.new("http://router.cluster")

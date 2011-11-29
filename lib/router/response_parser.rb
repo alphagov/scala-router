@@ -1,4 +1,4 @@
-module Router
+class Router
   class ResponseParser
     def self.parse(response)
       return unless is_json?(response)
