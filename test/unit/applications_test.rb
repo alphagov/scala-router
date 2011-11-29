@@ -23,8 +23,10 @@ class ApplicationsTest < Test::Unit::TestCase
   def test_router_reported_conflict_on_create_raises_conflict_error
     stub_request(:post, "http://router.cluster/applications/#{@params[:application_id]}").
         to_return(:status => 409, :body => @params.to_json)
-    assert_raise Router::Conflict do
+    begin
       @router_api.applications.create @params
+    rescue Router::Conflict => e
+      assert_equal @params, e.existing
     end
   end
   

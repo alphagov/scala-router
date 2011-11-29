@@ -18,7 +18,7 @@ class RoutesTest < Test::Unit::TestCase
 #     }
 
 
-  def create_route route
+  def post_create_route route
     stub_request(:post, "http://router.cluster/routes#{route.incoming_path}").
       to_return(:status => 201)
     @router.routes.create route.to_hash
@@ -58,7 +58,7 @@ class RoutesTest < Test::Unit::TestCase
       :route_type => :full, 
       :incoming_path => "/foo"
     })
-    create_route route
+    post_create_route route
     assert_requested :post, "http://router.cluster/routes#{route.incoming_path}",
       :body => route.encoded_body, :times => 1
   end
@@ -69,17 +69,20 @@ class RoutesTest < Test::Unit::TestCase
       :route_type => :prefix, 
       :incoming_path => "/bar"
     )
-    create_route(route)
+    post_create_route(route)
     assert_requested :post, "http://router.cluster/routes#{route.incoming_path}",
        :body => route.encoded_body, :times => 1
   end
 
   def test_exception_raised_when_router_reports_conflict_on_creation
-    stub_request(:post, "http://router.cluster/routes/quux").
-      to_return(:status => 409)
-    assert_raise Router::Conflict do
+    existing = RouteFixture.new(application_id: "publisher", route_type: :prefix, incoming_path: "/qu")
+    stub_request(:post, "http://router.cluster/routes/quux").to_return(status: 409, body: existing.to_json)
+    begin
       @router.routes.create :application_id => "jobs", :route_type => :full,
         :incoming_path => "/quux"
+      fail "Expected Router::Conflict exception"
+    rescue Router::Conflict => e
+      assert_equal existing.to_hash, e.existing
     end
   end
 

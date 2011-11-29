@@ -11,6 +11,11 @@ module Router
     end
   end
 
-  class Conflict < RemoteError; end
+  class Conflict < RemoteError
+    def existing
+      ResponseParser.parse(response)
+    end
+  end
+  
   class NotFound < RemoteError; end
 end

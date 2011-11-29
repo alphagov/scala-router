@@ -1,3 +1,5 @@
+require_relative 'response_parser'
+
 module Router
   class HttpClient
     attr_accessor :base_url
@@ -43,22 +45,7 @@ module Router
       end
       logger.debug "Router responded with status: #{response.code}"
       raise_on_error(response)
-      parse_json(response.body) if is_json?(response)
-    end
-
-    def is_json?(response)
-      response.body and
-        response.body.size > 0 and
-        response.body[0] == '{'
-    end
-
-    def parse_json(raw_json)
-      logger.debug "Parsing response as JSON"
-      parsed = Hash[
-        JSON.parse(raw_json).map {|k,v| [k.to_sym, v]}
-      ]
-      logger.debug "Response parsed to #{parsed.inspect}"
-      parsed
+      Router::ResponseParser.parse(response)
     end
 
     def raise_on_error(response)
