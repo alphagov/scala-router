@@ -13,7 +13,7 @@ http://semver.org/.
 
     # Create an jobs application and routes using DSL-like syntax
     router = Router.new "http://localhost:4000/router"
-    jobs_app = router.application("jobs", "http://jobs.alphagov.co.uk") do |app|
+    jobs_app = router.application("jobs", "jobs.alphagov.co.uk") do |app|
       app.ensure_prefix_route "/job-search"
       app.ensure_full_route "/jobs"
     end
