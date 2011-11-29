@@ -2,8 +2,7 @@ require "test_helper"
 
 class RouteCollectionTest < Test::Unit::TestCase
   def setup
-    http_client = Router::HttpClient.new("http://router.cluster")
-    @router = Router::Client.new(http_client)
+    @router = Router::Client.new("http://router.cluster")
   end
 
   def teardown

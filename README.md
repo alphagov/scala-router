@@ -9,44 +9,18 @@ http://semver.org/.
 
 ## Usage
 
-    require 'router/client'
+    require 'router'
 
-    # Optionally provide a logger to the HTTP client
-    require 'logger'
-    logger = Logger.new STDOUT
-    logger.level = Logger::DEBUG
-
-    # Optionally create an HTTP client that points to the router location
-    http_client = Router::HttpClient.new "http://localhost:4000/router", logger
-
-    # Create an jobs application and route
-    client = Router::Client.new http_client
-    client.applications.create(
-      application_id: "jobs",
-      backend_url: "http://jobs.alphagov.co.uk")
-    client.routes.create(
-      application_id: "jobs",
-      route_type: :prefix,
-      incoming_path: "/jobs")
-
-    # Lookup a route
-    found_route = client.routes.find('/jobs')
-    puts found_route[:application_id] # => "jobs"
-    puts found_route[:route_type]     # => :prefix
-    puts found_route[:incoming_path]  # => "/jobs"
+    # Create an jobs application and routes using DSL-like syntax
+    router = Router.new "http://localhost:4000/router"
+    jobs_app = router.application("jobs", "http://jobs.alphagov.co.uk") do |app|
+      app.ensure_prefix_route "/job-search"
+      app.ensure_full_route "/jobs"
+    end
 
     # Error handling
     begin
-      client.routes.create(
-        application_id: "jobs",
-        route_type: :prefix,
-        incoming_path: "/jobs")
+      jobs_app.ensure_full_route "/job-search/not-allowed"
     rescue Router::Conflict => e
-      # do stuff
-    end
-
-    begin
-      client.routes.delete('/missing')
-    rescue Router::NotFound => e
-      # do stuff
+      puts e.existing # => {application_id: "jobs", route_type: :prefix, incoming_path: "/job-search"}
     end

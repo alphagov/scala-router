@@ -1,3 +1,5 @@
+require 'router/client'
+
 class Router
   def initialize(router_endpoint_url, logger=nil)
     @router_client = Router::Client.new(router_endpoint_url, logger)

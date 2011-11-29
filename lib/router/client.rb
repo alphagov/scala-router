@@ -14,12 +14,16 @@ class Router
     attr_accessor :http_client
     private :http_client=, :http_client
 
-    def initialize(http_client = nil)
-      self.http_client = http_client || default_http_client
+    attr_accessor :logger
+    private :logger=, :logger
+
+    def initialize(router_endpoint_url = nil, logger = nil)
+      self.http_client = HttpClient.new(router_endpoint_url || default_router_endpoint_url)
+      self.logger = logger || NullLogger.instance
     end
 
-    def default_http_client
-      HttpClient.new("http://router.cluster/router")
+    def default_router_endpoint_url
+      "http://router.cluster:8080/router"
     end
 
     def routes
