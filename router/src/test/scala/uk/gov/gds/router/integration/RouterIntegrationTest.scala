@@ -216,7 +216,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(500)
   }
 
-  test("Cookies that are send from backends come through router") {
+  test("Cookies that are sent from backends come through router") {
     val response = get("/route/test/outgoing-cookies")
     response.cookies.size should be(1)
 
