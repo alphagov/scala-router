@@ -52,7 +52,7 @@ object HttpProxy extends Logging {
 
     requestInfo.headers.filter(h => h._1 == HTTP.TARGET_HOST).foreach(h => {
       logger.info("Target host " + h._2)
-      message.addHeader("X_FORWARDED_HOST", h._2)
+      message.addHeader("X-Forwarded-Host", h._2)
     }
     )
 

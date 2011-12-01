@@ -237,7 +237,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     val response = Response(httpGet)
     logger.info(response.body)
     response.body.contains("Host=localhost:4000")
-    response.body.contains("X_FORWARDED_HOST=original.example.com:3100") should be(true)
+    response.body.contains("X-Forwarded-Host=original.example.com:3100") should be(true)
   }
 
   test("Basic auth request headers are sent to backend server") {
