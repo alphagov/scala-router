@@ -17,7 +17,7 @@ class Router
     attr_accessor :logger
     private :logger=, :logger
 
-    def initialize(router_endpoint_url = nil, logger = nil)
+    def initialize router_endpoint_url = nil, logger = nil
       self.http_client = HttpClient.new(router_endpoint_url || default_router_endpoint_url)
       self.logger = logger || NullLogger.instance
     end
@@ -27,11 +27,13 @@ class Router
     end
 
     def routes
-      Router::RouteCollection.new(http_client)
+      logger.debug "Asked for a route manager"
+      Router::RouteCollection.new(http_client, logger)
     end
 
     def applications
-      Router::ApplicationCollection.new(http_client)
+      logger.debug "Asked for an application manager"
+      Router::ApplicationCollection.new(http_client, logger)
     end
   end
 end

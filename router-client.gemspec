@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.name = "router-client"
   spec.version = Router::Client::VERSION
   spec.platform = Gem::Platform::RUBY
-  spec.authors = ["Mat Wall"]
-  spec.email = ["team@alphagov.gov.uk"]
+  spec.authors = ["Mat Wall", "Craig R Webster"]
+  spec.email = ["team@alphagov.gov.uk", "craig@barkingiguana.com"]
   spec.summary = "HTTP client for gov.uk router API"
   spec.description = "Create / manage configured routes in the gov.uk router"
 
