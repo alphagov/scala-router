@@ -49,7 +49,7 @@ object HttpProxy extends Logging {
         message.addHeader(name, value)
       }
     }
-    message.addHeader("X_Forwarded_Host", "www.preview.alphagov.co.uk")
+    message.addHeader("X-Forwarded-Host", "www.preview.alphagov.co.uk")
 
     val targetResponse = httpClient.execute(message)
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
