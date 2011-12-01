@@ -17,9 +17,17 @@ class Router
     attr_accessor :logger
     private :logger=, :logger
 
-    def initialize router_endpoint_url = nil, logger = nil
-      self.http_client = HttpClient.new(router_endpoint_url || default_router_endpoint_url)
-      self.logger = logger || NullLogger.instance
+    def initialize *args
+      if args[0].kind_of? Hash
+        options = args[0]
+        self.http_client = HttpClient.new options[:router_endpoint_url] || default_router_endpoint_url
+        self.logger = options[:logger] || NullLoger.instance
+      else
+        logger = args[1] || NullLogger.instance
+        logger.warn "Positional argumentsto Router::Client are deprecated."
+        self.http_client = HttpClient.new args[0] || default_router_endpoint_url
+        self.logger = logger
+      end
     end
 
     def default_router_endpoint_url
