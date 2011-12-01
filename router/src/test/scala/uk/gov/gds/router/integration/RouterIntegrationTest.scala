@@ -231,6 +231,15 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     responseWithCookiesFromServer.body.contains("test-cookie=this is a cookie") should be(true)
   }
 
+  test("Original host sent to backend as X_FORWARDED_HOST") {
+    val httpGet = new HttpGet(buildUrl("/route/test/incoming-headers"))
+    httpGet.addHeader("Host", "original.example.com:3100")
+    val response = Response(httpGet)
+    logger.info(response.body)
+    response.body.contains("Host=localhost:4000")
+    response.body.contains("X_FORWARDED_HOST=original.example.com:3100") should be(true)
+  }
+
   test("Basic auth request headers are sent to backend server") {
     val httpGet = new HttpGet(buildUrl("/route/test/incoming-headers"))
     httpGet.addHeader("Authorization", "hope-this-gets-through")
