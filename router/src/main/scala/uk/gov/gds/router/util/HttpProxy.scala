@@ -44,18 +44,16 @@ object HttpProxy extends Logging {
     logger.info("Proxying {} {}", message.getMethod, message.getURI)
 
     requestInfo.headers.filter(h => !requestHeadersToFilter.contains(h._1)).foreach {
-      case (name, value) => message.addHeader(name, value)
+      case (name, value) => {
+        logger.info("Header " + name + " " + value)
+        message.addHeader(name, value)
+      }
     }
+    message.addHeader("X_Forwarded_Host", "www.preview.alphagov.co.uk")
 
     val targetResponse = httpClient.execute(message)
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
-    targetResponse.getAllHeaders.foreach(h => {
-      logger.info("Header " + h.getName + " " + h.getValue)
-      clientResponse.setHeader(h.getName, h.getValue)
-    })
-
-    // hack to see whether this fixes the current issues in preview
-    clientResponse.setHeader("X_Forwarded_Host", "www.preview.alphagov.co.uk")
+    targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
 
     Option(targetResponse.getEntity) match {
       case Some(entity) => entity.writeTo(clientResponse.getOutputStream)
