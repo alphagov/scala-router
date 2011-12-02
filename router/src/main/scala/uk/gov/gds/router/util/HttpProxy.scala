@@ -21,6 +21,8 @@ object HttpProxy extends Logging {
   private val httpClient = configureHttpClient
 
   private val requestHeadersToFilter = List(
+    "X-Forwarded-For",
+    "X-Forwarded-Port",
     HTTP.TRANSFER_ENCODING,
     HTTP.CONTENT_LEN,
     HTTP.TARGET_HOST)
