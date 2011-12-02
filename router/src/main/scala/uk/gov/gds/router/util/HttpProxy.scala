@@ -45,20 +45,24 @@ object HttpProxy extends Logging {
 
     requestInfo.headers.filter(h => !requestHeadersToFilter.contains(h._1)).foreach {
       case (name, value) => {
-        logger.info("Header " + name + " " + value)
+        logger.info("Request header " + name + " " + value)
         message.addHeader(name, value)
       }
     }
 
     requestInfo.headers.filter(h => h._1 == HTTP.TARGET_HOST).foreach(h => {
-      logger.info("Target host " + h._2)
+      logger.info("*Request header X-Forwarded-Host " + h._2)
       message.addHeader("X-Forwarded-Host", h._2)
     }
     )
 
     val targetResponse = httpClient.execute(message)
     clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
-    targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+    targetResponse.getAllHeaders.foreach(h => {
+      logger.info("Response header " + h.getName + " " + h.getValue)
+      clientResponse.setHeader(h.getName, h.getValue)
+    }
+    )
 
     Option(targetResponse.getEntity) match {
       case Some(entity) => entity.writeTo(clientResponse.getOutputStream)

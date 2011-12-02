@@ -85,7 +85,9 @@ class TestHarnessController extends ScalatraFilter with Logging {
   }
 
   private def dumpHeaders = request.getHeaderNames().toSeq.map {
-    case headerName: String => headerName + "=" + request.getHeader(headerName)
+    case headerName: String =>
+      logger.info(headerName + "=" + request.getHeader(headerName))
+      headerName + "=" + request.getHeader(headerName)
   }.mkString("\n")
 
   private def dumpCookies = request.multiCookies.map {
