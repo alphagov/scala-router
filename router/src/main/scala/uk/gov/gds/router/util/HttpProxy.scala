@@ -70,8 +70,8 @@ object HttpProxy extends Logging {
     val httpClient = new DefaultHttpClient(connectionManager)
     val httpParams = new BasicHttpParams()
 
-    HttpConnectionParams.setConnectionTimeout(httpParams, 2000);
-    HttpConnectionParams.setSoTimeout(httpParams, 2000);
+    HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
+    HttpConnectionParams.setSoTimeout(httpParams, 5000);
     HttpClientParams.setRedirecting(httpParams, false)
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
