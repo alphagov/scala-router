@@ -1,0 +1,26 @@
+task :jmeter do
+  unless File.exists? "jmeter-2.5.1.tgz"
+    require 'open-uri'
+    tgz = open("http://apache.mirrors.timporter.net//jmeter/binaries/jakarta-jmeter-2.5.1.tgz").read
+
+    File.open "jmeter-2.5.1.tgz", "w" do |f|
+      f.puts tgz
+    end
+  end
+
+  unless File.exists? "jakarta-jmeter-2.5.1"
+    %x[tar -xzf ./jmeter-2.5.1.tgz]
+  end
+end
+
+task :test => :jmeter do
+  ENV['JMETER_HOME'] = File.expand_path "./jakarta-jmeter-2.5.1"
+  tests = File.expand_path "./jmeter-tests/router-performance-tests.jmx"
+  ENV.keys.sort.each { |k| puts "%-25.25s | %s" % [ k, ENV[k] ] }
+  command = "./jmeter-tests/run-performance-tests.sh #{tests}"
+  print "\n" * 5
+  puts command
+  exec command
+end
+
+task :default => :test

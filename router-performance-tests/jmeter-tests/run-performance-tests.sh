@@ -5,7 +5,9 @@ if [ -z "$JMETER_HOME" ]; then
 	exit 1
 fi
 
+TESTS=${1-router-performance-tests.jmx}
+
 rm -f jmeter.log
-echo "Starting performance test"
-${JMETER_HOME}/bin/jmeter -n -t router-performance-tests.jmx
+echo "Starting performance test $TESTS"
+${JMETER_HOME}/bin/jmeter -n -t $TESTS
 echo "Finished performance test. Logs can be found in jmeter.log"

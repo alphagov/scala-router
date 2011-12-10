@@ -1,1 +1,5 @@
 router-performance-test-docroot/
+jmeter-*.tgz
+jakarta-jmeter-*
+router-performance-report.txt
+jmeter.log
