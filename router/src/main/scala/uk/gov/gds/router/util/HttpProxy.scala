@@ -49,6 +49,7 @@ object HttpProxy extends Logging {
       }
     }
 
+    message.addHeader("X-GovUK-Router-Request", "true")
     requestInfo.headers.filter(h => h._1 == HTTP.TARGET_HOST).foreach(h =>  message.addHeader("X-Forwarded-Host", h._2))
 
     val targetResponse = httpClient.execute(message)
