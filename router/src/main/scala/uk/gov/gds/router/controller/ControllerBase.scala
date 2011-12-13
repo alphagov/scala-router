@@ -18,4 +18,5 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
 
     threadRequestInfo.value
   }
+
 }
