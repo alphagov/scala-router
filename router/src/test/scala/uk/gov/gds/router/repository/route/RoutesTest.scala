@@ -98,8 +98,8 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
     }
   }
 
-  test("Can create full route within prefix route") {
-    onSameDatabaseServer {
+  test("Can create full route within prefix route when prefix route is created first") {
+    overrideRouteTest {
       val fullApplication = Application("full-route-app", "some.backend.server")
       Applications.store(fullApplication)
 
@@ -108,15 +108,21 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
       store(prefixRoute) should be(NewlyCreated)
       store(fullRoute) should be(NewlyCreated)
 
-      load("foo") match {
-        case Some(route) => route should be(prefixRoute)
-        case None => fail("Should have found " + prefixRoute)
-      }
-      
-      load("foo/bar") match {
-        case Some(route) => route should be(fullRoute)
-        case _ => fail("Should have found " + fullRoute)
-      }
+      (fullRoute, prefixRoute)
+    }
+  }
+
+  test("Can create full route within prefix route when full route is created first") {
+    overrideRouteTest {
+      val fullApplication = Application("full-route-app", "some.backend.server")
+      Applications.store(fullApplication)
+
+      val prefixRoute = prefixRouteTemplate.copy(incoming_path = "foo")
+      val fullRoute = Route(incoming_path = "foo/bar", route_type = "full", application_id = fullApplication.id)
+      store(fullRoute) should be(NewlyCreated)
+      store(prefixRoute) should be(NewlyCreated)
+
+      (fullRoute, prefixRoute)
     }
   }
 
@@ -153,6 +159,24 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
       load("cheese").isDefined should be(true)
       delete("cheese") should be(Deleted)
       load("cheese").isDefined should be(false)
+    }
+  }
+
+  private def overrideRouteTest(block: => (Route, Route)) {
+    onSameDatabaseServer {
+      val routes = block
+      val fullRoute = routes._1
+      val prefixRoute = routes._2
+
+      load("foo") match {
+        case Some(route) => route should be(prefixRoute)
+        case None => fail("Should have found " + prefixRoute)
+      }
+
+      load("foo/bar") match {
+        case Some(route) => route should be(fullRoute)
+        case _ => fail("Should have found " + fullRoute)
+      }
     }
   }
 }
