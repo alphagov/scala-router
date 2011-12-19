@@ -17,6 +17,14 @@ class TestHarnessController extends ScalatraFilter with Logging {
     output(dumpParams)
   }
 
+  get("/someprefix/unregistered") {
+    output("unregistered")
+  }
+
+  get("/someprefix") {
+    output("prefix route")
+  }
+
   get("/test/test-harness/") {
     output(dumpParams)
   }
@@ -70,23 +78,18 @@ class TestHarnessController extends ScalatraFilter with Logging {
     halt(304)
   }
 
-  private def output(block: => String) = {
-    val output =
-      <html>
-        <head>
-          <title>Test harness</title>
-        </head>
-        <body>
-          {block}
-        </body>
-      </html>
-
-    output
-  }
+  private def output(block: => String) =
+    <html>
+      <head>
+        <title>Test harness</title>
+      </head>
+      <body>
+        {block}
+      </body>
+    </html>
 
   private def dumpHeaders = request.getHeaderNames().toSeq.map {
     case headerName: String =>
-      logger.info(headerName + "=" + request.getHeader(headerName))
       headerName + "=" + request.getHeader(headerName)
   }.mkString("\n")
 

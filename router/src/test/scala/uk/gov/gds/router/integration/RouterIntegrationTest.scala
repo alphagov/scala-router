@@ -253,28 +253,37 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.body.contains("Authorization=hope-this-gets-through") should be(true)
   }
 
+  test("Router does not fallback to invalid prefix route when full route cannot be found") {
+    post("/routes/someprefix", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    val registered = get("/route/someprefix")
+    val unregistered = get("/route/someprefix/unregistered")
+
+    registered.body.contains("prefix route") should be(true)
+    unregistered.body.contains("unregsitered") should be(false)
+  }
+
   test("Can create full routes with more than one path element") {
     val response = post("/routes/valid/full/route", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
   }
 
-  test("cannot create a full route that conficts with an existing prefix route") {
+  test("can create a full route that overrides an existing prefix route") {
     val creationResponse = post("/routes/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     creationResponse.status should be(201)
 
-    val confictedResponse = post("/routes/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
-    confictedResponse.status should be(409)
-    val conflictedRoute = fromJson[Route](confictedResponse.body)
+    val fullRouteResponse = post("/routes/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
+    fullRouteResponse.status should be(201)
+    val createdRoute = fromJson[Route](fullRouteResponse.body)
 
-    conflictedRoute.incoming_path should be("a-prefix-route")
+    createdRoute.incoming_path should be("a-prefix-route/foo/bar")
   }
 
   test("Cannot create a full route that conflicts with an existing full route") {
     createRoute(routePath = "foo/bar", applicationId = applicationId, routeType = "full")
 
-    val confictedResponse = createRoute(routePath = "foo/bar", routeType = "full", applicationId = applicationId)
-    confictedResponse.status should be(409)
-    val conflictedRoute = fromJson[Route](confictedResponse.body)
+    val conflictedResponse = createRoute(routePath = "foo/bar", routeType = "full", applicationId = applicationId)
+    conflictedResponse.status should be(409)
+    val conflictedRoute = fromJson[Route](conflictedResponse.body)
 
     conflictedRoute.incoming_path should be("foo/bar")
   }
@@ -330,7 +339,9 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
 
     post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+
     post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
+
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/redirect", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/this-route-does-not-exist-on-the-backend-server", Map("application_id" -> applicationId, "route_type" -> "full"))

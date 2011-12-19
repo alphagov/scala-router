@@ -13,13 +13,12 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
   val testApplication = Application("unit-tests", "test.backend.server")
   Applications.store(testApplication)
 
-
-  val testFullRoute = Route(
+  val fullRouteTemplate = Route(
     application_id = testApplication.application_id,
     route_type = "full",
     incoming_path = "overridden")
 
-  val testPrefixRoute = Route(
+  val prefixRouteTemplate = Route(
     application_id = testApplication.application_id,
     route_type = "prefix",
     incoming_path = "overridden")
@@ -31,7 +30,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
 
   test("can create and retrieve full routes") {
     onSameDatabaseServer {
-      store(testFullRoute.copy(incoming_path = "foo/bar")) should be(NewlyCreated)
+      store(fullRouteTemplate.copy(incoming_path = "foo/bar")) should be(NewlyCreated)
 
       load("foo/bar") match {
         case None => fail("Should have found route in database")
@@ -43,13 +42,13 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
           loadedRoute.incoming_path should be("foo/bar")
       }
 
-      store(Route(application_id = "unit-tests", route_type= "full", incoming_path = "foo/bar")) should be(Conflict)
+      store(Route(application_id = "unit-tests", route_type = "full", incoming_path = "foo/bar")) should be(Conflict)
     }
   }
 
   test("can create and retrieve prefix routes") {
     onSameDatabaseServer {
-      store(testPrefixRoute.copy(incoming_path = "foo")) should be(NewlyCreated)
+      store(prefixRouteTemplate.copy(incoming_path = "foo")) should be(NewlyCreated)
 
       load("foo/bar/baz") match {
         case None => fail("Should have found route in database")
@@ -67,7 +66,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
 
   test("can match exact prefix route") {
     onSameDatabaseServer {
-      store(testPrefixRoute.copy(incoming_path = "foo")) should be(NewlyCreated)
+      store(prefixRouteTemplate.copy(incoming_path = "foo")) should be(NewlyCreated)
 
       load("foo") match {
         case None => fail("Should have found route in database")
@@ -78,7 +77,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
 
   test("can match prefix route with trailing slash") {
     onSameDatabaseServer {
-      store(testPrefixRoute.copy(incoming_path = "foo")) should be(NewlyCreated)
+      store(prefixRouteTemplate.copy(incoming_path = "foo")) should be(NewlyCreated)
 
       load("foo/") match {
         case None => fail("Should have found route in database")
@@ -87,10 +86,55 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
     }
   }
 
+  test("Falls back to prefix route if full route cannot be found") {
+    onSameDatabaseServer {
+      store(prefixRouteTemplate.copy(incoming_path = "someprefix"))
+
+      load("someprefix/unregistered") match {
+        case None => fail("Should have found prefix route /someprefix")
+        case Some(route) if (route.incoming_path.equals("someprefix")) => // Good
+        case Some(route) => fail("Should not have found route " + route)
+      }
+    }
+  }
+
+  test("Can create full route within prefix route") {
+    onSameDatabaseServer {
+      val fullApplication = Application("full-route-app", "some.backend.server")
+      Applications.store(fullApplication)
+
+      val prefixRoute = prefixRouteTemplate.copy(incoming_path = "foo")
+      val fullRoute = Route(incoming_path = "foo/bar", route_type = "full", application_id = fullApplication.id)
+      store(prefixRoute) should be(NewlyCreated)
+      store(fullRoute) should be(NewlyCreated)
+
+      load("foo") match {
+        case Some(route) => route should be(prefixRoute)
+        case None => fail("Should have found " + prefixRoute)
+      }
+      
+      load("foo/bar") match {
+        case Some(route) => route should be(fullRoute)
+        case _ => fail("Should have found " + fullRoute)
+      }
+    }
+  }
+
+  test("Does not fall back to full route if requested full route cannot be found") {
+    onSameDatabaseServer {
+      store(fullRouteTemplate.copy(incoming_path = "/foo/bar"))
+
+      load("/foo/bar/bang") match {
+        case Some(route) => fail("Should not have resolved route" + route)
+        case None => // OK
+      }
+    }
+  }
+
   test("can delete routes for application") {
     onSameDatabaseServer {
-      store(testFullRoute.copy(incoming_path = "sausages"))
-      store(testFullRoute.copy(incoming_path = "cheese"))
+      store(fullRouteTemplate.copy(incoming_path = "sausages"))
+      store(fullRouteTemplate.copy(incoming_path = "cheese"))
 
       load("sausages").isDefined should be(true)
       load("cheese").isDefined should be(true)
@@ -104,7 +148,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
 
   test("can delete routes") {
     onSameDatabaseServer {
-      store(testFullRoute.copy(incoming_path = "cheese"))
+      store(fullRouteTemplate.copy(incoming_path = "cheese"))
 
       load("cheese").isDefined should be(true)
       delete("cheese") should be(Deleted)

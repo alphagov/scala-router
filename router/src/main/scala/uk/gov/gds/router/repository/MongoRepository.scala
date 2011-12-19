@@ -6,9 +6,10 @@ import com.novus.salat._
 import com.novus.salat.global.NoTypeHints
 import com.mongodb.casbah.Imports._
 import uk.gov.gds.router.model._
+import uk.gov.gds.router.util.Logging
 
 abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: String, idProperty: String)(implicit m: Manifest[A])
-  extends Repository[A] with MongoIndexTypes {
+  extends Repository[A] with MongoIndexTypes with Logging {
 
   protected val collection = getCollection(collectionName)
   private implicit val ctx = NoTypeHints
@@ -34,7 +35,8 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
   }
 
   def store(obj: A) = load(obj.id) match {
-    case Some(_) => Conflict
+    case Some(_) =>
+      Conflict
     case None =>
       collection += obj
       NewlyCreated
