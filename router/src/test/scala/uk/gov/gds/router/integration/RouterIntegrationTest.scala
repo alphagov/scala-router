@@ -310,6 +310,15 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.body.contains("football") should be(true)
   }
 
+  test("Router returns pretty 4xx error page when route not found") {
+    var response = get("/route/asdasdasdasdasdasdasdasdasdasdsadas")
+    response.status should be(404)
+
+    var is = getClass().getResourceAsStream("/400.html")
+    var expected = scala.io.Source.fromInputStream(is).mkString("")
+    response.body should be(expected)
+  }
+
   override protected def beforeEach() {
     super.beforeEach()
     ApplicationsUnderTest.start()

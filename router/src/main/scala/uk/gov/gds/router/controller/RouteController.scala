@@ -6,18 +6,17 @@ import uk.gov.gds.router.repository.route.Routes
 
 @Singleton
 class RouteController() extends ControllerBase {
-
   get("/route/*") {
     Routes.load(requestInfo.pathParameter) match {
       case Some(route) => HttpProxy.get(route)
-      case None => halt(404)
+      case None => error(404)
     }
   }
 
   post("/route/*") {
     Routes.load(requestInfo.pathParameter) match {
       case Some(route) => HttpProxy.post(route)
-      case None => halt(404)
+      case None => error(404)
     }
   }
 }
