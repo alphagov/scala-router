@@ -66,7 +66,9 @@ trait HttpTestInterface extends Logging {
     httpClient
   }
 
-  case class Response(status: Int, body: String, cookies: List[Cookie])
+  case class Response(status: Int, body: String, cookies: List[Cookie], headers: List[Header])
+
+  case class Header(name: String, value: String)
 
   object Response {
 
@@ -87,7 +89,10 @@ trait HttpTestInterface extends Logging {
         case Some(response) => EntityUtils.toString(response, "UTF-8")
         case _ => ""
       },
-      cookies = cookieStore.getCookies.toList
+      cookies = cookieStore.getCookies.toList,
+      headers = httpResponse.getAllHeaders().map {
+        h => Header(h.getName, h.getValue)
+      }.toList
     )
   }
 

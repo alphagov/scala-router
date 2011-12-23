@@ -59,6 +59,10 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(201)
   }
 
+  test("Can get headers from response"){
+    
+  }
+  
   test("Can create routes using put") {
     val response = put("/routes/route-created-with-put", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
@@ -311,11 +315,11 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   }
 
   test("Router returns pretty 4xx error page when route not found") {
-    var response = get("/route/asdasdasdasdasdasdasdasdasdasdsadas")
+    val response = get("/route/asdasdasdasdasdasdasdasdasdasdsadas")
     response.status should be(404)
 
-    var is = getClass().getResourceAsStream("/400.html")
-    var expected = scala.io.Source.fromInputStream(is).mkString("")
+    val is = getClass().getResourceAsStream("/400.html")
+    val expected = scala.io.Source.fromInputStream(is).mkString("")
     response.body should be(expected)
   }
 
@@ -359,7 +363,8 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/routes/test/incoming-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/outgoing-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/not-modified", Map("application_id" -> applicationId, "route_type" -> "full"))
-
+    post("/routes/test/set-header", Map("application_id" -> applicationId, "route_type" -> "full"))
+    
     applicationId
   }
 }
