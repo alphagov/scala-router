@@ -60,7 +60,8 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   }
 
   test("Can get headers from response"){
-    
+    val response = get("/test/set-header")
+    response.headers.contains(Header("X-Test", "test")) should be(true)
   }
   
   test("Can create routes using put") {

@@ -67,7 +67,7 @@ class TestHarnessController extends ScalatraFilter with Logging {
   }
 
   get("/test/set-header") {
-    response.setHeader("X-Test", "test")
+    response.addHeader("X-Test", "test")
   }
 
   get("/test/outgoing-cookies") {
