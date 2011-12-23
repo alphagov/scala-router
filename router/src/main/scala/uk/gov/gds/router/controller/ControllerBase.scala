@@ -13,6 +13,7 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
   }
 
   def error(code : Integer) = {
+    response.setHeader("Content-Type", "text/html")
     halt(code, errorDocument(code))
   }
 

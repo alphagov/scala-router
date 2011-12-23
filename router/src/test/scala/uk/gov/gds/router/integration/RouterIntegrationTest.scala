@@ -322,6 +322,10 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     val is = getClass().getResourceAsStream("/400.html")
     val expected = scala.io.Source.fromInputStream(is).mkString("")
     response.body should be(expected)
+
+    val content_type = response.headers.filter(_.name.equals("Content-Type")).head
+    val html = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
+    html should be(true)
   }
 
   override protected def beforeEach() {
