@@ -26,7 +26,7 @@ object ApplicationMetrics {
 
   def all = Applications.all.map(timer(_))
 
-  def time[T](route: Route, block: => T) = timer(route.application).measure(block)
+  def time[A](route: Route, block: => A) = timer(route.application).measure(block)
 
   private def timer(app: Application) = Option(metrics.get(app)) match {
     case Some(metric) => metric
