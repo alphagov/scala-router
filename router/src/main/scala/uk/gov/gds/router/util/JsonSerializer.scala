@@ -1,12 +1,10 @@
 package uk.gov.gds.router.util
 
-import net.liftweb.json.{NoTypeHints, Serialization}
+import com.codahale.jerkson.Json
 
 object JsonSerializer {
 
-  implicit val formats = Serialization.formats(NoTypeHints)
+  def toJson(obj: AnyRef) = Json.generate(obj)
 
-  def toJson(obj: AnyRef) = Serialization.write(obj)
-
-  def fromJson[A](data: String)(implicit m: Manifest[A]) = Serialization.read[A](data)
+  def fromJson[A](data: String)(implicit m: Manifest[A]) = Json.parse[A](data)
 }

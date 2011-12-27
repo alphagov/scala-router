@@ -14,7 +14,6 @@ libraryDependencies ++= Seq(
         "com.gu" %% "management" % "4.3",
         "org.scalatest" %% "scalatest" % "1.6.1" % "test",
         "org.apache.httpcomponents" % "httpclient" % "4.1.2",
-        "net.liftweb" %% "lift-json-ext" % "2.4-M3",
         "com.google.inject.extensions" % "guice-servlet" % "3.0-rc2",
         "org.scalatra" %% "scalatra" % "2.0.1",
         "org.scalatra" %% "scalatra-scalate" % "2.0.1",
@@ -26,7 +25,8 @@ libraryDependencies ++= Seq(
 	    "org.slf4j" % "log4j-over-slf4j" % "1.6.1",
 	    "org.slf4j" % "jcl-over-slf4j" % "1.6.1",
 	    "ch.qos.logback" % "logback-classic" % "0.9.28",
-	    "com.novus" %% "salat-core" % "0.0.8-SNAPSHOT"
+	    "com.novus" %% "salat-core" % "0.0.8-SNAPSHOT",
+	    "com.codahale" %% "jerkson" % "0.4.2"
     )
 
 jettyPort := 4000
@@ -45,5 +45,6 @@ parallelExecution in Test := false
 resolvers ++= Seq(
     "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
     "Guardian Github Releases" at "http://guardian.github.com/maven/repo-releases",
-    "repo.novus snaps" at "http://repo.novus.com/snapshots/"
+    "repo.novus snaps" at "http://repo.novus.com/snapshots/",
+    "repo.codahale" at "http://repo.codahale.com"
 )
