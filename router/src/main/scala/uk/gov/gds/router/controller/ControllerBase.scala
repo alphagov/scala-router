@@ -12,14 +12,14 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
     threadRequestInfo.value_=(null)
   }
 
-  def error(code : Integer) = {
+  def error(code : Int) = {
     response.setHeader("Content-Type", "text/html")
     halt(code, errorDocument(code))
   }
 
-  def errorDocument(code : Integer) = {
-    var errorFile = "/" + code.toString().substring(0, 1) + "00.html"
-    var is = getClass().getResourceAsStream(errorFile)
+  def errorDocument(code : Int) = {
+    val errorFile = "/" + code.toString().substring(0, 1) + "00.html"
+    val is = getClass().getResourceAsStream(errorFile)
     scala.io.Source.fromInputStream(is).mkString("")
   }
 

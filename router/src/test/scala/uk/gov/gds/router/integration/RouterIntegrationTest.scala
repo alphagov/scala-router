@@ -4,9 +4,9 @@ import gov.uk.gds.router.ApplicationsUnderTest
 import uk.gov.gds.router.util.JsonSerializer._
 import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.model.{Route, Application}
-import xml.XML
 import uk.gov.gds.router.{MongoDatabaseBackedTest, HttpTestInterface}
 import org.apache.http.client.methods.HttpGet
+import uk.gov.gds.router.util.JsonSerializer
 
 class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers with HttpTestInterface {
 
@@ -59,11 +59,11 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(201)
   }
 
-  test("Can get headers from response"){
+  test("Can get headers from response") {
     val response = get("/test/set-header")
     response.headers.contains(Header("X-Test", "test")) should be(true)
   }
-  
+
   test("Can create routes using put") {
     val response = put("/routes/route-created-with-put", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
@@ -78,26 +78,37 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   }
 
   test("Application metrics are created when application is created") {
-    val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
+    get("/management/status/reset")
+    val testApplicationMetrics = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
 
-    (testApplicationMetricts \ "count").text should be("0")
-    (testApplicationMetricts \ "totalTimeInMillis").text should be("0")
+    testApplicationMetrics.map {
+      metric =>
+        logger.info("Checking metric " + metric("name"))
+        metric("count") should be("0")
+        metric("totalTime") should be("0")
+    }
   }
 
   test("Routing GET traffic through an application increments the counter") {
+    get("/management/status/reset")
     get("/route/fulltest/test.html")
-    val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
 
-    (testApplicationMetricts \ "count").text should be("1")
-    (testApplicationMetricts \ "totalTimeInMillis").text should not be ("0")
+    val testApplicationMetrics: List[Map[String, String]] = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
+    val requestCounter = testApplicationMetrics.filter(metric => metric("name") == "requests").head
+
+    requestCounter("count") should be("2")
+    requestCounter("totalTime") should not be ("0")
   }
 
   test("Routing POST traffic through an application increments the counter") {
+    get("/management/status/reset")
     post("/route/fulltest/test.html")
-    val testApplicationMetricts = XML.loadString(get("/management/status").body) \ "applications" \ applicationId
 
-    (testApplicationMetricts \ "count").text should be("1")
-    (testApplicationMetricts \ "totalTimeInMillis").text should not be ("0")
+    val testApplicationMetrics: List[Map[String, String]] = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
+    val applicationCounter = testApplicationMetrics.filter(_("name") == applicationId).head
+
+    applicationCounter("count") should be("1")
+    applicationCounter("totalTime") should not be ("0")
   }
 
   test("canot create route on application that does not exist") {
@@ -369,7 +380,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/routes/test/outgoing-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/not-modified", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/set-header", Map("application_id" -> applicationId, "route_type" -> "full"))
-    
+
     applicationId
   }
 }

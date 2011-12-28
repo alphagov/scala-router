@@ -2,50 +2,63 @@ package uk.gov.gds.router.management
 
 import com.google.inject.Singleton
 import com.gu.management._
-import com.gu.management.ManagementPage
-import com.gu.management.Metric
 import request.RequestLoggingFilter
-import javax.servlet.http.HttpServletRequest
 import uk.gov.gds.router.repository.application.Applications
 import uk.gov.gds.router.model.{Route, Application}
 import java.util.concurrent.ConcurrentHashMap
+import uk.gov.gds.router.util.Logging
+import javax.servlet.http.HttpServletRequest
 
 @Singleton
 class RouterRequestLoggingFilter extends RequestLoggingFilter(metric = Requests, shouldLogParametersOnNonGetRequests = true)
 
 @Singleton
 class RouterManagementFilter extends ManagementFilter {
-  lazy val pages = List(new ApplicationStatusPage(List(Requests)))
+  lazy val pages = List(new ApplicationStatusPage, new StatsResetPage)
 }
 
-object Requests extends TimingMetric("requests")
+object Requests extends TimingMetric("global", "requests", "Incoming router requests", "Incoming router requests")
 
-object ApplicationMetrics {
+object ApplicationMetrics extends Logging {
 
   private val metrics = new ConcurrentHashMap[Application, TimingMetric]()
 
-  def all = Applications.all.map(timer(_))
+  def all = Seq(Requests) ++ Applications.all.map(timer(_))
 
   def time[A](route: Route, block: => A) = timer(route.application).measure(block)
 
   private def timer(app: Application) = Option(metrics.get(app)) match {
-    case Some(metric) => metric
+    case Some(metric) =>
+      metric
     case None =>
-      val metric = new TimingMetric(app.id)
+      val metric = new TimingMetric("application-traffic", app.id, app.id, app.id)
       metrics.put(app, metric)
       metric
   }
 }
 
-class ApplicationStatusPage(metrics: Seq[Metric]) extends ManagementPage {
+class ApplicationStatusPage extends JsonManagementPage {
   val path = "/management/status"
 
-  def get(req: HttpServletRequest) = XmlResponse(
-    <status>
-      {metrics map {_.toXml}}
-      <applications>
-      {ApplicationMetrics.all map { _.toXml }}
-    </applications>
-    </status>)
+  def jsonObj = ApplicationMetrics.all.map(_.asJson)
+}
+
+class StatsResetPage extends ManagementPage {
+  val path = "/management/status/reset"
+
+  def get(req: HttpServletRequest) = {
+    ApplicationMetrics.all.foreach(_.reset())
+
+    HtmlResponse(
+      <html>
+        <head>
+          <title>Stats Reset</title>
+        </head>
+        <body>
+          <p>Router stats reset on this node</p>
+        </body>
+      </html>
+    )
+  }
 }
 
