@@ -11,7 +11,7 @@ seq(webSettings :_*)
 libraryDependencies ++= Seq(
         "com.mongodb.casbah" %% "casbah" % "2.1.5-1",
         "gov.gds" %% "integration-tools" % "1.4-SNAPSHOT" % "test",
-        "com.gu" %% "management" % "4.3",
+        "gov.gds" %% "management" % "5.5-SNAPSHOT",
         "org.scalatest" %% "scalatest" % "1.6.1" % "test",
         "org.apache.httpcomponents" % "httpclient" % "4.1.2",
         "com.google.inject.extensions" % "guice-servlet" % "3.0-rc2",
@@ -43,9 +43,9 @@ ivyXML := <dependencies>
 parallelExecution in Test := false
 
 resolvers ++= Seq(
-    "GDS maven repo" at "http://alphagov.github.com/maven/snapshots",
+    "GDS maven repo snapshots" at "http://alphagov.github.com/maven/snapshots",
+    "GDS maven repo releases" at "http://alphagov.github.com/maven/releases",
     "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
-    "Guardian Github Releases" at "http://guardian.github.com/maven/repo-releases",
     "repo.novus snaps" at "http://repo.novus.com/snapshots/",
     "repo.codahale" at "http://repo.codahale.com"
 )
