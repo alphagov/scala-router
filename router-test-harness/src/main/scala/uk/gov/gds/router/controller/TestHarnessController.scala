@@ -1,13 +1,10 @@
 package uk.gov.gds.router.controller
 
 import org.scalatra.ScalatraFilter
-import uk.gov.gds.router.util.Logging
-import com.google.inject.Singleton
 import javax.servlet.http.Cookie
 import scala.collection.JavaConversions._
 
-@Singleton
-class TestHarnessController extends ScalatraFilter with Logging {
+class TestHarnessController extends ScalatraFilter {
 
   before() {
     response.setContentType("text/html")

@@ -12,7 +12,6 @@ class RouterModule extends ServletModule with Logging {
     serve("/*", classOf[RouterRequestLoggingFilter])
     serve("/*", classOf[RouteController])
     serve("/*", classOf[RouterApiController])
-    serve("/*", classOf[TestHarnessController])
     serve("/*", classOf[RouterManagementFilter])
   }
 

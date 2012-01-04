@@ -1,4 +1,4 @@
-package uk.gov.gds.router
+package uk.gov.gds.router.integration
 
 import org.apache.http.util.EntityUtils
 import org.apache.http.client.methods._
@@ -9,12 +9,11 @@ import org.apache.http.{HttpResponse, HttpEntityEnclosingRequest}
 import org.apache.http.params.BasicHttpParams
 import org.apache.http.cookie.Cookie
 import org.apache.http.impl.cookie.BasicClientCookie
-import util.Logging
 import java.util.Date
 import org.apache.http.client.params.{CookiePolicy, HttpClientParams}
 import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
 
-trait HttpTestInterface extends Logging {
+trait HttpTestInterface {
   private type PutOrPost = HttpEntityEnclosingRequest with HttpUriRequest
 
   protected val cookieStore = new BasicCookieStore
@@ -29,9 +28,13 @@ trait HttpTestInterface extends Logging {
   }
 
   def get(url: String, cookies: Map[String, String] = Map.empty) = {
-    val httpGet = new HttpGet(buildUrl(url))
+    val remote = buildUrl(url)
+
+    val httpGet = new HttpGet(remote)
     handleCookies(cookies)
-    Response(httpGet)
+    val response = Response(httpGet)
+
+    response
   }
 
   def delete(url: String) = Response(new HttpDelete(buildUrl(url)))

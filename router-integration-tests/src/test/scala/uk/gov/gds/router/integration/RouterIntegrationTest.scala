@@ -1,17 +1,16 @@
 package uk.gov.gds.router.integration
 
-import gov.uk.gds.router.ApplicationsUnderTest
 import uk.gov.gds.router.util.JsonSerializer._
 import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.model.{Route, Application}
-import uk.gov.gds.router.{MongoDatabaseBackedTest, HttpTestInterface}
 import org.apache.http.client.methods.HttpGet
 import uk.gov.gds.router.util.JsonSerializer
+import uk.gov.gds.router.{MongoDatabaseBackedTest}
 
 class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers with HttpTestInterface {
 
   private val apiRoot = "http://localhost:4000/router"
-  private val backendUrl = "localhost:4000/router"
+  private val backendUrl = "localhost:4001/router-test-harness"
   private var applicationId: String = ""
 
   test("can create and delete applications") {
@@ -60,7 +59,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   }
 
   test("Can get headers from response") {
-    val response = get("/test/set-header")
+    val response = get("/route/test/set-header")
     response.headers.contains(Header("X-Test", "test")) should be(true)
   }
 
@@ -70,10 +69,10 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   }
 
   test("Can handle 304 responses from backend server") {
-    val response = get("/test/not-modified")
+    val response = get("/route/test/not-modified")
     response.status should be(304)
 
-    val postResponse = post("/test/not-modified")
+    val postResponse = post("/route/test/not-modified")
     postResponse.status should be(304)
   }
 
@@ -96,7 +95,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     val testApplicationMetrics: List[Map[String, String]] = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
     val requestCounter = testApplicationMetrics.filter(metric => metric("name") == "requests").head
 
-    requestCounter("count") should be("2")
+    requestCounter("count") should be("1")
     requestCounter("totalTime") should not be ("0")
   }
 
@@ -339,16 +338,22 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     html should be(true)
   }
 
+  test("wait"){
+    //Thread.sleep(500800)
+  }
+
   override protected def beforeEach() {
     super.beforeEach()
-    ApplicationsUnderTest.start()
-    applicationId = createTestApplication
+    RouterTestHarnessContainer.start()
+    RouterContainer.start()
+    applicationId = createTestApplication()
     cookieStore.clear()
   }
 
   override protected def afterEach() {
     super.afterEach()
-    ApplicationsUnderTest.stopUnlessSomeoneCallsStartAgainSoon()
+    RouterTestHarnessContainer.stopUnlessSomeoneCallsStartAgainSoon()
+    RouterContainer.stopUnlessSomeoneCallsStartAgainSoon()
   }
 
   private def uniqueIdForTest = "integration-test-" + System.currentTimeMillis()
@@ -358,7 +363,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
   private def createRoute(applicationId: String, routePath: String, routeType: String) =
     post("/routes/" + routePath, Map("application_id" -> applicationId, "route_type" -> routeType))
 
-  private def createTestApplication: String = {
+  private def createTestApplication(): String = {
     val applicationId = uniqueIdForTest
     createTestApplication(applicationId)
     applicationId
