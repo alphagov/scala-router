@@ -38,6 +38,10 @@ class TestHarnessController extends ScalatraFilter {
     output("fooOnly")
   }
 
+  get("/timeout") {
+    Thread.sleep(999999999)
+  }
+
   get("/football") {
     output("football")
   }

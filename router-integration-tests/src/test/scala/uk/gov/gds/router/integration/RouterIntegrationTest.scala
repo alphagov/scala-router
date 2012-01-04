@@ -338,8 +338,17 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     html should be(true)
   }
 
-  test("wait"){
-    //Thread.sleep(500800)
+  test("Router returns pretty 504 error page when backend times out") {
+    val response = get("/route/timeout")
+    response.status should be(504)
+
+    val is = getClass().getResourceAsStream("/500.html")
+    val expected = scala.io.Source.fromInputStream(is).mkString("")
+    response.body should be(expected)
+
+    val content_type = response.headers.filter(_.name.equals("Content-Type")).head
+    val html = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
+    html should be(true)
   }
 
   override protected def beforeEach() {
@@ -373,6 +382,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
 
     post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/timeout", Map("application_id" -> applicationId, "route_type" -> "prefix"))
 
     post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
 
@@ -385,7 +395,6 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/routes/test/outgoing-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/not-modified", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/set-header", Map("application_id" -> applicationId, "route_type" -> "full"))
-
     applicationId
   }
 }
