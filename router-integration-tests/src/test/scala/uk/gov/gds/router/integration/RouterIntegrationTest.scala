@@ -343,7 +343,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
 
   private def responseShouldMatchErrorDocument(errorCode: Int, response: Response) {
     response.status should be(errorCode)
-    response.body.contains("<title>Error - www.gov.uk</title>") should be(true)
+    response.body.contains("<title>Error | GOV.UK</title>") should be(true)
 
     val content_type = response.headers.filter(_.name.equals("Content-Type")).head
     val documentIsHtml = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
