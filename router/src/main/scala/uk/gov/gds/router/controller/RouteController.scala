@@ -75,7 +75,7 @@ class RouteController() extends ControllerBase {
   private def generateResponse(targetResponse: HttpResponse, clientResponse: HttpServletResponse, request: HttpUriRequest) {
     val statusCode = targetResponse.getStatusLine.getStatusCode
 
-    if (statusCode >= 400) {
+    if (statusCode >= 404) {
       logger.warn("Error recieved from backend server " + statusCode)
       halt(statusCode)
     }
