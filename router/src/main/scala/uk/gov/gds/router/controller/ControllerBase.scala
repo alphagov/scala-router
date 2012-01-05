@@ -15,7 +15,6 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
 
   error {
     case s: SocketTimeoutException => errorDocument(504)
-    case e: Exception => errorDocument(500)
   }
 
   protected def halt(statusCode: Int) {
