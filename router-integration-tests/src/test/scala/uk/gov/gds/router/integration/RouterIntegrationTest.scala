@@ -186,7 +186,7 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.body.contains("second=chips") should be(true)
   }
 
-  test("Returns an error when route is not defined") {
+  test("Returns an throwError when route is not defined") {
     val response = get("/route/test/this-route-does-not-exist")
     response.status should be(404)
   }
@@ -334,12 +334,25 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.body should be(expected)
 
     val content_type = response.headers.filter(_.name.equals("Content-Type")).head
-    val html = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
-    html should be(true)
+    val documentIsHtml = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
+    documentIsHtml should be(true)
   }
 
+//  test("Exceptions that are thrown should give us lovely error pages") {
+//    val response = get("/route/test/exception")
+//    response.status should be(500)
+//
+//    val is = getClass().getResourceAsStream("/500.html")
+//    val expected = scala.io.Source.fromInputStream(is).mkString("")
+//    response.body should be(expected)
+//
+//    val content_type = response.headers.filter(_.name.equals("Content-Type")).head
+//    val documentIsHtml = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
+//    documentIsHtml should be(true)
+//  }
+
   test("Router returns pretty 504 error page when backend times out") {
-    val response = get("/route/timeout")
+    val response = get("/route/test/timeout")
     response.status should be(504)
 
     val is = getClass().getResourceAsStream("/500.html")
@@ -347,9 +360,23 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.body should be(expected)
 
     val content_type = response.headers.filter(_.name.equals("Content-Type")).head
-    val html = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
-    html should be(true)
+    val documentIsHtml = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
+    documentIsHtml should be(true)
   }
+
+//  test("Runtime exceptions thrown by backends give us lovely error pages") {
+//    val response = get("/route/test/runtime-exception")
+//    response.status should be(500)
+//
+//    val is = getClass().getResourceAsStream("/500.html")
+//    val expected = scala.io.Source.fromInputStream(is).mkString("")
+//    response.body should be(expected)
+//
+//    val content_type = response.headers.filter(_.name.equals("Content-Type")).head
+//    val documentIsHtml = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
+//    documentIsHtml should be(true)
+//  }
+
 
   override protected def beforeEach() {
     super.beforeEach()
@@ -382,19 +409,19 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
 
     post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-    post("/routes/timeout", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-
+    post("/routes/test/timeout", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
-
     post("/routes/test/test-harness", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/redirect", Map("application_id" -> applicationId, "route_type" -> "full"))
-    post("/routes/test/this-route-does-not-exist-on-the-backend-server", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/this-route-returns-an-error", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/incoming-headers", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/incoming-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/outgoing-cookies", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/not-modified", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/test/set-header", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/exception", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/test/runtime-exception", Map("application_id" -> applicationId, "route_type" -> "full"))
+
     applicationId
   }
 }

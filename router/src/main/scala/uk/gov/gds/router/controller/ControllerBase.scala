@@ -3,6 +3,7 @@ package uk.gov.gds.router.controller
 import uk.gov.gds.router.util.Logging
 import util.DynamicVariable
 import org.scalatra.ScalatraFilter
+import java.net.SocketTimeoutException
 
 abstract class ControllerBase extends ScalatraFilter with Logging {
 
@@ -12,15 +13,20 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
     threadRequestInfo.value_=(null)
   }
 
-  def error(code : Int) = {
-    response.setHeader("Content-Type", "text/html")
-    halt(code, errorDocument(code))
+  error {
+    case s: SocketTimeoutException => errorDocument(504)
+    case e: Exception => errorDocument(500)
   }
 
-  def errorDocument(code : Int) = {
-    val errorFile = "/" + code.toString().substring(0, 1) + "00.html"
-    val is = getClass().getResourceAsStream(errorFile)
-    scala.io.Source.fromInputStream(is).mkString("")
+  protected def halt(statusCode: Int) {
+    super.halt(status = statusCode, body = errorDocument(statusCode), headers = Map("Content-Type" -> "text/html"))
+  }
+
+  def errorDocument(code: Int) = {
+    logger.error("Serving error document with status {}", code)
+    response.setHeader("Content-Type", "text/html")
+    status(code)
+    ErrorDocument.document(code)
   }
 
   protected implicit def requestInfo = {

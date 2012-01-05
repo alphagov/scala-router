@@ -6,7 +6,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager
 import org.apache.http.impl.client.DefaultHttpClient
 import javax.servlet.http.HttpServletResponse
 import uk.gov.gds.router.model.Route
-import uk.gov.gds.router.controller.RequestInfo
 import org.apache.http.client.methods.{HttpPost, HttpGet, HttpUriRequest}
 import org.apache.http.message.BasicNameValuePair
 import org.apache.http.client.entity.UrlEncodedFormEntity
@@ -15,10 +14,12 @@ import org.apache.http.client.params.HttpClientParams
 import org.apache.http.params.{HttpConnectionParams, BasicHttpParams}
 import uk.gov.gds.router.management.ApplicationMetrics.time
 import org.apache.http.protocol.HTTP
+import org.apache.http.HttpResponse
+import uk.gov.gds.router.controller.RequestInfo
 
 object HttpProxy extends Logging {
 
-  private val httpClient = configureHttpClient
+  private val httpClient = configureHttpClient()
 
   private val requestHeadersToFilter = List(
     HTTP.TRANSFER_ENCODING,
@@ -40,32 +41,40 @@ object HttpProxy extends Logging {
     time(route, proxy(postRequest))
   }
 
-  private def proxy(message: HttpUriRequest)(implicit requestInfo: RequestInfo, clientResponse: HttpServletResponse) {
-    logger.info("Proxying {} {}", message.getMethod, message.getURI)
+  private def proxy(request: HttpUriRequest)(implicit requestInfo: RequestInfo, clientResponse: HttpServletResponse) {
+    processRequestHeaders(requestInfo, request)
+    generateResponse(httpClient.execute(request), clientResponse, request)
+  }
 
+  private def processRequestHeaders(requestInfo: RequestInfo, request: HttpUriRequest) {
     requestInfo.headers.filter(h => !requestHeadersToFilter.contains(h._1)).foreach {
       case (name, value) => {
-        message.addHeader(name, value)
+        request.addHeader(name, value)
       }
     }
 
-    message.addHeader("X-GovUK-Router-Request", "true")
-    requestInfo.headers.filter(h => h._1 == HTTP.TARGET_HOST).foreach(h =>  message.addHeader("X-Forwarded-Host", h._2))
+    request.addHeader("X-GovUK-Router-Request", "true")
+    requestInfo.headers.filter(h => h._1 == HTTP.TARGET_HOST).foreach(h => request.addHeader("X-Forwarded-Host", h._2))
+  }
 
-    val targetResponse = httpClient.execute(message)
-    clientResponse.setStatus(targetResponse.getStatusLine.getStatusCode)
+  private def generateResponse(targetResponse: HttpResponse, clientResponse: HttpServletResponse, request: HttpUriRequest) {
+    val statusCode = targetResponse.getStatusLine.getStatusCode
+
+    clientResponse.setStatus(statusCode)
     targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+
+    logger.info("Proxy response " + request.getMethod + " " + request.getURI + " => " + statusCode)
 
     Option(targetResponse.getEntity) match {
       case Some(entity) => entity.writeTo(clientResponse.getOutputStream)
-      case _ => logger.warn("Router detected response with no entity {} {}", targetResponse.getAllHeaders, targetResponse.getStatusLine.getStatusCode)
+      case _ => logger.trace("Router detected response with no entity {} {}", targetResponse.getAllHeaders, statusCode)
     }
   }
 
   private def targetUrl(route: Route)(implicit request: RequestInfo) =
     "http://".concat(route.application.backend_url.concat(request.targetUrl))
 
-  private def configureHttpClient = {
+  private def configureHttpClient() = {
     val schemeRegistry = new SchemeRegistry
     val connectionManager = new ThreadSafeClientConnManager(schemeRegistry)
     val httpClient = new DefaultHttpClient(connectionManager)

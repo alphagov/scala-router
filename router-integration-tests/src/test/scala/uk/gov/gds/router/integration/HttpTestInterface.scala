@@ -13,7 +13,7 @@ import java.util.Date
 import org.apache.http.client.params.{CookiePolicy, HttpClientParams}
 import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
 
-trait HttpTestInterface {
+trait HttpTestInterface  {
   private type PutOrPost = HttpEntityEnclosingRequest with HttpUriRequest
 
   protected val cookieStore = new BasicCookieStore

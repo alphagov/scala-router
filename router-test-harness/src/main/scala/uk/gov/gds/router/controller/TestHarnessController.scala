@@ -38,8 +38,8 @@ class TestHarnessController extends ScalatraFilter {
     output("fooOnly")
   }
 
-  get("/timeout") {
-    Thread.sleep(999999999)
+  get("/test/timeout") {
+    Thread.sleep(20000)
   }
 
   get("/football") {
@@ -55,7 +55,6 @@ class TestHarnessController extends ScalatraFilter {
   }
 
   get("/test/this-route-returns-an-error") {
-    output("broken route")
     halt(500)
   }
 
@@ -81,6 +80,14 @@ class TestHarnessController extends ScalatraFilter {
 
   post("/test/not-modified") {
     halt(304)
+  }
+
+  get("/test/runtime-exception") {
+    throw new RuntimeException("exception")
+  }
+
+  get("/test/exception") {
+    throw new Exception("exception")
   }
 
   private def output(block: => String) =
