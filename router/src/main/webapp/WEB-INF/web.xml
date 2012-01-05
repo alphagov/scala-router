@@ -18,15 +18,4 @@
     <listener>
         <listener-class>uk.gov.gds.router.controller.GuiceServletConfig</listener-class>
     </listener>
-
-    <error-page>
-        <error-code>404</error-code>
-        <location>/error/400.html</location>
-    </error-page>
-
-    <error-page>
-        <error-code>500</error-code>
-        <location>/error/500.html</location>
-    </error-page>
-
 </web-app>

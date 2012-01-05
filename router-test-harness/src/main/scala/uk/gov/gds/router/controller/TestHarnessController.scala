@@ -58,6 +58,10 @@ class TestHarnessController extends ScalatraFilter {
     halt(500)
   }
 
+  get("/test/410") {
+    halt(410)
+  }
+  
   get("/test/incoming-headers") {
     output(dumpHeaders)
   }

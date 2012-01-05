@@ -14,7 +14,8 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
   }
 
   error {
-    case s: SocketTimeoutException => errorDocument(504)
+    case s: SocketTimeoutException => errorDocument(500)
+    case e: Exception => errorDocument(500)
   }
 
   protected def halt(statusCode: Int) {
@@ -25,7 +26,7 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
     logger.error("Serving error document with status {}", code)
     response.setHeader("Content-Type", "text/html")
     status(code)
-    ErrorDocument.document(code)
+    ErrorDocument.document
   }
 
   protected implicit def requestInfo = {
