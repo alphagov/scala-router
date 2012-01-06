@@ -85,7 +85,9 @@ class RouteController() extends ControllerBase {
     else {
       clientResponse.setStatus(statusCode)
 
-      targetResponse.getAllHeaders.filter(h => !responseHeadersToFilter.contains(h.getName)).foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+      targetResponse.getAllHeaders
+        .filter(h => !responseHeadersToFilter.contains(h.getName))
+        .foreach(h => clientResponse.setHeader(h.getName, h.getValue))
 
       logger.info("Proxy response " + request.getMethod + " " + request.getURI + " => " + statusCode)
 
