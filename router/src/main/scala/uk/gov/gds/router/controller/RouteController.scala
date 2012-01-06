@@ -27,6 +27,9 @@ class RouteController() extends ControllerBase {
     HTTP.CONTENT_LEN,
     HTTP.TARGET_HOST)
 
+  private val responseHeadersToFilter = List(
+    "X-Rack-Cache")
+
   get("/route/*") {
     Routes.load(requestInfo.pathParameter) match {
       case Some(route) => get(route)
@@ -81,7 +84,8 @@ class RouteController() extends ControllerBase {
     }
     else {
       clientResponse.setStatus(statusCode)
-      targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+
+      targetResponse.getAllHeaders.filter(h => !responseHeadersToFilter.contains(h.getName)).foreach(h => clientResponse.setHeader(h.getName, h.getValue))
 
       logger.info("Proxy response " + request.getMethod + " " + request.getURI + " => " + statusCode)
 

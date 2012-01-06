@@ -74,6 +74,10 @@ class TestHarnessController extends ScalatraFilter {
     response.addHeader("X-Test", "test")
   }
 
+  get("/test/set-rack-cache-header") {
+    response.addHeader("X-Rack-Cache", "test")
+  }
+
   get("/test/outgoing-cookies") {
     response.addCookie(new Cookie("test-cookie", "this is a cookie"))
   }

@@ -63,6 +63,11 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.headers.contains(Header("X-Test", "test")) should be(true)
   }
 
+  test("Can strip certain headers from response") {
+    val response = get("/route/test/set-rack-cache-header")
+    response.headers.contains(Header("X-Rack-Cache", "test")) should be(false)
+  }
+
   test("Can create routes using put") {
     val response = put("/routes/route-created-with-put", Map("application_id" -> applicationId, "route_type" -> "full"))
     response.status should be(201)
