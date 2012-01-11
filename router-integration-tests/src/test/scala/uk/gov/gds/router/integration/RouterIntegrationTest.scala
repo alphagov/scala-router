@@ -58,13 +58,21 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(201)
   }
 
-  test("Can get headers from response") {
-    val response = get("/route/test/set-header")
-    response.headers.contains(Header("X-Test", "test")) should be(true)
+  test("Can get standard headers from response") {
+    val response = get("/route/test/set-allowed-headers")
+    response.headers.contains(Header("Cache-Control", "cache-control-value")) should be(true)
+    response.headers.contains(Header("Content-Type", "content-type-value;charset=UTF-8")) should be(true)
+    response.headers.contains(Header("ETag", "etag-value")) should be(true)
+    response.headers.contains(Header("Expires", "expires-value")) should be(true)
+    response.headers.contains(Header("Last-Modified", "last-modified-value")) should be(true)
+    response.headers.contains(Header("Location", "location-value")) should be(true)
+    response.headers.contains(Header("Set-Cookie", "set-cookie-value")) should be(true)
+    response.headers.contains(Header("Vary", "vary-value")) should be(true)
+    response.headers.contains(Header("WWW-Authenticate", "www-authenticate-value")) should be(true)
   }
 
   test("Can strip certain headers from response") {
-    val response = get("/route/test/set-rack-cache-header")
+    val response = get("/route/test/set-forbidden-headers")
     response.headers.contains(Header("X-Rack-Cache", "test")) should be(false)
   }
 
