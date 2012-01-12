@@ -1,8 +1,19 @@
 package uk.gov.gds.router.controller
 
+import io.Source
+
+
 object ErrorDocument {
 
-  def document = scala.io.Source.fromInputStream(stream).mkString("")
+  lazy val document = initialiseErrorDocument()
 
-  def stream = getClass().getResourceAsStream("/error.html")
+  private def initialiseErrorDocument() = {
+    val stream = getClass().getResourceAsStream("/error.html")
+    try {
+      Source.fromInputStream(stream).mkString("")
+    }
+    finally {
+      stream.close()
+    }
+  }
 }
