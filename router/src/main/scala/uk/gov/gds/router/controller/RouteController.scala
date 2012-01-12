@@ -27,18 +27,6 @@ class RouteController() extends ControllerBase {
     HTTP.CONTENT_LEN,
     HTTP.TARGET_HOST)
 
-  private val responseHeaderWhitelist = List(
-    "Cache-Control",
-    "Content-Type",
-    "ETag",
-    "Expires",
-    "Last-Modified",
-    "Location",
-    "Set-Cookie",
-    "Vary",
-    "WWW-Authenticate"
-  )
-
   get("/route/*") {
     Routes.load(requestInfo.pathParameter) match {
       case Some(route) => get(route)
@@ -93,10 +81,7 @@ class RouteController() extends ControllerBase {
     }
     else {
       clientResponse.setStatus(statusCode)
-
-      targetResponse.getAllHeaders
-        .filter(h => responseHeaderWhitelist.contains(h.getName))
-        .foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+      targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
 
       logger.info("Proxy response " + request.getMethod + " " + request.getURI + " => " + statusCode)
 
