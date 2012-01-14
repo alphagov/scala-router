@@ -39,7 +39,12 @@ class TestHarnessController extends ScalatraFilter {
   }
 
   get("/test/timeout") {
-    Thread.sleep(20000)
+    try {
+      Thread.sleep(20000)
+    }
+    catch {
+      case e: InterruptedException => // no-op
+    }
   }
 
   get("/football") {
@@ -61,7 +66,7 @@ class TestHarnessController extends ScalatraFilter {
   get("/test/410") {
     halt(410)
   }
-  
+
   get("/test/incoming-headers") {
     output(dumpHeaders)
   }
