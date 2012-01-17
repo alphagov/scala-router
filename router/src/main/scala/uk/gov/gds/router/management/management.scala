@@ -17,7 +17,11 @@ class RouterManagementFilter extends ManagementFilter {
   lazy val pages = List(new ApplicationStatusPage, new StatsResetPage)
 }
 
-object Requests extends TimingMetric("global", "requests", "Incoming router requests", "Incoming router requests")
+object Requests extends TimingMetric(
+  group = "cache.cluster",
+  name = "router-requests",
+  title = "Router requests",
+  description = "Incoming router requests")
 
 object ApplicationMetrics extends Logging {
 
@@ -31,7 +35,12 @@ object ApplicationMetrics extends Logging {
     case Some(metric) =>
       metric
     case None =>
-      val metric = new TimingMetric("application-traffic", app.id, app.id, app.id)
+      val metric = new TimingMetric(
+        group = "cache.cluster",
+        name = app.id,
+        title = app.id,
+        description = "Incoming application requests")
+
       metrics.put(app, metric)
       metric
   }

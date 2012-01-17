@@ -11,7 +11,7 @@ seq(webSettings :_*)
 libraryDependencies ++= Seq(
         "com.mongodb.casbah" %% "casbah" % "2.1.5-1",
         "gov.gds" %% "integration-tools" % "1.4-SNAPSHOT" % "test",
-        "gov.gds" %% "management" % "5.5-SNAPSHOT",
+        "gov.gds" %% "management" % "5.7-SNAPSHOT",
         "org.scalatest" %% "scalatest" % "1.6.1" % "test",
         "org.apache.httpcomponents" % "httpclient" % "4.1.2",
         "com.google.inject.extensions" % "guice-servlet" % "3.0-rc2",

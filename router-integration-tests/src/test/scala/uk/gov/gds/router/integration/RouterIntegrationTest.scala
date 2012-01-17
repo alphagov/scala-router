@@ -92,8 +92,8 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     get("/management/status/reset")
     get("/route/fulltest/test.html")
 
-    val testApplicationMetrics: List[Map[String, String]] = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
-    val requestCounter = testApplicationMetrics.filter(metric => metric("name") == "requests").head
+    val testApplicationMetrics = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
+    val requestCounter = testApplicationMetrics.filter(metric => metric("name") == "router-requests").head
 
     requestCounter("count") should be("1")
     requestCounter("totalTime") should not be ("0")
