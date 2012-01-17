@@ -18,7 +18,7 @@ class RouterManagementFilter extends ManagementFilter {
 }
 
 object Requests extends TimingMetric(
-  group = "cache.cluster",
+  group = "router-global-stats",
   name = "router-requests",
   title = "Router requests",
   description = "Incoming router requests")
@@ -36,7 +36,7 @@ object ApplicationMetrics extends Logging {
       metric
     case None =>
       val metric = new TimingMetric(
-        group = "cache.cluster",
+        group = "router application traffic",
         name = app.id,
         title = app.id,
         description = "Incoming application requests")
