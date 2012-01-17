@@ -5,41 +5,12 @@
   <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
   
   <title>Error | GOV.UK</title>
-  <link href="https://static.production.alphagov.co.uk/stylesheets/admin/jquery-ui-1.8.14.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/normalize.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/core.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/core-print.css" rel="stylesheet" type="text/css" media="print" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/header-footer.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/text.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/ancillary-pages.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/accessibility.css" rel="stylesheet" type="text/css" />
   
-  <link href="https://static.production.alphagov.co.uk/stylesheets/search.css" rel="stylesheet" type="text/css" />
-
-  <!-- something clever needs doing here as we probably don't want to load all these stylesheets globally -->
-  <link href="https://static.production.alphagov.co.uk/stylesheets/static-pages/error-pages.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/static-pages/help-pages.css" rel="stylesheet" type="text/css" />
-  <link href="https://static.production.alphagov.co.uk/stylesheets/static-pages/platform-pages.css" rel="stylesheet" type="text/css" />
- 
-  <!-- alternatives -->
-  <link href="https://static.production.alphagov.co.uk/stylesheets/dyslexic.css" rel="alternate stylesheet" type="text/css" title="I find words difficult" />
-
-  <script src="https://static.production.alphagov.co.uk/javascripts/libs/jquery/jquery-1.6.2.min.js"></script><!-- no defer on jquery -->
-  <script src="https://static.production.alphagov.co.uk/javascripts/libs/jquery/jquehttps://static.production.alphagov.co.ukry-ui-1.8.16.custom.min.js" defer="defer"></script>
-  <script src="https://static.production.alphagov.co.uk/javascripts/libs/jquery/plugins/jquery.base64.js" defer="defer"></script>
-  <script src="https://static.production.alphagov.co.uk/javascripts/libs/jquery/plugins/jquery.mustache.js" defer="defer"></script>
-
-  <script src="https://static.production.alphagov.co.uk/javascripts/search.js" defer="defer"></script>
-  <script src="https://static.production.alphagov.co.uk/javascripts/core.js" defer="defer"></script>
-  <script src="https://static.production.alphagov.co.uk/javascripts/devolution.js" defer="defer"></script>
-  <script src="https://static.production.alphagov.co.uk/javascripts/popup.js" defer="defer"></script>
-  <script src="https://static.production.alphagov.co.uk/javascripts/geo-locator.js" defer="defer"></script>
-  <script src="https://static.production.alphagov.co.uk/javascripts/customisation-settings.js" defer="defer"></script>
-
-	<!--[if lt IE 9]>
-		<script src="https://static.production.alphagov.co.uk/javascripts/html5.js"></script>
-		<script src="https://static.production.alphagov.co.uk/javascripts/IE9.js"></script>
-	<![endif]-->
+  <link href="https://static.preview.alphagov.co.uk/static/application.css" media="screen" rel="stylesheet" type="text/css">
+  <!-- alternatives --><link href="https://static.preview.alphagov.co.uk/static/dyslexic.css" media="screen" rel="alternate stylesheet" title="I find words difficult" type="text/css">
+  <script src="https://static.preview.alphagov.co.uk/static/libs/jquery/jquery-1.6.2.min.js" type="text/javascript"></script>
+  <script defer src="https://static.preview.alphagov.co.uk/static/application.js" type="text/javascript"></script>
+  <!--[if lt IE 9]><script src="https://static.preview.alphagov.co.uk/static/ie.js" type="text/javascript"></script><![endif]-->
 
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
   <script id="ga-params" type="text/javascript">
@@ -142,51 +113,8 @@
   			</div>
       </div>
 
-      <div id='govuk-feedback'>
-        <h2>Help improve gov.uk</h2>
-        <form method="POST" action="https://spreadsheets.google.com/spreadsheet/formResponse?formkey=dEtacjNNZzFyRkliYUtFRWp1eTl6Snc6MQ">
-          <label class="ss-q-help" for="entry_0">Your feedback</label>
-          <div id="feedback-options">
-            <select name="entry.0.single" id="entry_0">
-              <option value="There is a mistake in the information">There is a mistake in the information</option> 
-              <option value="I have some feedback about the site">I have some feedback about the site</option> 
-              <option value="Something went wrong or doesn&#39;t work">Something went wrong or doesn&#39;t work</option>
-  	</select>
-          </div>
-          <div id='feedback-mechanism'>
-            <label for="feedback-form">Your comment: </label><textarea name="entry.2.single" rows="8" cols="75" class="ss-q-long" id="entry_2"></textarea>
-            <input type="hidden" name="entry.3.single" value="no javascript" class="ss-q-short" id="entry_3">
-            <input type='submit' value='Send' /><p>We'll send this feedback to the team</p>
-          </div>
-        </form>
-      </div>
-
     </footer><!--end footer-->
 
   	<div id="global-app-error" class="app-error hidden"></div>
-    <script type="text/javascript" charset="utf-8">
-      var is_ssl = ("https:" == document.location.protocol);
-      var asset_host = is_ssl ? "https://s3.amazonaws.com/getsatisfaction.com/" : "http://s3.amazonaws.com/getsatisfaction.com/";
-      document.write(unescape("%3Cscript src='" + asset_host + "javascripts/feedback-v2.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-
-    <script type="text/javascript" charset="utf-8">
-      var feedback_widget_options = {};
-
-      feedback_widget_options.display = "overlay";  
-      feedback_widget_options.company = "govuk";
-      feedback_widget_options.placement = "hidden";
-      feedback_widget_options.color = "#222";
-      feedback_widget_options.style = "idea";
-
-      feedback_widget_options.limit = "3";
-      var feedback_widget = new GSFN.feedback_widget(feedback_widget_options);
-      $("#gs-feedback, #gs-feedback-banner").live("click", function(){
-        feedback_widget.show();
-        return false;
-      })
-
-
-    </script>
   </body>
-  </html>
+</html>
