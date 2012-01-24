@@ -325,9 +325,9 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.status should be(404)
   }
 
-  test("Router returns 500 error page when backend times out") {
+  test("Router returns 503 error page when backend times out") {
     val response = get("/route/test/timeout")
-    response.status should be(500)
+    response.status should be(503)
   }
 
   test("Router passes 410 status code when backend response has 410 status") {
