@@ -325,20 +325,13 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     responseShouldMatchErrorDocument(404, response)
   }
 
-  test("Exceptions that are thrown should give us lovely error pages") {
-    responseShouldMatchErrorDocument(500, get("/route/test/exception"))
-  }
-
   test("Router returns pretty 500 error page when backend times out") {
     responseShouldMatchErrorDocument(500, get("/route/test/timeout"))
   }
 
-  test("Router returns a 410 error page when appropriate") {
-    responseShouldMatchErrorDocument(410, get("/route/test/410"))
-  }
-
-  test("Runtime exceptions thrown by backends give us lovely error pages") {
-    responseShouldMatchErrorDocument(500, get("/route/test/runtime-exception"))
+  test("Router passes 410 status code when backend response has 410 status") {
+    val response = get("/route/test/410")
+    response.status should be(410)
   }
 
   private def responseShouldMatchErrorDocument(errorCode: Int, response: Response) {

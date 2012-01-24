@@ -75,20 +75,14 @@ class RouteController() extends ControllerBase {
   private def generateResponse(targetResponse: HttpResponse, clientResponse: HttpServletResponse, request: HttpUriRequest) {
     val statusCode = targetResponse.getStatusLine.getStatusCode
 
-    if (statusCode >= 404) {
-      logger.warn("Error recieved from backend server " + statusCode)
-      halt(statusCode)
-    }
-    else {
-      clientResponse.setStatus(statusCode)
-      targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
+    clientResponse.setStatus(statusCode)
+    targetResponse.getAllHeaders.foreach(h => clientResponse.setHeader(h.getName, h.getValue))
 
-      logger.info("Proxy response " + request.getMethod + " " + request.getURI + " => " + statusCode)
+    logger.info("Proxy response " + request.getMethod + " " + request.getURI + " => " + statusCode)
 
-      Option(targetResponse.getEntity) match {
-        case Some(entity) => entity.writeTo(clientResponse.getOutputStream)
-        case _ => logger.trace("Router detected response with no entity {} {}", targetResponse.getAllHeaders, statusCode)
-      }
+    Option(targetResponse.getEntity) match {
+      case Some(entity) => entity.writeTo(clientResponse.getOutputStream)
+      case _ => logger.trace("Router detected response with no entity {} {}", targetResponse.getAllHeaders, statusCode)
     }
   }
 
