@@ -320,27 +320,19 @@ class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers 
     response.body.contains("football") should be(true)
   }
 
-  test("Router returns pretty 4xx error page when route not found") {
+  test("Router returns 404 error page when route not found") {
     val response = get("/route/asdasdasdasdasdasdasdasdasdasdsadas")
-    responseShouldMatchErrorDocument(404, response)
+    response.status should be(404)
   }
 
-  test("Router returns pretty 500 error page when backend times out") {
-    responseShouldMatchErrorDocument(500, get("/route/test/timeout"))
+  test("Router returns 500 error page when backend times out") {
+    val response = get("/route/test/timeout")
+    response.status should be(500)
   }
 
   test("Router passes 410 status code when backend response has 410 status") {
     val response = get("/route/test/410")
     response.status should be(410)
-  }
-
-  private def responseShouldMatchErrorDocument(errorCode: Int, response: Response) {
-    response.status should be(errorCode)
-    response.body.contains("<title>Error | GOV.UK</title>") should be(true)
-
-    val content_type = response.headers.filter(_.name.equals("Content-Type")).head
-    val documentIsHtml = content_type.value.equals("text/html") || content_type.value.startsWith("text/html;")
-    documentIsHtml should be(true)
   }
 
   override protected def beforeEach() {

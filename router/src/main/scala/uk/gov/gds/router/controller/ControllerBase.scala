@@ -26,7 +26,7 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
     logger.error("Serving error document with status {}", code)
     response.setHeader("Content-Type", "text/html")
     status(code)
-    ErrorDocument.document
+    "Something went wrong."
   }
 
   protected implicit def requestInfo = {
