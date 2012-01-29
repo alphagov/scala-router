@@ -17,6 +17,8 @@ import uk.gov.gds.router.model.Route
 import uk.gov.gds.router.management.ApplicationMetrics.time
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import collection.JavaConversions._
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit.SECONDS
 
 @Singleton
 class RouteController() extends ControllerBase {
@@ -95,14 +97,30 @@ class RouteController() extends ControllerBase {
     val httpClient = new DefaultHttpClient(connectionManager)
     val httpParams = new BasicHttpParams()
 
-    HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
-    HttpConnectionParams.setSoTimeout(httpParams, 5000);
+    HttpConnectionParams.setConnectionTimeout(httpParams, 1000);
+    HttpConnectionParams.setSoTimeout(httpParams, 1000);
     HttpClientParams.setRedirecting(httpParams, false)
     schemeRegistry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory))
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
     connectionManager.setMaxTotal(300)
     connectionManager.setDefaultMaxPerRoute(100)
     httpClient.setParams(httpParams)
+
+    setupDeadConnectionCleaner(connectionManager)
+
     httpClient
   }
+
+  private def setupDeadConnectionCleaner(connectionManager: ThreadSafeClientConnManager) {
+    logger.info("Initiating connection cleaner thread")
+
+    Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new Runnable {
+      override def run = {
+        logger.info("Cleaning dead connections")
+        connectionManager.closeExpiredConnections
+        connectionManager.closeIdleConnections(10, SECONDS)
+      }
+    }, 10, 10, SECONDS)
+  }
+
 }
