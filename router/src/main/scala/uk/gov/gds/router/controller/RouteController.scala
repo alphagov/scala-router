@@ -8,7 +8,7 @@ import org.apache.http.message.BasicNameValuePair
 import org.apache.http.client.methods.{HttpUriRequest, HttpPost, HttpGet}
 import org.apache.http.HttpResponse
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager
-import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.impl.client.ContentEncodingHttpClient
 import org.apache.http.params.{HttpConnectionParams, BasicHttpParams}
 import org.apache.http.client.params.HttpClientParams
 import org.apache.http.conn.ssl.SSLSocketFactory
@@ -94,7 +94,6 @@ class RouteController() extends ControllerBase {
   private def configureHttpClient() = {
     val schemeRegistry = new SchemeRegistry
     val connectionManager = new ThreadSafeClientConnManager(schemeRegistry)
-    val httpClient = new DefaultHttpClient(connectionManager)
     val httpParams = new BasicHttpParams()
 
     HttpConnectionParams.setConnectionTimeout(httpParams, 1000);
@@ -104,10 +103,10 @@ class RouteController() extends ControllerBase {
     schemeRegistry.register(new Scheme("https", 443, SSLSocketFactory.getSocketFactory))
     connectionManager.setMaxTotal(300)
     connectionManager.setDefaultMaxPerRoute(100)
-    httpClient.setParams(httpParams)
 
     setupDeadConnectionCleaner(connectionManager)
-
+    
+    val httpClient = new ContentEncodingHttpClient(connectionManager, httpParams)
     httpClient
   }
 
