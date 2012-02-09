@@ -18,4 +18,8 @@
     <listener>
         <listener-class>uk.gov.gds.router.controller.GuiceServletConfig</listener-class>
     </listener>
+
+    <listener>
+        <listener-class>uk.gov.gds.router.configuration.ApplicationLifecycleManager</listener-class>
+    </listener>
 </web-app>

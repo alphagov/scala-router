@@ -56,6 +56,14 @@ class RouterApiController() extends ControllerBase {
     }
   }
 
+  get("/routes/all") {
+    Routes.all
+  }
+
+  get("/applications/all") {
+    Applications.all
+  }
+
   delete("/routes/*") {
     status(Routes.delete(requestInfo.pathParameter).statusCode)
   }
