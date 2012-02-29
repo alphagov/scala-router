@@ -10,17 +10,13 @@ seq(webSettings :_*)
 
 libraryDependencies ++= Seq(
         "org.scalatra" %% "scalatra" % "2.0.1",
-        "org.eclipse.jetty" % "jetty-webapp" % "7.4.5.v20110725" % "jetty",
+        "org.eclipse.jetty" % "jetty-webapp" % "7.4.5.v20110725" % "container",
         "javax.servlet" % "servlet-api" % "2.5" % "provided",
         "org.apache.httpcomponents" % "httpclient" % "4.1.2" % "test",
         "gov.gds" %% "integration-tools" % "1.4-SNAPSHOT" % "test",
         "org.scalatest" %% "scalatest" % "1.6.1" % "test",
    	    "org.slf4j" % "log4j-over-slf4j" % "1.6.1" % "test"
     )
-
-jettyPort := 4001
-
-jettyContext := "/router-test-harness"
 
 parallelExecution in Test := false
 
