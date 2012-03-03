@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./router-single-node.sh
+cd ..
+./sbt test 
+cd script
