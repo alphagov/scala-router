@@ -1,6 +1,8 @@
 #!/bin/bash
 
-./router-single-node.sh
+./start-mongo-as-single-node.sh
 cd ..
 ./sbt test 
 cd script
+
+Echo Done. Run generate-intellij-project-files.sh if you want to use IntelliJ Idea

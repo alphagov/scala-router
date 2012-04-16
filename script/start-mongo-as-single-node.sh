@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cachedir=~/no-bu/download-cache
-mongodir=~/no-bu/mongo-workspace/router
-mongoversion=2.0.0
+cachedir=~/mongo/download-cache
+mongodir=~/mongo/mongo-workspace/ertp
+mongoversion=2.0.4
 
 echo Stopping mongodb
 killall mongos > /dev/null 2>&1
@@ -11,7 +11,6 @@ killall mongo > /dev/null 2>&1
 
 case $1 in
 	clean)
-		echo "Cleaning mongo install"
 		rm -rf $mongodir
 		;;
     reset)
@@ -62,11 +61,13 @@ fi
 echo "Starting mongodb node-1"
 $mongodir/$mongoPath/bin/mongod --dbpath $mongodir/db/single-node \
 	--logpath $mongodir/logs/mongodb-single-node.log \
-	-v \
+	-vvvv \
 	--smallfiles \
 	--rest \
 	--pidfilepath $mongodir/mongo-single.pid \
 	--fork \
+	--journal \
+	--profile 2 \
 	--directoryperdb \
 	--port 27017
 
