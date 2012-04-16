@@ -69,23 +69,40 @@ class RouterIntegrationTest
   }
 
   test("Can create application using put") {
+    given("A unique application ID")
+
     val applicationId = uniqueIdForTest
 
+    when("We attempt to create an application using PUT")
+
     val response = put("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+
+    then("We should get a 201 response signifying succesful creation")
     response.status should be(201)
   }
 
   test("Can get headers from response") {
+    given("A URL on our test-harness application that sets the header X-Test")
+    when("We get that URL through the router")
     val response = get("/route/test/set-header")
+
+    then("The header should be present in the response to the client")
     response.headers.contains(Header("X-Test", "test")) should be(true)
   }
 
   test("Can create routes using put") {
+    when("We create a route to our backend application with a PUT")
     val response = put("/routes/route-created-with-put", Map("application_id" -> applicationId, "route_type" -> "full"))
+
+    then("We should get a 201 response signifying sucessful creation")
     response.status should be(201)
   }
 
   test("Can handle 304 responses from backend server") {
+    given("A route on our test-harness that returns 304 when ever it is hit")
+    when("when we hit it with either get or POST")
+    then("the client response should be a 304")
+
     val response = get("/route/test/not-modified")
     response.status should be(304)
 
@@ -94,9 +111,13 @@ class RouterIntegrationTest
   }
 
   test("Application metrics are created when application is created") {
+    given("A freshly reset / re-deployed router with empty monitoring statistics")
     get("/management/status/reset")
+
+    when("We make a request to the statistics API")
     val testApplicationMetrics = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
 
+    then("All of the stats should be 0")
     testApplicationMetrics.map {
       metric =>
         logger.info("Checking metric " + metric("name"))
@@ -106,9 +127,13 @@ class RouterIntegrationTest
   }
 
   test("Routing GET traffic through an application increments the counter") {
+    given("A freshly reset / re-deployed router with empty monitoring statistics")
     get("/management/status/reset")
+
+    when("We make a GET request through the router to an arbitrary page")
     get("/route/fulltest/test.html")
 
+    then("The hit should be recorded in the statistics for the router")
     val testApplicationMetrics = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
     val requestCounter = testApplicationMetrics.filter(metric => metric("name") == "router-requests").head
 
@@ -117,9 +142,13 @@ class RouterIntegrationTest
   }
 
   test("Routing POST traffic through an application increments the counter") {
+    given("A freshly reset / re-deployed router with empty monitoring statistics")
     get("/management/status/reset")
+
+    when("We make a POST request through the router to an arbitrary page")
     post("/route/fulltest/test.html")
 
+    then("The hit should be recorded in the statistics for the router")
     val testApplicationMetrics: List[Map[String, String]] = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
     val applicationCounter = testApplicationMetrics.filter(_("name") == applicationId).head
 
@@ -128,25 +157,32 @@ class RouterIntegrationTest
   }
 
   test("canot create route on application that does not exist") {
+    when("We attempt to create a route for a backend application that does not exists")
     val response = put("/routes/this-route-does-not-exist", Map("application_id" -> "this-app-does-not-exist", "incoming_path" -> "foo", "route_type" -> "foo"))
+
+    then("We should fail with a server error")
     response.status should be(500)
   }
 
-  test("Can create prefix routes") {
+  test("Can create full routes") {
+    given("A unique router ID that is not present in the router")
     val routeId = uniqueIdForTest
 
+    when("We create that route with a route type of full")
     // create our route
     var response = post("/routes/" + routeId,
       Map(
         "application_id" -> applicationId,
         "route_type" -> "full"))
 
+    then("We should get a 201 response with JSON representing the created router")
     // check it
     response.status should be(201)
     var route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
 
+    then("We should be able to retreive the route information through the router API")
     // get it
     response = get("/routes/" + routeId)
     response.status should be(200)
@@ -154,25 +190,34 @@ class RouterIntegrationTest
     route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
 
+    given("A newly created application")
     val newApplicationId = createTestApplication("update-application")
 
+    when("We attempt to update the previously created route to point to this new application")
     // update
     response = put("/routes/" + routeId,
       Map(
         "application_id" -> newApplicationId,
         "route_type" -> "full"))
 
+    then("We should get a response signifiying that the route has been updated")
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(newApplicationId)
     route.incoming_path should be(routeId)
 
+    when("We deleter the route")
     // delete
     response = delete("/routes/" + route.incoming_path)
+
+    then("The route should be gone")
     response.status should be(204)
 
+    when("We try to reload the route")
     // check it's gone
     response = get("/routes/" + routeId)
+
+    then("the route still should be gone")
     response.status should be(404)
   }
 
