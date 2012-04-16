@@ -5,45 +5,62 @@ import org.scalatest.matchers.ShouldMatchers
 import uk.gov.gds.router.model.{Route, Application}
 import org.apache.http.client.methods.HttpGet
 import uk.gov.gds.router.util.JsonSerializer
-import uk.gov.gds.router.{MongoDatabaseBackedTest}
+import uk.gov.gds.router.MongoDatabaseBackedTest
+import org.scalatest.GivenWhenThen
 
-class RouterIntegrationTest extends MongoDatabaseBackedTest with ShouldMatchers with HttpTestInterface {
+class RouterIntegrationTest
+  extends MongoDatabaseBackedTest
+  with ShouldMatchers
+  with GivenWhenThen
+  with HttpTestInterface {
 
   private val apiRoot = "http://localhost:4000/router"
   private val backendUrl = "localhost:4001/router-test-harness"
   private var applicationId: String = ""
 
   test("can create and delete applications") {
-    //create
+    given("A new application ID that does not exist in the router database")
     val applicationId = uniqueIdForTest
 
+    when("We create an application with the new ID pointing at our test harness application")
     var response = post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
-    response.status should be(201)
 
+    then("We should get a 201 (created) response that contains a JSON representation of our application")
+
+    response.status should be(201)
     var application = fromJson[Application](response.body)
     application.application_id should be(applicationId)
     application.backend_url should be(backendUrl)
 
-    // re-create
+    when("We attempt to re-create the same application")
     response = post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+
+    then("we should get a 409 (conflict) response")
     response.status should be(409)
 
-    //get
+    when("We attempt to load the application by issuing a GET to its API url")
     response = get("/applications/" + applicationId)
+
+    then("We should get a 200 response that contains a JSON representation of our application ")
     response.status should be(200)
     application = fromJson[Application](response.body)
     application.application_id should be(applicationId)
     application.backend_url should be(backendUrl)
 
     // update
+    when("We issue a PUT request to our applications URL that updates its backend URL to a new URL")
     response = put("/applications/" + applicationId, Map("backend_url" -> "new_backend_url"))
+
+    then("We should get a 200 response that contains a JSON representation of our application ")
     response.status should be(200)
     application = fromJson[Application](response.body)
     application.application_id should be(applicationId)
     application.backend_url should be("new_backend_url")
 
-    // delete
+    when("We attempt to delete the application")
     response = delete("/applications/" + applicationId)
+
+    then("We should get a 204 response and the application should be gone")
     response.status should be(204)
 
     // check it's gone
