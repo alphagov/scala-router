@@ -1,8 +1,13 @@
 mongodb/mongodb-*.tgz
-target/
+target
 target/*
 *.ipr
 *.iml
 *.iws
 .idea/
 logs/
+Gemfile.lock
+*iml
+.bundle/
+.rakeTasks
+pkg/
