@@ -1,3 +1,4 @@
+mongodb/mongodb-*.tgz
 target/
 target/*
 *.ipr
