@@ -10,7 +10,7 @@ object MongoDatabase {
   private lazy val inOperation = new DynamicVariable[Boolean](false)
   private val mongoConnection = MongoConnection(RouterConfig.databaseHosts.map(new ServerAddress(_)))
 
-  val database = mongoConnection("router-dev");
+  val database = mongoConnection(RouterConfig.databaseName);
   database.setWriteConcern(WriteConcern.SAFE)
 
   def getCollection(collectionName: String) = {
