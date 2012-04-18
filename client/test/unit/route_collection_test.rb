@@ -14,39 +14,39 @@ class RouteCollectionTest < Test::Unit::TestCase
       to_return(:status => 201)
     @router.routes.create route.to_hash
   end
-  
+
   class RouteFixture
     def initialize(route)
       @route = route
     end
-    
+
     def incoming_path
       @route[:incoming_path]
     end
-    
+
     def without(*fields)
-      Hash[@route.reject do |k,v| 
+      Hash[@route.reject do |k,v|
         fields.include?(k)
       end]
     end
-    
+
     def encoded_body
       URI.encode_www_form without(:incoming_path)
     end
-    
+
     def to_hash
       @route.dup
     end
-    
+
     def to_json
       to_hash.to_json
     end
   end
-  
+
   def test_create_full_route
     route = RouteFixture.new({
       :application_id => "planner",
-      :route_type => :full, 
+      :route_type => :full,
       :incoming_path => "/foo"
     })
     post_create_route route
@@ -57,7 +57,7 @@ class RouteCollectionTest < Test::Unit::TestCase
   def test_create_prefix_route
     route = RouteFixture.new(
       :application_id => "publisher",
-      :route_type => :prefix, 
+      :route_type => :prefix,
       :incoming_path => "/bar"
     )
     post_create_route(route)
@@ -154,20 +154,19 @@ class RouteCollectionTest < Test::Unit::TestCase
     route = @router.routes.find '/gorply'
     assert_equal nil, route
   end
-  
+
   def test_when_getting_route_client_always_prefixes_incoming_path_with_forward_slash
     router_response_body = {
       :application_id => 'need-o-tron',
       :route_type => :full,
       :incoming_path => 'gorge'
     }.to_json
-    
+
     stub_request(:get, "http://router.cluster/routes/gorge").
       to_return(:status => 200, :body => router_response_body)
-    
+
     actual_route = @router.routes.find '/gorge'
-    
+
     assert_equal '/gorge', actual_route[:incoming_path]
   end
 end
-

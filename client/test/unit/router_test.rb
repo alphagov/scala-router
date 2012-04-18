@@ -2,7 +2,7 @@ require "test_helper"
 
 class RouterTest < Test::Unit::TestCase
   def setup
-    router_stub = stub_everything('router_client', 
+    router_stub = stub_everything('router_client',
       applications: stub_everything('apps'),
       routes: stub_everything('routes')
     )
@@ -26,21 +26,21 @@ class RouterTest < Test::Unit::TestCase
     router_client = stub(:router_client)
     Router::Client.expects(:new).with("http://router.url", anything).returns(router_client)
     Router::Application.expects(:new).with(router_client, anything, anything).returns(stub_everything)
-    
+
     Router.new("http://router.url").application("id", "backend.host")
   end
 
   def test_logger_passed_to_router_client_if_provided
     logger = stub('logger')
     Router::Client.expects(:new).with("http://router.url", logger)
-    
+
     Router.new("http://router.url", logger)
   end
-  
+
   def test_application_is_created_with_application_id_and_backed_url
     Router::Client.expects(:new).with("http://router.url", anything).returns(stub(:router_client))
     Router::Application.expects(:new).with(anything, "id", "backend.host").returns(stub_everything)
-    
+
     Router.new("http://router.url").application("id", "backend.host")
   end
 

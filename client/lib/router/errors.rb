@@ -16,6 +16,6 @@ class Router
       ResponseParser.parse(response)
     end
   end
-  
+
   class NotFound < RemoteError; end
 end
