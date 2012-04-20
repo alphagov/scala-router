@@ -21,8 +21,9 @@ module RouterTestHelper
     return if $router_io # Use global to prevent gardbage collection
     Dir.chdir(File.expand_path("../../../router", __FILE__)) do
       $router_io = IO.popen("./start-router-locally.sh", "r+")
-      while (line = $router_io.gets) !~ /success/
-        $stderr.puts line
+      while (line = $router_io.gets.chomp) !~ /success/
+        $stderr.puts line unless line.empty?
+        raise "Starting router failed" if line =~ /error/
       end
       $stderr.puts line
     end
