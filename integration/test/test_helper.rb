@@ -18,7 +18,7 @@ module RouterTestHelper
   end
 
   def ensure_router_running
-    return if $router_io # Use global to prevent gardbage collection
+    return if $router_io # Use global to prevent garbage collection
     Dir.chdir(File.expand_path("../../../router", __FILE__)) do
       $router_io = IO.popen("./start-router-locally.sh", "r+")
       while (line = $router_io.gets.chomp) !~ /success/
@@ -30,7 +30,7 @@ module RouterTestHelper
   end
 
   def ensure_test_server_running
-    return if $test_server # Use global to prevent gardbage collection
+    return if $test_server # Use global to prevent garbage collection
     $test_server = WEBrick::HTTPServer.new(:Port => TEST_SERVER_PORT)
 
     Thread.new do
