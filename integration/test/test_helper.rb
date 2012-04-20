@@ -35,8 +35,8 @@ module RouterTestHelper
 
     Thread.new do
       $test_server.start
-      sleep 0.2
     end
+    sleep 0.2
   end
 
   def create_test_responder(route)
