@@ -7,7 +7,7 @@ require "open-uri"
 Thread.abort_on_exception = true
 
 module RouterTestHelper
-  ROUTER_PORT = 8080
+  ROUTER_PORT = 11200
   ROUTER_BASE_URL = "http://localhost:#{ROUTER_PORT}"
   TEST_SERVER_PORT = ROUTER_PORT + 1
   TEST_SERVER_BASE_URL = "http://localhost:#{TEST_SERVER_PORT}"

@@ -46,3 +46,5 @@ resolvers ++= Seq(
     "repo.novus snaps" at "http://repo.novus.com/snapshots/",
     "repo.codahale" at "http://repo.codahale.com"
 )
+
+port in container.Configuration := 11200
