@@ -6,7 +6,6 @@ target/*
 *.iws
 .idea/
 logs/
-Gemfile.lock
 *iml
 .bundle/
 .rakeTasks
