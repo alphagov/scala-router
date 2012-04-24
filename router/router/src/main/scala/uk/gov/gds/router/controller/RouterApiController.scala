@@ -7,7 +7,7 @@ import uk.gov.gds.router.repository.application.Applications
 import uk.gov.gds.router.model.{Route, Application}
 import uk.gov.gds.router.util.JsonSerializer
 import runtime.BoxedUnit
-import uk.gov.gds.router.repository.{NotFound, PersistenceStatus}
+import uk.gov.gds.router.repository.{Updated, NotFound, PersistenceStatus}
 
 @Singleton
 class RouterApiController() extends ControllerBase {
@@ -65,7 +65,15 @@ class RouterApiController() extends ControllerBase {
   }
 
   delete("/routes/*") {
-    status(Routes.delete(requestInfo.pathParameter).statusCode)
+    Routes.load(requestInfo.pathParameter) match {
+      case Some(route) =>
+        Routes.simpleAtomicUpdate(route.id, Map("route_action" -> "gone")) match {
+          case Updated => route.copy(route_action = "gone")
+          case NotFound => throw new Exception("route deleted while update attempted")
+        }
+
+      case None => status(NotFound)
+    }
   }
 
   get("/routes/*") {

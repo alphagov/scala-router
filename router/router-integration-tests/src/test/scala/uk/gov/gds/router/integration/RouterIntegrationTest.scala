@@ -2,11 +2,11 @@ package uk.gov.gds.router.integration
 
 import uk.gov.gds.router.util.JsonSerializer._
 import org.scalatest.matchers.ShouldMatchers
-import uk.gov.gds.router.model.{Route, Application}
 import org.apache.http.client.methods.HttpGet
 import uk.gov.gds.router.util.JsonSerializer
 import uk.gov.gds.router.MongoDatabaseBackedTest
 import org.scalatest.GivenWhenThen
+import uk.gov.gds.router.model.{FullRoute, Route, Application}
 
 class RouterIntegrationTest
   extends MongoDatabaseBackedTest
@@ -164,8 +164,8 @@ class RouterIntegrationTest
     response.status should be(500)
   }
 
-  test("Can create full routes") {
-    given("A unique router ID that is not present in the router")
+  test("Can create / update / delete full routes") {
+    given("A unique route ID that is not present in the router")
     val routeId = uniqueIdForTest
 
     when("We create that route with a route type of full")
@@ -181,6 +181,8 @@ class RouterIntegrationTest
     var route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
+    route.proxyType should be(FullRoute)
+    route.route_action should be("proxy")
 
     then("We should be able to retreive the route information through the router API")
     // get it
@@ -206,19 +208,45 @@ class RouterIntegrationTest
     route.application_id should be(newApplicationId)
     route.incoming_path should be(routeId)
 
-    when("We deleter the route")
+    when("We delete the route")
     // delete
     response = delete("/routes/" + route.incoming_path)
 
     then("The route should be gone")
-    response.status should be(204)
+    val deletedRoute = fromJson[Route](response.body)
+    response.status should be(200)
+    deletedRoute.route_action should be("gone")
 
     when("We try to reload the route")
     // check it's gone
     response = get("/routes/" + routeId)
 
     then("the route still should be gone")
-    response.status should be(404)
+    fromJson[Route](response.body).route_action should be("gone")
+  }
+
+  // WE ARE HERE
+  test("When a full route is deleted via the API it returns a 410 when accessed through the proxy"){
+    given("The test harness application created with some default routes")
+    when("we access a known full route")
+
+    val response = get("/route/fulltest/test.html")
+
+    then("the response should be a 200 with the contents from the backend application")
+    response.status should be(200)
+    response.body contains("router flat route") should be(true)
+
+    when("We delete the route through the API")
+    val deleteResponse = delete("/routes/fulltest/test.html")
+
+    then("When we examine the route through the API its route_action should be 'gone'")
+    val route = fromJson[Route](deleteResponse.body)
+    route.route_action should be("gone")
+
+    then("and we retrieve the route again we should get a 410 gone response")
+    val secondGetResponse = get("/route/fulltest/test.html")
+
+    secondGetResponse.status should be(410)
   }
 
   test("can proxy requests to and return responses from backend server") {
