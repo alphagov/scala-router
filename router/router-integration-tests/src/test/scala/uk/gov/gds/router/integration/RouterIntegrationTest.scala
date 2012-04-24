@@ -6,7 +6,7 @@ import org.apache.http.client.methods.HttpGet
 import uk.gov.gds.router.util.JsonSerializer
 import uk.gov.gds.router.MongoDatabaseBackedTest
 import org.scalatest.GivenWhenThen
-import uk.gov.gds.router.model.{FullRoute, Route, Application}
+import uk.gov.gds.router.model.{SystemApplications, FullRoute, Route, Application}
 
 class RouterIntegrationTest
   extends MongoDatabaseBackedTest
@@ -179,7 +179,7 @@ class RouterIntegrationTest
     // check it
     response.status should be(201)
     var route = fromJson[Route](response.body)
-    route.application_id should be(applicationId)
+    route.application_id should be(Some(applicationId))
     route.incoming_path should be(routeId)
     route.proxyType should be(FullRoute)
     route.route_action should be("proxy")
@@ -189,7 +189,7 @@ class RouterIntegrationTest
     response = get("/routes/" + routeId)
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application_id should be(applicationId)
+    route.application_id should be(Some(applicationId))
     route.incoming_path should be(routeId)
 
     given("A newly created application")
@@ -205,7 +205,7 @@ class RouterIntegrationTest
     then("We should get a response signifiying that the route has been updated")
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application_id should be(newApplicationId)
+    route.application_id should be(Some(newApplicationId))
     route.incoming_path should be(routeId)
 
     when("We delete the route")
@@ -225,7 +225,6 @@ class RouterIntegrationTest
     fromJson[Route](response.body).route_action should be("gone")
   }
 
-  // WE ARE HERE
   test("When a full route is deleted via the API it returns a 410 when accessed through the proxy"){
     given("The test harness application created with some default routes")
     when("we access a known full route")
@@ -243,10 +242,15 @@ class RouterIntegrationTest
     val route = fromJson[Route](deleteResponse.body)
     route.route_action should be("gone")
 
+    then("and the route should not be associated with an application")
+    route.application_id should be(None)
+    route.application should be(SystemApplications.applicationForGoneRoutes)
+
     then("and we retrieve the route again we should get a 410 gone response")
     val secondGetResponse = get("/route/fulltest/test.html")
 
     secondGetResponse.status should be(410)
+    secondGetResponse.body contains("router flat route") should be(false)
   }
 
   test("can proxy requests to and return responses from backend server") {

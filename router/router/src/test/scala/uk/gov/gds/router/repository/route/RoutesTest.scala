@@ -14,12 +14,12 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
   Applications.store(testApplication)
 
   val fullRouteTemplate = Route(
-    application_id = testApplication.application_id,
+    application_id = Some(testApplication.application_id),
     route_type = "full",
     incoming_path = "overridden")
 
   val prefixRouteTemplate = Route(
-    application_id = testApplication.application_id,
+    application_id = Some(testApplication.application_id),
     route_type = "prefix",
     incoming_path = "overridden")
 
@@ -42,7 +42,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
           loadedRoute.incoming_path should be("foo/bar")
       }
 
-      store(Route(application_id = "unit-tests", route_type = "full", incoming_path = "foo/bar")) should be(Conflict)
+      store(Route(application_id = Some("unit-tests"), route_type = "full", incoming_path = "foo/bar")) should be(Conflict)
     }
   }
 
@@ -60,7 +60,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
           loadedRoute.incoming_path should be("foo")
       }
 
-      store(Route(application_id = "unit-tests", route_type = "prefix", incoming_path = "foo")) should be(Conflict)
+      store(Route(application_id = Some("unit-tests"), route_type = "prefix", incoming_path = "foo")) should be(Conflict)
     }
   }
 
@@ -104,7 +104,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
       Applications.store(fullApplication)
 
       val prefixRoute = prefixRouteTemplate.copy(incoming_path = "foo")
-      val fullRoute = Route(incoming_path = "foo/bar", route_type = "full", application_id = fullApplication.id)
+      val fullRoute = Route(incoming_path = "foo/bar", route_type = "full", application_id = Some(fullApplication.id))
       store(prefixRoute) should be(NewlyCreated)
       store(fullRoute) should be(NewlyCreated)
 
@@ -118,7 +118,7 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
       Applications.store(fullApplication)
 
       val prefixRoute = prefixRouteTemplate.copy(incoming_path = "foo")
-      val fullRoute = Route(incoming_path = "foo/bar", route_type = "full", application_id = fullApplication.id)
+      val fullRoute = Route(incoming_path = "foo/bar", route_type = "full", application_id = Some(fullApplication.id))
       store(fullRoute) should be(NewlyCreated)
       store(prefixRoute) should be(NewlyCreated)
 

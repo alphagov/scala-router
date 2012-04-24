@@ -29,7 +29,7 @@ class RouterApiController() extends ControllerBase {
     onSameDatabaseServer {
       val persistenceStatus = Routes.store(
         Route(
-          application_id = applicationId,
+          application_id = Some(applicationId),
           route_type = routeType,
           incoming_path = incomingPath))
 
@@ -44,7 +44,7 @@ class RouterApiController() extends ControllerBase {
     onSameDatabaseServer {
       val returnCode = Routes.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters) match {
         case NotFound => Routes.store(Route(
-          application_id = params("application_id"),
+          application_id = Some(params("application_id")),
           route_type = params("route_type"),
           incoming_path = requestInfo.pathParameter
         ))
@@ -67,8 +67,8 @@ class RouterApiController() extends ControllerBase {
   delete("/routes/*") {
     Routes.load(requestInfo.pathParameter) match {
       case Some(route) =>
-        Routes.simpleAtomicUpdate(route.id, Map("route_action" -> "gone")) match {
-          case Updated => route.copy(route_action = "gone")
+        Routes.simpleAtomicUpdate(route.id, Map("application_id" -> None, "route_action" -> "gone")) match {
+          case Updated => route.copy(application_id = None, route_action = "gone")
           case NotFound => throw new Exception("route deleted while update attempted")
         }
 
@@ -94,7 +94,6 @@ class RouterApiController() extends ControllerBase {
         case NotFound => Applications.store(Application(requestInfo.pathParameter, params("backend_url")))
         case ps@_ => ps
       }
-
       status(returnCode)
       Applications.load(requestInfo.pathParameter)
     }
