@@ -6,7 +6,7 @@ import org.apache.http.client.methods.HttpGet
 import uk.gov.gds.router.util.JsonSerializer
 import uk.gov.gds.router.MongoDatabaseBackedTest
 import org.scalatest.GivenWhenThen
-import uk.gov.gds.router.model.{SystemApplications, FullRoute, Route, Application}
+import uk.gov.gds.router.model._
 
 class RouterIntegrationTest
   extends MongoDatabaseBackedTest
@@ -223,6 +223,60 @@ class RouterIntegrationTest
 
     then("the route still should be gone")
     fromJson[Route](response.body).route_action should be("gone")
+  }
+
+
+  test("Can create / update / delete prefix routes") {
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of prefix")
+    var response = post("/routes/" + routeId,
+      Map(
+        "application_id" -> applicationId,
+        "route_type" -> "prefix"))
+
+    then("We should get a 201 response with JSON representing the created route")
+    response.status should be(201)
+    var route = fromJson[Route](response.body)
+    route.application_id should be(Some(applicationId))
+    route.incoming_path should be(routeId)
+    route.proxyType should be(PrefixRoute)
+    route.route_action should be("proxy")
+
+    then("We should be able to retreive the route information through the router API")
+    response = get("/routes/" + routeId)
+    response.status should be(200)
+    route = fromJson[Route](response.body)
+    route.application_id should be(Some(applicationId))
+    route.incoming_path should be(routeId)
+
+    given("A newly created application")
+    val newApplicationId = createTestApplication("update-application")
+
+    when("We attempt to update the previously created route to point to this new application")
+    response = put("/routes/" + routeId,
+      Map(
+        "application_id" -> newApplicationId,
+        "route_type" -> "prefix"))
+
+    then("We should get a response signifiying that the route has been updated")
+    response.status should be(200)
+    route = fromJson[Route](response.body)
+    route.application_id should be(Some(newApplicationId))
+    route.incoming_path should be(routeId)
+
+    when("We delete the route")
+    response = delete("/routes/" + route.incoming_path)
+
+    then("The route should be gone")
+    response.status should be(204)
+
+    when("We try to reload the route")
+    response = get("/routes/" + routeId)
+
+    then("the route still should be gone")
+    response.status should be(404)
   }
 
   test("When a full route is deleted via the API it returns a 410 when accessed through the proxy"){

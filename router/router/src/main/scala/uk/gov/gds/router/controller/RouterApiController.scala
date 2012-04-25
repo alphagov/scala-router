@@ -4,10 +4,11 @@ import com.google.inject.Singleton
 import uk.gov.gds.router.mongodb.MongoDatabase._
 import uk.gov.gds.router.repository.route.Routes
 import uk.gov.gds.router.repository.application.Applications
-import uk.gov.gds.router.model.{Route, Application}
 import uk.gov.gds.router.util.JsonSerializer
+
 import runtime.BoxedUnit
 import uk.gov.gds.router.repository.{Updated, NotFound, PersistenceStatus}
+import uk.gov.gds.router.model.{PrefixRoute, FullRoute, Route, Application}
 
 @Singleton
 class RouterApiController() extends ControllerBase {
@@ -67,9 +68,9 @@ class RouterApiController() extends ControllerBase {
   delete("/routes/*") {
     Routes.load(requestInfo.pathParameter) match {
       case Some(route) =>
-        Routes.simpleAtomicUpdate(route.id, Map("application_id" -> None, "route_action" -> "gone")) match {
-          case Updated => route.copy(application_id = None, route_action = "gone")
-          case NotFound => throw new Exception("route deleted while update attempted")
+        route.proxyType match {
+          case FullRoute => deactivateFullRoute(route)
+          case PrefixRoute => status(deletePrefixRoute(route))
         }
 
       case None => status(NotFound)
@@ -106,6 +107,16 @@ class RouterApiController() extends ControllerBase {
   get("/applications/:id") {
     Applications.load(params("id")) getOrElse status(404)
   }
+
+  private def deletePrefixRoute(route: Route) = Routes.delete(route.incoming_path)
+
+  private def deactivateFullRoute(route: Route) = {
+    Routes.simpleAtomicUpdate(route.id, Map("application_id" -> None, "route_action" -> "gone")) match {
+      case Updated => route.copy(application_id = None, route_action = "gone")
+      case NotFound => throw new Exception("route deleted while update attempted")
+    }
+  }
+
 
   private def checkRequestParametersContainOnly(validParams: List[String]) = {
     requestInfo.requestParameters map {
