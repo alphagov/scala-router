@@ -2,7 +2,7 @@ package uk.gov.gds.router.repository.route
 
 import uk.gov.gds.router.model._
 import com.mongodb.casbah.Imports._
-import uk.gov.gds.router.repository.{Conflict, NewlyCreated, MongoRepository}
+import uk.gov.gds.router.repository._
 
 object Routes extends MongoRepository[Route]("routes", "incoming_path") {
 
@@ -22,7 +22,25 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
       NewlyCreated
   }
 
+  def deactivateFullRoute(route: Route) = {
+    Routes.simpleAtomicUpdate(route.id, Map("application_id" -> None, "route_action" -> "gone")) match {
+      case Updated => route.copy(application_id = None, route_action = "gone")
+      case NotFound => throw new Exception("route deleted while update attempted")
+    }
+  }
+
+
   private[repository] def deleteAllRoutesForApplication(id: String) {
-    collection -= MongoDBObject("application_id" -> id)
+    val routesForApp: List[Route] = collection.find(MongoDBObject("application_id" -> id)).toList //todo make implicit to convert Seq here to List
+    routesForApp.foreach {
+      route =>
+        route.proxyType match {
+          case FullRoute => deactivateFullRoute(route)
+          case PrefixRoute => collection -= MongoDBObject("incoming_path" -> route.incoming_path)
+        }
+    }
+
+
+
   }
 }
