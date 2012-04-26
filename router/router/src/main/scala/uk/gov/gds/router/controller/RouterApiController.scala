@@ -30,7 +30,7 @@ class RouterApiController() extends ControllerBase {
     onSameDatabaseServer {
       val persistenceStatus = Routes.store(
         Route(
-          application_id = Some(applicationId),
+          application_id = applicationId,
           route_type = routeType,
           incoming_path = incomingPath))
 
@@ -45,7 +45,7 @@ class RouterApiController() extends ControllerBase {
     onSameDatabaseServer {
       val returnCode = Routes.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters) match {
         case NotFound => Routes.store(Route(
-          application_id = Some(params("application_id")),
+          application_id = params("application_id"),
           route_type = params("route_type"),
           incoming_path = requestInfo.pathParameter
         ))

@@ -11,18 +11,12 @@ case class Application(application_id: String,
   def id = application_id
 }
 
-case class Route(application_id: Option[String],
+case class Route(application_id: String,
                  incoming_path: String,
                  route_type: String,
                  route_action: String = "proxy") extends HasIdentity {
 
-  val application = application_id match {
-    case Some(appId) => Applications.load(appId).getOrElse(throw new Exception("Can't find application for route"))
-    case None => routeAction match {
-      case Gone => SystemApplications.applicationForGoneRoutes
-      case Proxy => throw new Exception("Route found in database with route_action of proxy and no backed application: " + this)
-    }
-  }
+  val application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route " + this))
 
   if ("prefix" == route_type && 1 != incoming_path.split("/").length)
     throw new RuntimeException("Invalid route: prefix routes may only have one segment")
@@ -42,9 +36,7 @@ case class Route(application_id: Option[String],
   def id = incoming_path
 }
 
-object SystemApplications {
-  val applicationForGoneRoutes = Application("router-gone", "todo: remove this")
-}
+object ApplicationForGoneRoutes extends Application("router-gone", "todo:remove this")
 
 sealed abstract class RouteType
 case object FullRoute extends RouteType

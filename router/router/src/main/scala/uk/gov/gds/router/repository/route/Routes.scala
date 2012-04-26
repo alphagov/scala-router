@@ -10,7 +10,9 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
     case None =>
       val prefixPath = id.split("/").take(1).mkString("/")
       collection.findOne(MongoDBObject("incoming_path" -> prefixPath, "route_type" -> "prefix"))
-    case Some(route) => Some(route)
+
+    case Some(route) =>
+      Some(route)
   }
 
 
@@ -23,15 +25,20 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
   }
 
   def deactivateFullRoute(route: Route) = {
-    Routes.simpleAtomicUpdate(route.id, Map("application_id" -> None, "route_action" -> "gone")) match {
-      case Updated => route.copy(application_id = None, route_action = "gone")
-      case NotFound => throw new Exception("route deleted while update attempted")
-    }
-  }
+    Routes.simpleAtomicUpdate(route.id, Map(
+      "application_id" -> ApplicationForGoneRoutes.application_id,
+      "route_action" -> "gone")
+    )
 
+    route.copy(
+      application_id = ApplicationForGoneRoutes.application_id,
+      route_action = "gone"
+    )
+  }
 
   private[repository] def deactivateAllRoutesForApplication(id: String) {
     val routesForApp: List[Route] = collection.find(MongoDBObject("application_id" -> id)).toList //todo make implicit to convert Seq here to List
+
     routesForApp.foreach {
       route =>
         route.proxyType match {
@@ -39,8 +46,5 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
           case PrefixRoute => collection -= MongoDBObject("incoming_path" -> route.incoming_path)
         }
     }
-
-
-
   }
 }
