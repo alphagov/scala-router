@@ -137,17 +137,17 @@ class RoutesTest extends MongoDatabaseBackedTest with ShouldMatchers {
     }
   }
 
-  test("can delete routes for application") {
+  test("can deactivate routes for application") {
     onSameDatabaseServer {
       store(fullRouteTemplate.copy(incoming_path = "sausages"))
-      store(fullRouteTemplate.copy(incoming_path = "cheese"))
+      store(prefixRouteTemplate.copy(incoming_path = "cheese"))
 
       load("sausages").isDefined should be(true)
       load("cheese").isDefined should be(true)
 
-      deleteAllRoutesForApplication(testApplication.application_id)
+      deactivateAllRoutesForApplication(testApplication.application_id)
 
-      load("sausages").isDefined should be(false)
+      load("sausages").isDefined should be(true)
       load("cheese").isDefined should be(false)
     }
   }

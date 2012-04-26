@@ -30,7 +30,7 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
   }
 
 
-  private[repository] def deleteAllRoutesForApplication(id: String) {
+  private[repository] def deactivateAllRoutesForApplication(id: String) {
     val routesForApp: List[Route] = collection.find(MongoDBObject("application_id" -> id)).toList //todo make implicit to convert Seq here to List
     routesForApp.foreach {
       route =>

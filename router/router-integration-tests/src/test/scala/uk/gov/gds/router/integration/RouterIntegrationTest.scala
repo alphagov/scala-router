@@ -69,17 +69,19 @@ class RouterIntegrationTest
   }
 
   test("When an application is deleted full routes continue to exist but are 'Gone' and prefix routes do not exist") {
+
     given("The test application has been created before the test")
     get("/applications/" + applicationId).status should be(200)
 
     when("The application is deleted")
-    delete("/applications/" + applicationId).status should be(204)
+    var response = delete("/applications/" + applicationId)
+    response.status should be(204)
 
     then("The application no longer exists")
     get("/applications/" + applicationId).status should be(404)
 
     then("The full route returns a 410 Gone")
-    var response = get("/route/fulltest/test.html")
+    response = get("/route/fulltest/test.html")
     response.status should be(410)
 
     then("The prefix routes return 404")
