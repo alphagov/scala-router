@@ -92,6 +92,28 @@ class RouterIntegrationTest
     response.status should be(404)
   }
 
+//  test("When an application is moved routes are 301 'Moved Permanently'") {
+//
+//    given("The test application has been created before the test")
+//    get("/applications/" + applicationId).status should be(200)
+//
+//    when("The application is moved")
+//    //todo how to do this?
+//    //route action is redirect-perm or temporary
+//    //
+//
+//    then("The full route returns a 301 Moved Permanently")
+//    var response = get("/route/fulltest/test.html")
+//    response.status should be(301)
+//
+//    then("The prefix routes return 301 Moved Permanently") //todo right??
+//    response = get("/route/prefixtest")
+//    response.status should be(301)
+//
+//    response = get("/route/test")
+//    response.status should be(301)
+//  }
+
   test("Can create application using put") {
     given("A unique application ID")
 

@@ -14,7 +14,8 @@ case class Application(application_id: String,
 case class Route(application_id: Option[String],
                  incoming_path: String,
                  route_type: String,
-                 route_action: String = "proxy") extends HasIdentity {
+                 route_action: String = "proxy",
+                 properties: Map[String,String] = Map.empty) extends HasIdentity {
 
   val application = application_id match {
     case Some(appId) => Applications.load(appId).getOrElse(throw new Exception("Can't find application for route"))
@@ -47,11 +48,15 @@ object SystemApplications {
 }
 
 sealed abstract class RouteType
+
 case object FullRoute extends RouteType
+
 case object PrefixRoute extends RouteType
 
 sealed abstract class RouteAction
+
 case object Proxy extends RouteAction
+
 case object Gone extends RouteAction
 
 

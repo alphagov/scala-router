@@ -27,4 +27,5 @@ class ApplicationTest < MiniTest::Unit::TestCase
     end
     assert_equal "/full", get("/route/full")
   end
+
 end
