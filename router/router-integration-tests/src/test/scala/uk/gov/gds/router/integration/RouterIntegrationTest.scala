@@ -68,6 +68,14 @@ class RouterIntegrationTest
     response.status should be(404)
   }
 
+  test("Default application is created to handle 410 gone routes"){
+    val response = get("/applications/router-gone")
+    logger.info("app " + response.body)
+    val application = fromJson[Application](response.body)
+
+    application.application_id should be(ApplicationForGoneRoutes.application_id)
+  }
+
   test("When an application is deleted full routes continue to exist but are 'Gone' and prefix routes do not exist") {
 
     given("The test application has been created before the test")
@@ -75,6 +83,7 @@ class RouterIntegrationTest
 
     when("The application is deleted")
     var response = delete("/applications/" + applicationId)
+    logger.info(response.body)
     response.status should be(204)
 
     then("The application no longer exists")
@@ -225,7 +234,7 @@ class RouterIntegrationTest
     // check it
     response.status should be(201)
     var route = fromJson[Route](response.body)
-    route.application_id should be(Some(applicationId))
+    route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
     route.proxyType should be(FullRoute)
     route.route_action should be("proxy")
@@ -235,7 +244,7 @@ class RouterIntegrationTest
     response = get("/routes/" + routeId)
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application_id should be(Some(applicationId))
+    route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
 
     given("A newly created application")
@@ -251,7 +260,7 @@ class RouterIntegrationTest
     then("We should get a response signifiying that the route has been updated")
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application_id should be(Some(newApplicationId))
+    route.application_id should be(newApplicationId)
     route.incoming_path should be(routeId)
 
     when("We delete the route")
@@ -262,6 +271,7 @@ class RouterIntegrationTest
     val deletedRoute = fromJson[Route](response.body)
     response.status should be(200)
     deletedRoute.route_action should be("gone")
+    deletedRoute.application should be(ApplicationForGoneRoutes)
 
     when("We try to reload the route")
     // check it's gone
@@ -285,7 +295,7 @@ class RouterIntegrationTest
     then("We should get a 201 response with JSON representing the created route")
     response.status should be(201)
     var route = fromJson[Route](response.body)
-    route.application_id should be(Some(applicationId))
+    route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
     route.proxyType should be(PrefixRoute)
     route.route_action should be("proxy")
@@ -294,7 +304,7 @@ class RouterIntegrationTest
     response = get("/routes/" + routeId)
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application_id should be(Some(applicationId))
+    route.application_id should be(applicationId)
     route.incoming_path should be(routeId)
 
     given("A newly created application")
@@ -309,7 +319,7 @@ class RouterIntegrationTest
     then("We should get a response signifiying that the route has been updated")
     response.status should be(200)
     route = fromJson[Route](response.body)
-    route.application_id should be(Some(newApplicationId))
+    route.application_id should be(newApplicationId)
     route.incoming_path should be(routeId)
 
     when("We delete the route")
@@ -325,7 +335,7 @@ class RouterIntegrationTest
     response.status should be(404)
   }
 
-  test("When a full route is deleted via the API it returns a 410 when accessed through the proxy"){
+  test("When a full route is deleted via the API it returns a 410 when accessed through the proxy") {
     given("The test harness application created with some default routes")
     when("we access a known full route")
 
@@ -333,7 +343,7 @@ class RouterIntegrationTest
 
     then("the response should be a 200 with the contents from the backend application")
     response.status should be(200)
-    response.body contains("router flat route") should be(true)
+    response.body contains ("router flat route") should be(true)
 
     when("We delete the route through the API")
     val deleteResponse = delete("/routes/fulltest/test.html")
@@ -343,14 +353,14 @@ class RouterIntegrationTest
     route.route_action should be("gone")
 
     then("and the route should not be associated with an application")
-    route.application_id should be(None)
-    route.application should be(SystemApplications.applicationForGoneRoutes)
+    route.application_id should be(ApplicationForGoneRoutes.application_id)
+    route.application should be(ApplicationForGoneRoutes)
 
     then("and we retrieve the route again we should get a 410 gone response")
     val secondGetResponse = get("/route/fulltest/test.html")
 
     secondGetResponse.status should be(410)
-    secondGetResponse.body contains("router flat route") should be(false)
+    secondGetResponse.body contains ("router flat route") should be(false)
   }
 
   test("can proxy requests to and return responses from backend server") {
