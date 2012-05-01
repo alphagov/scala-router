@@ -21,7 +21,7 @@ class Router
       if args[0].kind_of? Hash
         options = args[0]
         self.http_client = HttpClient.new options[:router_endpoint_url] || default_router_endpoint_url
-        self.logger = options[:logger] || NullLoger.instance
+        self.logger = options[:logger] || NullLoger.instance #or perhaps NullLogger????
       else
         logger = args[1] || NullLogger.instance
         logger.warn "Positional argumentsto Router::Client are deprecated."

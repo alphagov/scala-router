@@ -40,20 +40,25 @@ class Router
       request = verb.new(uri.path)
       request.form_data = form_data if form_data
       logger.debug "#{verb::METHOD}: #{uri} #{form_data.inspect}"
+      
+      #why is this in a block?
       response = Net::HTTP.new(uri.host, uri.port).start do |http|
         http.request(request)
       end
       logger.debug "Router responded with status: #{response.code}"
       raise_on_error(response)
-      Router::ResponseParser.parse(response)
+      response
+    #I don't think we need this 
+    #Router::ResponseParser.parse(response)
     end
 
     def raise_on_error(response)
       case response.code.to_i
+
       when 409 then raise Conflict.new("Conflict", response)
       when 404 then raise NotFound.new("Not found", response)
       when 400..599 then
-        raise RemoteError.new("Remote error", response)
+        raise RemoteError.new("Remote error #{response.code.to_i}", response.code.to_i)
       else
         response
       end
