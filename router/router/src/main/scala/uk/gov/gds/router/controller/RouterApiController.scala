@@ -9,6 +9,7 @@ import uk.gov.gds.router.util.JsonSerializer
 import runtime.BoxedUnit
 import uk.gov.gds.router.repository.{Updated, NotFound, PersistenceStatus}
 import uk.gov.gds.router.model.{PrefixRoute, FullRoute, Route, Application}
+import uk.gov.gds.router.mongodb.MongoDatabase
 
 @Singleton
 class RouterApiController() extends ControllerBase {
@@ -106,6 +107,10 @@ class RouterApiController() extends ControllerBase {
 
   get("/applications/:id") {
     Applications.load(params("id")) getOrElse status(404)
+  }
+
+  get("/reinitialise") {
+    MongoDatabase.initialiseMongo()
   }
 
   private def checkRequestParametersContainOnly(validParams: List[String]) = {

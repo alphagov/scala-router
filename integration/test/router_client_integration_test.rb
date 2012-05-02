@@ -6,8 +6,10 @@ class ApplicationTest < MiniTest::Unit::TestCase
 
   def setup
     trash_database
+    
     ensure_router_running
     @router = Router.new(ROUTER_BASE_URL)
+    @router.reinitialise
   end
 
   def test_can_create_and_update_and_delete_an_application
@@ -53,17 +55,17 @@ class ApplicationTest < MiniTest::Unit::TestCase
     assert_equal("test_application", response_body["application_id"])
     assert_equal("test_route/test", response_body["incoming_path"])
     
-    # response = @router.delete_route("test_route/test")
-    # assert_equal("200", response.code)
+    response = @router.delete_route("test_route/test")
+    assert_equal("200", response.code)
     
-    # response_body = JSON.parse(response.body)
-    # assert_equal("gone", response_body["route_action"])
+    response_body = JSON.parse(response.body)
+    assert_equal("gone", response_body["route_action"])
 
-    # response = @router.get_route("test_route/test")
-    # assert_equal("200", response.code)
+    response = @router.get_route("test_route/test")
+    assert_equal("200", response.code)
     
-    # response_body = JSON.parse(response.body)
-    # assert_equal("gone", response_body["route_action"])
+    response_body = JSON.parse(response.body)
+    assert_equal("gone", response_body["route_action"])
   end
 
   def test_can_create_and_delete_prefix_routes
