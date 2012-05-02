@@ -46,22 +46,10 @@ class Router
         http.request(request)
       end
       logger.debug "Router responded with status: #{response.code}"
-      raise_on_error(response)
       response
     #I don't think we need this 
     #Router::ResponseParser.parse(response)
     end
 
-    def raise_on_error(response)
-      case response.code.to_i
-
-      when 409 then raise Conflict.new("Conflict", response)
-      when 404 then raise NotFound.new("Not found", response)
-      when 400..599 then
-        raise RemoteError.new("Remote error #{response.code.to_i}", response.code.to_i)
-      else
-        response
-      end
-    end
   end
 end

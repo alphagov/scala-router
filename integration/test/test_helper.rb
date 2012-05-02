@@ -1,8 +1,6 @@
 require "bundler"
 Bundler.require(:default)
 require "minitest/autorun"
-require "mongo"
-require "open-uri"
 
 Thread.abort_on_exception = true
 
@@ -29,25 +27,4 @@ module RouterTestHelper
     end
   end
 
-  def ensure_test_server_running
-    return if $test_server # Use global to prevent garbage collection
-    $test_server = WEBrick::HTTPServer.new(:Port => TEST_SERVER_PORT)
-
-    Thread.new do
-      $test_server.start
-    end
-    sleep 0.2
-  end
-
-  def create_test_responder(route)
-    $test_server.mount_proc route do |req, res|
-      res.body = route
-    end
-  end
-
-  def get(url)
-    open(ROUTER_BASE_URL + url) do |f|
-      return f.read
-    end
-  end
 end

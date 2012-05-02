@@ -1,6 +1,5 @@
 require "test_helper"
 require "router"
-require "webrick"
 
 class ApplicationTest < MiniTest::Unit::TestCase
   include RouterTestHelper
@@ -8,40 +7,35 @@ class ApplicationTest < MiniTest::Unit::TestCase
   def setup
     trash_database
     ensure_router_running
-   # ensure_test_server_running #we don't need that 
     @router = Router.new(ROUTER_BASE_URL)
   end
-
-  # def test_should_register_prefix_route
-  #   create_test_responder "/prefix/suffix"
-  #   @router.application("test", TEST_SERVER_BASE_URL) do |app|
-  #     app.ensure_prefix_route "/prefix"
-  #   end
-  #   assert_equal "/prefix/suffix", get("/route/prefix/suffix")
-  # end
-
-  # def test_should_register_full_route
-  #   create_test_responder "/full"
-  #   @router.application("test", TEST_SERVER_BASE_URL) do |app|
-  #     app.ensure_full_route "/full"
-  #   end
-  #   assert_equal "/full", get("/route/full")
-  # end
 
   def test_can_create_and_update_and_delete_an_application
     response = @router.create_or_update_application("test_application", "/test/application")
     assert_equal("201", response.code)
 
-    # response = @router.get_application ???
+    response = @router.get_application("test_application")
+    assert_equal("200", response.code)
+
+    response_body = JSON.parse(response.body)
+    assert_equal("test_application", response_body["application_id"])
+    assert_equal("/test/application", response_body["backend_url"])
 
     response = @router.create_or_update_application("test_application", "/test/updated_application")
     assert_equal("200", response.code)
+
+    response_body = JSON.parse(response.body)
+    assert_equal("test_application", response_body["application_id"])
+    assert_equal("/test/updated_application", response_body["backend_url"])
     
     response = @router.delete_application("test_application")
     assert_equal("204", response.code)
+
+    response = @router.get_application("test_application")
+    assert_equal("404", response.code)
   end
 
-  def test_can_create_update_and_delete_full_routes
+  def test_can_create_and_delete_full_routes
     response = @router.create_or_update_application("test_application", "/test/application")
     assert_equal("201", response.code)
 

@@ -11,6 +11,10 @@ class Router
     response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
   end
 
+  def get_application(application_name)
+    response = @http_client.get("/applications/#{application_name}")
+  end
+
   def delete_application(application_name)
     response = @http_client.delete("/applications/#{application_name}")
   end 
@@ -42,6 +46,7 @@ class Router
     #:from "/foo/bar" :to "/foo/bang" :application (if diff) :smart_answers 
   end
 
+  #not sure exactly what this does
   def url_without_scheme(url)
     parsed_url = URI.parse(url)
       if parsed_url.scheme
