@@ -7,31 +7,31 @@ class Router
   end
 
   def create_application(application_name, backend_url)
-    response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
+    @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
   end
 
   def update_application(application_name, backend_url)
-    response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
+    @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
   end
 
   def get_application(application_name)
-    response = @http_client.get("/applications/#{application_name}")
+    @http_client.get("/applications/#{application_name}")
   end
   
   def delete_application(application_name)
-    response = @http_client.delete("/applications/#{application_name}")
+    @http_client.delete("/applications/#{application_name}")
   end 
 
   def create_route(route, route_type, application_name)
-    response = @http_client.put("/routes/#{route}", { route_type: route_type, application_id: application_name })
+    @http_client.put("/routes/#{route}", { route_type: route_type, application_id: application_name })
   end
 
   def get_route(route)
-    response = @http_client.get("/routes/#{route}")
+    @http_client.get("/routes/#{route}")
   end
 
   def delete_route(route)
-    response = @http_client.delete("/routes/#{route}")
+    @http_client.delete("/routes/#{route}")
   end
  
   #not sure exactly what this does
