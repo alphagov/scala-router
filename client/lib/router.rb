@@ -18,7 +18,7 @@ class Router
   def get_application(application_name)
     response = @http_client.get("/applications/#{application_name}")
   end
-
+  
   def delete_application(application_name)
     response = @http_client.delete("/applications/#{application_name}")
   end 
@@ -31,25 +31,10 @@ class Router
     response = @http_client.get("/routes/#{route}")
   end
 
-  #Here - method for updating route, with a different application... see scala test
-  #router_client.create_or_update_route :from "/foo"/bar" :to "publisher" :type "full"  
-
-
-  # def create_or_update_route(existing_route, new_route, route_type) 
-
-  #  # :from "/foo.bar" :to "http://news.bbc.co.uk" :type: redirect
-
-  # end
-
   def delete_route(route)
-    #delete_route "/foo/bar"
+    response = @http_client.delete("/routes/#{route}")
   end
-
-
-  def move_route() 
-    #:from "/foo/bar" :to "/foo/bang" :application (if diff) :smart_answers 
-  end
-
+ 
   #not sure exactly what this does
   def url_without_scheme(url)
     parsed_url = URI.parse(url)

@@ -32,88 +32,83 @@ class ApplicationTest < MiniTest::Unit::TestCase
     assert_equal("204", response.code)
 
     response = @router.get_application("test_application")
-    assert_equal("404", response.code)
+    assert_equal("404", response.code) 
   end
 
-  def test_can_create_and_delete_full_routes
+  def test_can_create_and_deactivate_full_routes
     response = @router.create_application("test_application", "/test/application")
     assert_equal("201", response.code)
 
     response = @router.create_route("test_route/test", "full", "test_application")
     assert_equal("201", response.code)
 
+    response_body = JSON.parse(response.body)
+    assert_equal("test_application", response_body["application_id"])
+    assert_equal("test_route/test", response_body["incoming_path"])
+    
     response = @router.get_route("test_route/test")
     assert_equal("200", response.code)
     
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
-
-    # name for method - we update route with new application
-    # response = @router.create_or_update_route("test_route/updated_route", "full", "test_application") 
-    # assert_equal("201", response.code)
+    assert_equal("test_route/test", response_body["incoming_path"])
+    
+    # response = @router.delete_route("test_route/test")
+    # assert_equal("200", response.code)
+    
+    # response_body = JSON.parse(response.body)
+    # assert_equal("gone", response_body["route_action"])
 
     # response = @router.get_route("test_route/test")
-    # assert_equal("20", response.code)
-
+    # assert_equal("200", response.code)
+    
+    # response_body = JSON.parse(response.body)
+    # assert_equal("gone", response_body["route_action"])
   end
 
-  def test_can_create_update_and_delete_prefix_routes
+  def test_can_create_and_delete_prefix_routes
     response = @router.create_application("test_application", "/test/application")
     assert_equal("201", response.code)
 
+    # come back to this - why does it make line 57 fail? the database should be trashed!
+    # it's something to do with it not creating the gone application I think
     response = @router.create_route("test_route", "prefix", "test_application")
     assert_equal("201", response.code)
 
+    response_body = JSON.parse(response.body)
+    assert_equal("test_application", response_body["application_id"])
+    assert_equal("test_route", response_body["incoming_path"])
+    
     response = @router.get_route("test_route")
     assert_equal("200", response.code)
     
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
-
-
+    assert_equal("test_route", response_body["incoming_path"])
+    
+    response = @router.delete_route("test_route")
+    assert_equal("204", response.code)
+ 
+    response = @router.get_route("test_route")
+    assert_equal("404", response.code)
   end
 
+ def test_cannot_create_prefix_routes_with_more_than_one_segment
+    response = @router.create_application("test_application", "/test/application")
+    assert_equal("201", response.code)
 
+    response = @router.create_route("test_route/test", "prefix", "test_application")
+    assert_equal("500", response.code)
+ end
 
-  # def test_cannot_create_prefix_routes_with_more_than_one_segment
-  #   response = @router.create_or_update_application("test_application", "/test/application")
-  #   assert_equal("201", response.code)
+  def test_cannot_create_prefix_route_without_application
+    response = @router.create_route("test_route", "prefix", "test_application")
+    assert_equal("500", response.code)
+  end
 
-  #   #this throws a RuntimeException - can I test for this?  
-  #   response = @router.create_or_update_route("test_route/test", "prefix", "test_application")
-  # end
+  def test_cannot_create_full_route_without_application
+    response = @router.create_route("test_route/test", "full", "test_application")
+    assert_equal("500", response.code)
+  end
 
-  # def test_cannot_create_full_route_without_application
-  #   response = @router.create_or_update_route("test_route", "prefix", "test_application")
-    
-  #   #this throws a JavaLang exception
-  #   assert_equal("201", response.code)
-  # end
-
-  # def test_cannot_create_prefix_route_without_application
-
-
-  # end
-
-
-  # def test_can_create_new_full_route
-  #   new_route = "/routes/new-route-created"
-    
-
-  #   # # assert_raises(OpenUri::HTTPError: 404 Not Found)
-  #   # #   get(new_route)
-  #   # # end
-
-  #   #this is using the test helper get so how can I get a 404 and test for it?
-
-  #   create_test_responder(new_route)
-
-  #   @router.route do |route|
-  #     route.create_or_update_route(new_route, "application", "full")
-  #   end
-
-  #   assert_equal(new_route, get(new_route))
-    
-  # end  
-  
 end
