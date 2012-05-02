@@ -1,3 +1,7 @@
+require 'net/http'
+require 'null_logger'
+require 'json'
+
 class Router
   class HttpClient
     attr_accessor :base_url

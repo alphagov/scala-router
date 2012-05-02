@@ -1,5 +1,4 @@
-require 'router/client'
-require 'uri'
+require 'router/http_client'
 
 class Router
 
@@ -46,3 +45,18 @@ class Router
   end
 
 end
+
+#  this came from the client - do I need any of it?
+
+#     def initialize *args
+#       if args[0].kind_of? Hash
+#         options = args[0]
+#         self.http_client = HttpClient.new options[:router_endpoint_url] || default_router_endpoint_url
+#         self.logger = options[:logger] || NullLoger.instance
+#       else
+#         logger = args[1] || NullLogger.instance
+#         logger.warn "Positional argumentsto Router::Client are deprecated."
+#         self.http_client = HttpClient.new args[0] || default_router_endpoint_url
+#         self.logger = logger
+#       end
+#     end
