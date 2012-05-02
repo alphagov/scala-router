@@ -1,5 +1,3 @@
-require_relative 'response_parser'
-
 class Router
   class HttpClient
     attr_accessor :base_url

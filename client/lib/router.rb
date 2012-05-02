@@ -7,7 +7,11 @@ class Router
     @http_client = Router::HttpClient.new(router_endpoint_url)
   end
 
-  def create_or_update_application(application_name, backend_url)
+  def create_application(application_name, backend_url)
+    response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
+  end
+
+  def update_application(application_name, backend_url)
     response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
   end
 

@@ -11,7 +11,7 @@ class ApplicationTest < MiniTest::Unit::TestCase
   end
 
   def test_can_create_and_update_and_delete_an_application
-    response = @router.create_or_update_application("test_application", "/test/application")
+    response = @router.create_application("test_application", "/test/application")
     assert_equal("201", response.code)
 
     response = @router.get_application("test_application")
@@ -21,7 +21,7 @@ class ApplicationTest < MiniTest::Unit::TestCase
     assert_equal("test_application", response_body["application_id"])
     assert_equal("/test/application", response_body["backend_url"])
 
-    response = @router.create_or_update_application("test_application", "/test/updated_application")
+    response = @router.update_application("test_application", "/test/updated_application")
     assert_equal("200", response.code)
 
     response_body = JSON.parse(response.body)
@@ -36,7 +36,7 @@ class ApplicationTest < MiniTest::Unit::TestCase
   end
 
   def test_can_create_and_delete_full_routes
-    response = @router.create_or_update_application("test_application", "/test/application")
+    response = @router.create_application("test_application", "/test/application")
     assert_equal("201", response.code)
 
     response = @router.create_route("test_route/test", "full", "test_application")
@@ -58,7 +58,7 @@ class ApplicationTest < MiniTest::Unit::TestCase
   end
 
   def test_can_create_update_and_delete_prefix_routes
-    response = @router.create_or_update_application("test_application", "/test/application")
+    response = @router.create_application("test_application", "/test/application")
     assert_equal("201", response.code)
 
     response = @router.create_route("test_route", "prefix", "test_application")
