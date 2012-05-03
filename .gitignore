@@ -10,3 +10,4 @@ logs/
 .bundle/
 .rakeTasks
 pkg/
+*.DS_Store

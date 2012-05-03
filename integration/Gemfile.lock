@@ -1,7 +1,7 @@
 PATH
   remote: ../client
   specs:
-    router-client (2.0.3)
+    router-client (3.0)
       activesupport
       builder
       null_logger

@@ -84,4 +84,6 @@ class ApplicationTest < MiniTest::Unit::TestCase
       @router.create_route("test_route/test", "full", "test_application")
     end
   end
+
+
 end
