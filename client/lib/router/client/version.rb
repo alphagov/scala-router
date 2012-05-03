@@ -1,5 +1,5 @@
 class Router
   class Client
-    VERSION = "2.0.3"
+    VERSION = "3.0" # "Armitage"
   end
 end
