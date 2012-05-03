@@ -20,10 +20,16 @@ module RouterTestHelper
     Dir.chdir(File.expand_path("../../../router", __FILE__)) do
       $router_io = IO.popen("./start-router-locally.sh", "r+")
       while (line = $router_io.gets.chomp) !~ /success/
-        $stderr.puts line unless line.empty?
+        line.empty? ? sleep(0.1) : $stderr.puts(line)
         raise "Starting router failed" if line =~ /error/
       end
       $stderr.puts line
+
+      Thread.new do
+        while (line = $router_io.gets.chomp) !~ /exit/
+          line.empty? ? sleep(0.1) : $stderr.puts(line)        
+        end
+      end.run
     end
   end
 

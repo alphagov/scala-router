@@ -38,14 +38,12 @@ class Router
       request.form_data = form_data if form_data
       @logger.debug "#{verb::METHOD}: #{uri} #{form_data.inspect}"
       
-      #why is this in a block?
       response = Net::HTTP.new(uri.host, uri.port).start do |http|
         http.request(request)
       end
-            @logger.debug "Router responded with status: #{response.code}"
+      @logger.debug "Router responded with status: #{response.code}"
       response
-    #I don't think we need this 
-    #Router::ResponseParser.parse(response)
+      #Router::ResponseParser.parse(response)
     end
 
   end

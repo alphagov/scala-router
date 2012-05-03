@@ -38,7 +38,6 @@ class Router
     @http_client.delete("/routes/#{route}")
   end
  
-  #not sure exactly what this does
   def url_without_scheme(url)
     parsed_url = URI.parse(url)
       if parsed_url.scheme
@@ -47,20 +46,4 @@ class Router
         url
       end
   end
-
 end
-
-#  this came from the client - do I need any of it?
-
-#     def initialize *args
-#       if args[0].kind_of? Hash
-#         options = args[0]
-#         self.http_client = HttpClient.new options[:router_endpoint_url] || default_router_endpoint_url
-#         self.logger = options[:logger] || NullLoger.instance
-#       else
-#         logger = args[1] || NullLogger.instance
-#         logger.warn "Positional argumentsto Router::Client are deprecated."
-#         self.http_client = HttpClient.new args[0] || default_router_endpoint_url
-#         self.logger = logger
-#       end
-#     end

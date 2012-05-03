@@ -6,7 +6,6 @@ class ApplicationTest < MiniTest::Unit::TestCase
 
   def setup
     trash_database
-    
     ensure_router_running
     @router = Router.new(ROUTER_BASE_URL)
     @router.reinitialise
