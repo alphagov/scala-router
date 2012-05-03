@@ -2,7 +2,7 @@ package uk.gov.gds.router.repository.route
 
 import uk.gov.gds.router.model._
 import com.mongodb.casbah.Imports._
-import uk.gov.gds.router.repository.{Conflict, NewlyCreated, MongoRepository}
+import uk.gov.gds.router.repository._
 
 object Routes extends MongoRepository[Route]("routes", "incoming_path") {
 
@@ -10,7 +10,9 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
     case None =>
       val prefixPath = id.split("/").take(1).mkString("/")
       collection.findOne(MongoDBObject("incoming_path" -> prefixPath, "route_type" -> "prefix"))
-    case Some(route) => Some(route)
+
+    case Some(route) =>
+      Some(route)
   }
 
 
@@ -22,7 +24,27 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
       NewlyCreated
   }
 
-  private[repository] def deleteAllRoutesForApplication(id: String) {
-    collection -= MongoDBObject("application_id" -> id)
+  def deactivateFullRoute(route: Route) = {
+    Routes.simpleAtomicUpdate(route.id, Map(
+      "application_id" -> ApplicationForGoneRoutes.application_id,
+      "route_action" -> "gone")
+    )
+
+    route.copy(
+      application_id = ApplicationForGoneRoutes.application_id,
+      route_action = "gone"
+    )
+  }
+
+  private[repository] def deactivateAllRoutesForApplication(id: String) {
+    val routesForApp: List[Route] = collection.find(MongoDBObject("application_id" -> id)).toList //todo make implicit to convert Seq here to List
+
+    routesForApp.foreach {
+      route =>
+        route.proxyType match {
+          case FullRoute => deactivateFullRoute(route)
+          case PrefixRoute => collection -= MongoDBObject("incoming_path" -> route.incoming_path)
+        }
+    }
   }
 }

@@ -1,5 +1,6 @@
 package uk.gov.gds.router
 
+import mongodb.MongoDatabase
 import org.scalatest.{BeforeAndAfterEach, FunSuite}
 import util.Logging
 import uk.gov.gds.router.mongodb.MongoDatabase.database
@@ -12,6 +13,7 @@ abstract class MongoDatabaseBackedTest extends FunSuite with BeforeAndAfterEach 
     if (cleanOutDatabaseBeforeEachTest) {
       database("applications").drop()
       database("routes").drop()
+      MongoDatabase.initialiseMongo()
     }
   }
 }

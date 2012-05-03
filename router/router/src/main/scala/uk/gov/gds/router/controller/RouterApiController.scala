@@ -4,10 +4,12 @@ import com.google.inject.Singleton
 import uk.gov.gds.router.mongodb.MongoDatabase._
 import uk.gov.gds.router.repository.route.Routes
 import uk.gov.gds.router.repository.application.Applications
-import uk.gov.gds.router.model.{Route, Application}
 import uk.gov.gds.router.util.JsonSerializer
+
 import runtime.BoxedUnit
-import uk.gov.gds.router.repository.{NotFound, PersistenceStatus}
+import uk.gov.gds.router.repository.{Updated, NotFound, PersistenceStatus}
+import uk.gov.gds.router.model.{PrefixRoute, FullRoute, Route, Application}
+import uk.gov.gds.router.mongodb.MongoDatabase
 
 @Singleton
 class RouterApiController() extends ControllerBase {
@@ -65,7 +67,15 @@ class RouterApiController() extends ControllerBase {
   }
 
   delete("/routes/*") {
-    status(Routes.delete(requestInfo.pathParameter).statusCode)
+    Routes.load(requestInfo.pathParameter) match {
+      case Some(route) =>
+        route.proxyType match {
+          case FullRoute => Routes.deactivateFullRoute(route)
+          case PrefixRoute => status(Routes.delete(route.incoming_path))
+        }
+
+      case None => status(NotFound)
+    }
   }
 
   get("/routes/*") {
@@ -86,7 +96,6 @@ class RouterApiController() extends ControllerBase {
         case NotFound => Applications.store(Application(requestInfo.pathParameter, params("backend_url")))
         case ps@_ => ps
       }
-
       status(returnCode)
       Applications.load(requestInfo.pathParameter)
     }
@@ -98,6 +107,10 @@ class RouterApiController() extends ControllerBase {
 
   get("/applications/:id") {
     Applications.load(params("id")) getOrElse status(404)
+  }
+
+  get("/reinitialise") {
+    MongoDatabase.initialiseMongo()
   }
 
   private def checkRequestParametersContainOnly(validParams: List[String]) = {

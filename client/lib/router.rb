@@ -1,46 +1,71 @@
-require 'router/client'
-require 'uri'
+require 'router/http_client'
+require 'active_support/core_ext/hash'
 
 class Router
+
+  class ServerError < Exception; end
+
   def initialize(router_endpoint_url, logger=nil)
-    @router_client = Router::Client.new(router_endpoint_url, logger)
+    @http_client = Router::HttpClient.new(router_endpoint_url)
   end
 
-  def application(application_id, backend_url)
-    application = Application.new(@router_client, application_id, backend_url)
-    application.register!
-    yield application if block_given?
-    application
+  def reinitialise
+    @http_client.get("/reinitialise")
   end
 
-  class Application
-    def initialize(router_client, id, backend_url)
-      @router_client = router_client
-      @id = id
-      @backend_location = url_without_scheme(backend_url)
+  def create_application(application_name, backend_url)
+    response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
+    
+    format_response_for response
+  end
+
+  def update_application(application_name, backend_url)
+    response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
+
+    format_response_for response
+  end
+
+  def get_application(application_name)
+    response = @http_client.get("/applications/#{application_name}")
+ 
+    format_response_for response
+  end
+  
+  def delete_application(application_name)
+    @http_client.delete("/applications/#{application_name}")
+  end 
+
+  def create_route(route, route_type, application_name)
+    response = @http_client.put("/routes/#{route}", { route_type: route_type, application_id: application_name })
+
+    format_response_for response
+  end
+
+  def get_route(route)
+    response = @http_client.get("/routes/#{route}")
+
+    format_response_for response
+  end
+
+  def delete_route(route)
+    @http_client.delete("/routes/#{route}")
+  end
+
+  def format_response_for(response)
+    case response.code
+    when "200", "201"
+      JSON.parse(response.body).symbolize_keys 
+    when "500"
+      raise ServerError.new
     end
-
-    def register!
-      @router_client.applications.update(application_id: @id, backend_url: @backend_location)
-    end
-
-    def ensure_prefix_route(incoming_path)
-      @router_client.routes.update(application_id: @id, route_type: :prefix, incoming_path: incoming_path)
-    end
-
-    def ensure_full_route(incoming_path)
-      @router_client.routes.update(application_id: @id, route_type: :full, incoming_path: incoming_path)
-    end
-
-    private
-
-    def url_without_scheme(url)
-      parsed_url = URI.parse(url)
+  end
+ 
+  def url_without_scheme(url)
+    parsed_url = URI.parse(url)
       if parsed_url.scheme
         "#{parsed_url.host}:#{parsed_url.port}#{parsed_url.path}"
       else
         url
       end
-    end
   end
 end
