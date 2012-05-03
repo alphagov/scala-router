@@ -9,7 +9,8 @@ class RouteController() extends ControllerBase {
 
   get("/route/*") {
     Routes.load(requestInfo.pathParameter) match {
-      case Some(route) => HttpProxy.get(route)
+      case Some(route) if ("proxy".equals(route.route_action)) => HttpProxy.get(route)
+      case Some(route) if ("gone".equals(route.route_action)) => halt(410)
       case None => halt(404)
     }
   }

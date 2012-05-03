@@ -1,6 +1,5 @@
 require "test_helper"
 require "router"
-require "webrick"
 
 class ApplicationTest < MiniTest::Unit::TestCase
   include RouterTestHelper
@@ -8,23 +7,83 @@ class ApplicationTest < MiniTest::Unit::TestCase
   def setup
     trash_database
     ensure_router_running
-    ensure_test_server_running
     @router = Router.new(ROUTER_BASE_URL)
+    @router.reinitialise
   end
 
-  def test_should_register_prefix_route
-    create_test_responder "/prefix/suffix"
-    @router.application("test", TEST_SERVER_BASE_URL) do |app|
-      app.ensure_prefix_route "/prefix"
-    end
-    assert_equal "/prefix/suffix", get("/route/prefix/suffix")
+  def test_can_create_and_update_and_delete_an_application
+    response = @router.create_application("test_application", "/test/application")
+    assert_equal("test_application", response[:application_id])
+    assert_equal("/test/application", response[:backend_url])
+
+    response = @router.get_application("test_application")
+    assert_equal("test_application", response[:application_id])
+    assert_equal("/test/application", response[:backend_url])
+
+    response = @router.update_application("test_application", "/test/updated_application")
+    assert_equal("test_application", response[:application_id])
+    assert_equal("/test/updated_application", response[:backend_url])
+    
+    @router.delete_application("test_application")
+    
+    response = @router.get_application("test_application")
+    assert_nil response  
   end
 
-  def test_should_register_full_route
-    create_test_responder "/full"
-    @router.application("test", TEST_SERVER_BASE_URL) do |app|
-      app.ensure_full_route "/full"
-    end
-    assert_equal "/full", get("/route/full")
+  def test_can_create_and_deactivate_full_routes
+    response = @router.create_application("test_application", "/test/application")
+    
+    response = @router.create_route("test_route/test", "full", "test_application")
+    assert_equal("test_application", response[:application_id])
+    assert_equal("test_route/test", response[:incoming_path])
+    
+    response = @router.get_route("test_route/test")
+    assert_equal("test_application", response[:application_id])
+    assert_equal("test_route/test", response[:incoming_path])
+    
+    @router.delete_route("test_route/test")
+
+    response = @router.get_route("test_route/test")
+    assert_equal("gone", response[:route_action])
   end
+
+  def test_can_create_and_delete_prefix_routes
+    response = @router.create_application("test_application", "/test/application")
+    
+    response = @router.create_route("test_route", "prefix", "test_application")
+    assert_equal("test_application", response[:application_id])
+    assert_equal("test_route", response[:incoming_path])
+    
+    response = @router.get_route("test_route")
+    assert_equal("test_application", response[:application_id])
+    assert_equal("test_route", response[:incoming_path])
+    
+    @router.delete_route("test_route")
+    
+    response = @router.get_route("test_route")
+    assert_nil response
+  end
+
+ def test_cannot_create_prefix_routes_with_more_than_one_segment
+    response = @router.create_application("test_application", "/test/application")
+    assert_equal("test_application", response[:application_id])
+
+    assert_raises Router::ServerError do
+      @router.create_route("test_route/test", "prefix", "test_application")
+    end
+ end
+
+  def test_cannot_create_prefix_route_without_application
+    assert_raises Router::ServerError do
+      @router.create_route("test_route", "prefix", "test_application")
+    end
+  end
+
+  def test_cannot_create_full_route_without_application
+    assert_raises Router::ServerError do
+      @router.create_route("test_route/test", "full", "test_application")
+    end
+  end
+
+
 end
