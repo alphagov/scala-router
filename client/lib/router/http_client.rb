@@ -43,7 +43,6 @@ class Router
       end
       @logger.debug "Router responded with status: #{response.code}"
       response
-      #Router::ResponseParser.parse(response)
     end
 
   end
