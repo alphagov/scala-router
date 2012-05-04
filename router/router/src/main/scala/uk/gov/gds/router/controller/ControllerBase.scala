@@ -26,6 +26,12 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
     super.halt(status = statusCode, body = errorDocument(statusCode), headers = Map("Content-Type" -> "text/html"))
   }
 
+
+  protected def redirect_permanently(location: String) {
+    super.halt(status = 301, body = errorDocument(301), headers = Map("Content-Type" -> "text/html", "Location" -> location))
+  }
+
+
   def errorDocument(code: Int) = {
     logger.debug("Serving error document with status {}", code)
     response.setHeader("Content-Type", "text/html")

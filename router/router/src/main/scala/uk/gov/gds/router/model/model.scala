@@ -31,6 +31,7 @@ case class Route(application_id: String,
   def routeAction = route_action match {
     case "proxy" => Proxy
     case "gone" => Gone
+    case "redirect" => Redirect
     case _ => throw new Exception("Unknown proxy type " + route_action)
   }
 
@@ -38,6 +39,8 @@ case class Route(application_id: String,
 }
 
 object ApplicationForGoneRoutes extends Application("router-gone", "todo:remove this")
+
+object ApplicationForRedirectRoutes extends Application("router-redirect", "todo:remove this")
 
 sealed abstract class RouteType
 
@@ -50,5 +53,7 @@ sealed abstract class RouteAction
 case object Proxy extends RouteAction
 
 case object Gone extends RouteAction
+
+case object Redirect extends RouteAction
 
 

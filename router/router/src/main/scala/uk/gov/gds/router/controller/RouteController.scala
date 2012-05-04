@@ -11,6 +11,7 @@ class RouteController() extends ControllerBase {
     Routes.load(requestInfo.pathParameter) match {
       case Some(route) if ("proxy".equals(route.route_action)) => HttpProxy.get(route)
       case Some(route) if ("gone".equals(route.route_action)) => halt(410)
+      case Some(route) if ("redirect".equals(route.route_action)) => redirect_permanently(route.properties("location"))
       case None => halt(404)
     }
   }

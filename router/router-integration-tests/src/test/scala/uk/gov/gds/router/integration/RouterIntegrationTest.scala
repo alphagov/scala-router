@@ -106,6 +106,10 @@ class RouterIntegrationTest
 //    given("The test application has been created before the test")
 //    get("/applications/" + applicationId).status should be(200)
 //
+//    var application = fromJson[Application](response.body)
+//    application.application_id should be(applicationId)
+//    application.backend_url should be(backendUrl)
+//
 //    when("The application is moved")
 //    //todo how to do this?
 //    //route action is redirect-perm or temporary
@@ -361,6 +365,31 @@ class RouterIntegrationTest
 
     secondGetResponse.status should be(410)
     secondGetResponse.body contains ("router flat route") should be(false)
+  }
+
+  test("a redirect full route will give a 301 status") {
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of full")
+    var response = post("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "full",
+        "route_action" -> "redirect",
+        "location" -> "/destination/page.html"))
+
+    then("We should be able to retreive the route information through the router API")
+    response = get("/route/" + routeId)
+
+    response.status should be(301)
+
+    def header(x: Option[Header]) = x match {
+      case Some(header) => header.value
+      case None => Unit
+    }
+
+    header( response.headers find {_.name == "Location"} ) should be("/destination/page.html")
   }
 
   test("can proxy requests to and return responses from backend server") {

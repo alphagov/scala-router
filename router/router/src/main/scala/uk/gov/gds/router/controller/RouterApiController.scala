@@ -8,15 +8,15 @@ import uk.gov.gds.router.util.JsonSerializer
 
 import runtime.BoxedUnit
 import uk.gov.gds.router.repository.{Updated, NotFound, PersistenceStatus}
-import uk.gov.gds.router.model.{PrefixRoute, FullRoute, Route, Application}
 import uk.gov.gds.router.mongodb.MongoDatabase
+import uk.gov.gds.router.model._
 
 @Singleton
 class RouterApiController() extends ControllerBase {
 
   private implicit def persistenceStatus2httpStatus(ps: PersistenceStatus) = ps.statusCode
 
-  val allowedRouteUpdateParams = List("application_id", "incoming_path", "route_type")
+  val allowedRouteUpdateParams = List("application_id", "incoming_path", "route_type", "route_action")
   val allowedApplicationUpdateParams = List("application_id", "backend_url")
 
   before() {
@@ -28,12 +28,24 @@ class RouterApiController() extends ControllerBase {
     val applicationId = params("application_id")
     val routeType = params("route_type")
 
+    val action = params.getOrElse("route_action", "proxy")
+    val location = params.get("location")
+
+    def properties(location: Option[String]): Map[String,String] =
+      location match {
+        case None => Map.empty
+        case Some(location) => Map("location" -> location)
+      }
+
     onSameDatabaseServer {
       val persistenceStatus = Routes.store(
         Route(
           application_id = applicationId,
           route_type = routeType,
-          incoming_path = incomingPath))
+          incoming_path = incomingPath,
+          route_action = action,
+          properties = properties(location))
+          )
 
       status(persistenceStatus)
       Routes.load(incomingPath)
