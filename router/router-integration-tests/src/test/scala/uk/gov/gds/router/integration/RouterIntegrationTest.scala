@@ -101,32 +101,6 @@ class RouterIntegrationTest
     response.status should be(404)
   }
 
-//  test("When an application is moved routes are 301 'Moved Permanently'") {
-//
-//    given("The test application has been created before the test")
-//    get("/applications/" + applicationId).status should be(200)
-//
-//    var application = fromJson[Application](response.body)
-//    application.application_id should be(applicationId)
-//    application.backend_url should be(backendUrl)
-//
-//    when("The application is moved")
-//    //todo how to do this?
-//    //route action is redirect-perm or temporary
-//    //
-//
-//    then("The full route returns a 301 Moved Permanently")
-//    var response = get("/route/fulltest/test.html")
-//    response.status should be(301)
-//
-//    then("The prefix routes return 301 Moved Permanently") //todo right??
-//    response = get("/route/prefixtest")
-//    response.status should be(301)
-//
-//    response = get("/route/test")
-//    response.status should be(301)
-//  }
-
   test("Can create application using put") {
     given("A unique application ID")
 
@@ -371,7 +345,7 @@ class RouterIntegrationTest
     given("A unique route ID that is not present in the router")
     val routeId = uniqueIdForTest
 
-    when("We create that route with a route type of full")
+    when("We create that route with a route type of full, a route action of redirect and a location")
     var response = post("/routes/" + routeId,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
@@ -390,6 +364,36 @@ class RouterIntegrationTest
     }
 
     header( response.headers find {_.name == "Location"} ) should be("/destination/page.html")
+  }
+
+  test("a proxy route cannot have a location") {
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of full, no route action and a location")
+    val response = post("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "full",
+        "location" -> "/destination/page.html"))
+
+    then("the server should return an error")
+    response.status should be(500)
+  }
+
+  //possibly also gone, possibly not
+
+  test("a redirect route must have a location") {
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of full, a route action of redirect and no location")
+    val response = post("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "full",
+        "route_action" -> "redirect"))
+    response.status should be(500)
   }
 
   test("can proxy requests to and return responses from backend server") {
