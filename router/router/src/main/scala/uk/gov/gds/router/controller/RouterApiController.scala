@@ -31,12 +31,14 @@ class RouterApiController() extends ControllerBase {
     val action = params.getOrElse("route_action", "proxy")
     val location = params.get("location")
 
-    if (action == "redirect" && location.isEmpty) {
-      logger.error("You must provide a location for a redirect route.")
-      halt(500)
-    } else if ((action == "proxy" || action == "gone")  && !location.isEmpty){
-      logger.error("A location must not be provided if the route is not a redirect route.")
-      halt(500)
+    location match {
+      case Some(str) if (action == "redirect" && str.equals("")) =>
+        halt(500, "You must provide a location for a redirect route.")
+      case Some(_) if (action == "proxy" || action == "gone") =>
+        halt(500, "A location must not be provided if the route is not a redirect route.")
+      case None if (action == "redirect") =>
+        halt(500, "You must provide a location for a redirect route.")
+      case _ =>
     }
 
     def properties(location: Option[String]): Map[String,String] =
