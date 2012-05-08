@@ -41,6 +41,12 @@ class Router
     format_response_for response
   end
 
+  def create_redirect_route(route, route_type, location)
+    response = @http_client.put("/routes/#{route}", { route_type: route_type, route_action: "redirect", location: location })
+
+    format_response_for response
+  end
+
   def get_route(route)
     response = @http_client.get("/routes/#{route}")
 

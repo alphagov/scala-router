@@ -346,9 +346,8 @@ class RouterIntegrationTest
     val routeId = uniqueIdForTest
 
     when("We create that route with a route type of full, a route action of redirect and a location")
-    var response = post("/routes/" + routeId,
+    var response = put("/routes/" + routeId,
       Map(
-        "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
         "route_action" -> "redirect",
         "location" -> "/destination/page.html"))
@@ -365,6 +364,39 @@ class RouterIntegrationTest
 
     header( response.headers find {_.name == "Location"} ) should be("/destination/page.html")
   }
+
+  test("a redirect route is given the application id of the application for redirect routes") {
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of full, a route action of redirect and a location")
+    var response = post("/routes/" + routeId,
+      Map(
+        "route_type" -> "full",
+        "route_action" -> "redirect",
+        "location" -> "/destination/page.html"))
+
+    then("the application id should be that of the application for redirect routes")
+    val route = fromJson[Route](response.body)
+    route.application_id should be(ApplicationForRedirectRoutes.id)
+  }
+
+  test("a gone route is given the application id of the application for gone routes") {
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of full, a route action of gone")
+    var response = post("/routes/" + routeId,
+      Map(
+        "route_type" -> "full",
+        "route_action" -> "gone"))
+
+    then("the application id should be that of the application for gone routes")
+    val route = fromJson[Route](response.body)
+    route.application_id should be(ApplicationForGoneRoutes.id)
+  }
+
+
 
   test("a proxy route cannot have a location") {
     given("A unique route ID that is not present in the router")
