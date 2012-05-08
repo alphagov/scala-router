@@ -7,6 +7,7 @@ import com.novus.salat.global.NoTypeHints
 import com.mongodb.casbah.Imports._
 import uk.gov.gds.router.model._
 import uk.gov.gds.router.util.Logging
+import com.mongodb.casbah.commons.MongoDBObjectBuilder
 
 abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: String, idProperty: String)(implicit m: Manifest[A])
   extends Repository[A] with MongoIndexTypes with Logging {
@@ -54,7 +55,15 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
 
   def simpleAtomicUpdate(id: String, params: Map[String, Any]) = {
     val builder = MongoDBObject.newBuilder
-    for ((k, v) <- params) builder += k -> v
+
+    for ((k, v) <- params) {
+      if (v.isInstanceOf[Map[String, String]]) {
+        addMapToQuery(k, v.asInstanceOf[Map[String, String]], builder)
+      }
+      else {
+        builder += k -> v
+      }
+    }
 
     val updateResult = collection.findAndModify(
       query = MongoDBObject(idProperty -> id),
@@ -63,6 +72,16 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
     updateResult match {
       case Some(_) => Updated
       case None => NotFound
+    }
+  }
+
+
+  private def addMapToQuery(property: String, map: Map[String, String], query: MongoDBObjectBuilder) {
+    val builder = MongoDBObject.newBuilder
+
+    for ((k, v) <- map) {
+      builder += k -> v
+      query += property -> builder.result().asDBObject
     }
   }
 

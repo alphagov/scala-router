@@ -11,12 +11,13 @@ import uk.gov.gds.router.repository.{Updated, NotFound, PersistenceStatus}
 import uk.gov.gds.router.mongodb.MongoDatabase
 import uk.gov.gds.router.model._
 
+
 @Singleton
 class RouterApiController() extends ControllerBase {
 
   private implicit def persistenceStatus2httpStatus(ps: PersistenceStatus) = ps.statusCode
 
-  val allowedRouteUpdateParams = List("application_id", "incoming_path", "route_type", "route_action")
+  val allowedRouteUpdateParams = List("application_id", "incoming_path", "route_type", "route_action", "location")
   val allowedApplicationUpdateParams = List("application_id", "backend_url")
 
   before() {
@@ -24,11 +25,42 @@ class RouterApiController() extends ControllerBase {
   }
 
   post("/routes/*") {
-    val incomingPath = requestInfo.pathParameter
-    val applicationId = params("application_id")
-    val routeType = params("route_type")
+    val routeParameters : Map[String, Any] = validateParametersForRoute()
+
+    onSameDatabaseServer {
+      val persistenceStatus = Routes.store(
+        Route(
+          application_id = routeParameters("application_id").toString,
+          route_type = routeParameters("route_type").toString,
+          incoming_path = routeParameters("incoming_path").toString,
+          route_action = routeParameters("route_action").toString,
+          properties = routeParameters("properties").asInstanceOf[Map[String, String]]
+          )
+      )
+
+      status(persistenceStatus)
+      Routes.load(routeParameters("incoming_path").toString)
+    }
+  }
+
+
+  def validateParametersForRoute() : Map[String, Any] = {
+
+    var validatedParameters = Map[String, Any]()
+    validatedParameters += ("incoming_path" -> requestInfo.pathParameter)
+    validatedParameters += ("route_type" -> params("route_type"))
 
     val action = params.getOrElse("route_action", "proxy")
+
+    val applicationId = action match {
+      case "proxy" => params("application_id")
+      case "redirect" => ApplicationForRedirectRoutes.id
+      case "gone" => ApplicationForGoneRoutes.id
+    }
+
+    validatedParameters += ("route_action" -> action)
+    validatedParameters += ("application_id" -> applicationId)
+
     val location = params.get("location")
 
     location match {
@@ -41,42 +73,35 @@ class RouterApiController() extends ControllerBase {
       case _ =>
     }
 
-    def properties(location: Option[String]): Map[String,String] =
+    def properties(location: Option[String]): Map[String, String] =
       location match {
         case None => Map.empty
         case Some(location) => Map("location" -> location)
       }
 
-    onSameDatabaseServer {
-      val persistenceStatus = Routes.store(
-        Route(
-          application_id = applicationId,
-          route_type = routeType,
-          incoming_path = incomingPath,
-          route_action = action,
-          properties = properties(location))
-          )
-
-      status(persistenceStatus)
-      Routes.load(incomingPath)
-    }
+    validatedParameters += ("properties" -> properties(location))
+    validatedParameters
   }
 
   put("/routes/*") {
     checkRequestParametersContainOnly(allowedRouteUpdateParams)
 
+    val routeParameters : Map[String, Any] = validateParametersForRoute()
+
     onSameDatabaseServer {
-      val returnCode = Routes.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters) match {
+      val returnCode = Routes.simpleAtomicUpdate(routeParameters("incoming_path").toString, routeParameters) match {
         case NotFound => Routes.store(Route(
-          application_id = params("application_id"),
-          route_type = params("route_type"),
-          incoming_path = requestInfo.pathParameter
+          application_id = routeParameters("application_id").toString,
+          route_type = routeParameters("route_type").toString,
+          incoming_path = routeParameters("incoming_path").toString,
+          route_action = routeParameters("route_action").toString,
+          properties = routeParameters("properties").asInstanceOf[Map[String, String]]
         ))
         case ps@_ => ps
       }
 
       status(returnCode)
-      Routes.load(requestInfo.pathParameter)
+      Routes.load(routeParameters("incoming_path").toString)
     }
   }
 
