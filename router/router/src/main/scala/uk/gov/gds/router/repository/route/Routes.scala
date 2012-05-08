@@ -15,17 +15,10 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
       Some(route)
   }
 
-
-  override def store(obj: Route) = super.load(obj.id) match {
-    case Some(route) if (obj.route_type == "prefix") => Conflict
-    case Some(route) if (obj.incoming_path == route.incoming_path) => Conflict
-//    case Some(route) if (obj.routeAction == Redirect && obj.properties.get("location").isEmpty ) => Conflict
-    case Some(route) if (obj.application_id == ApplicationForRedirectRoutes.application_id) =>
-      val newObj = obj.copy(route_action = "redirect")
-      collection += newObj
-      NewlyCreated
+  override def store(toStore: Route) = super.load(toStore.id) match {
+    case Some(route) if (toStore.incoming_path == route.incoming_path) => Conflict
     case None =>
-      collection += obj
+      collection += toStore
       NewlyCreated
   }
 

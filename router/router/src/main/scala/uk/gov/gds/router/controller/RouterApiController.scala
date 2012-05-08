@@ -31,6 +31,14 @@ class RouterApiController() extends ControllerBase {
     val action = params.getOrElse("route_action", "proxy")
     val location = params.get("location")
 
+    if (action == "redirect" && location.isEmpty) {
+      logger.error("You must provide a location for a redirect route.")
+      halt(500)
+    } else if ((action == "proxy" || action == "gone")  && !location.isEmpty){
+      logger.error("A location must not be provided if the route is not a redirect route.")
+      halt(500)
+    }
+
     def properties(location: Option[String]): Map[String,String] =
       location match {
         case None => Map.empty

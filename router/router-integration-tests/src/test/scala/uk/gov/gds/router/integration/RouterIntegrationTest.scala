@@ -381,7 +381,21 @@ class RouterIntegrationTest
     response.status should be(500)
   }
 
-  //possibly also gone, possibly not
+  test("a gone route cannot have a location") {
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of full, a route action of gone and a location")
+    val response = post("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "full",
+        "route_action" -> "gone",
+        "location" -> "/destination/page.html"))
+
+    then("the server should return an error")
+    response.status should be(500)
+  }
 
   test("a redirect route must have a location") {
     given("A unique route ID that is not present in the router")
