@@ -5,4 +5,4 @@ cd ..
 ./sbt test 
 cd script
 
-Echo Done. Run generate-intellij-project-files.sh if you want to use IntelliJ Idea
+echo Done. Run generate-intellij-project-files.sh if you want to use IntelliJ Idea or generate-eclipse-project-files.sh if you want to use Eclipse.
