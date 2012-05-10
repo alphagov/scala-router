@@ -396,8 +396,6 @@ class RouterIntegrationTest
     route.application_id should be(ApplicationForGoneRoutes.id)
   }
 
-
-
   test("a proxy route cannot have a location") {
     given("A unique route ID that is not present in the router")
     val routeId = uniqueIdForTest
@@ -456,6 +454,63 @@ class RouterIntegrationTest
     response.status should be(500)
   }
 
+  test("a prefix redirect route can be updated"){
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of prefix, a route action of redirect and a location")
+    var response = put("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "prefix",
+        "route_action" -> "redirect",
+        "location" -> "/redirect"))
+    response.status should be(201)
+
+    var createdRoute = fromJson[Route](response.body)
+    createdRoute.properties("location") should be("/redirect")
+
+    when("we update that route")
+    response = put("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "full",
+        "route_action" -> "redirect",
+        "location" -> "/another-redirect"))
+    response.status should be(200)
+
+    createdRoute = fromJson[Route](response.body)
+    createdRoute.properties("location") should be("/another-redirect")
+  }
+
+  test("a full redirect route can be updated"){
+    given("A unique route ID that is not present in the router")
+    val routeId = uniqueIdForTest
+
+    when("We create that route with a route type of full, a route action of redirect and a location")
+    var response = put("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "full",
+        "route_action" -> "redirect",
+        "location" -> "/redirect/route"))
+    response.status should be(201)
+
+    var createdRoute = fromJson[Route](response.body)
+    createdRoute.properties("location") should be("/redirect/route")
+
+    when("we update that route")
+    response = put("/routes/" + routeId,
+      Map(
+        "application_id" -> ApplicationForRedirectRoutes.application_id,
+        "route_type" -> "full",
+        "route_action" -> "redirect",
+        "location" -> "/redirect/another-route"))
+    response.status should be(200)
+
+    createdRoute = fromJson[Route](response.body)
+    createdRoute.properties("location") should be("/redirect/another-route")
+  }
 
   test("can proxy requests to and return responses from backend server") {
     var response = get("/route/fulltest/test.html")
