@@ -3,7 +3,7 @@ package uk.gov.gds.router.integration
 import uk.gov.gds.router.util.JsonSerializer._
 import uk.gov.gds.router.model._
 
-class RoutesRouterIntegrationTest
+class RoutesLifecycleTest
   extends RouterIntegrationTestSetup {
 
   test("Can create routes using put") {
@@ -129,58 +129,6 @@ class RoutesRouterIntegrationTest
 
     then("the route still should be gone")
     response.status should be(404)
-  }
-
-  test("When a full route is deleted via the API it returns a 410 when accessed through the proxy") {
-    given("The test harness application created with some default routes")
-    when("we access a known full route")
-
-    val response = get("/route/fulltest/test.html")
-
-    then("the response should be a 200 with the contents from the backend application")
-    response.status should be(200)
-    response.body contains ("router flat route") should be(true)
-
-    when("We delete the route through the API")
-    val deleteResponse = delete("/routes/fulltest/test.html")
-
-    then("When we examine the route through the API its route_action should be 'gone'")
-    val route = fromJson[Route](deleteResponse.body)
-    route.route_action should be("gone")
-
-    then("and the route should not be associated with an application")
-    route.application_id should be(ApplicationForGoneRoutes.application_id)
-    route.application should be(ApplicationForGoneRoutes)
-
-    then("and we retrieve the route again we should get a 410 gone response")
-    val secondGetResponse = get("/route/fulltest/test.html")
-
-    secondGetResponse.status should be(410)
-    secondGetResponse.body contains ("router flat route") should be(false)
-  }
-
-  test("a redirect full route will give a 301 status") {
-    given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
-
-    when("We create that route with a route type of full, a route action of redirect and a location")
-    var response = put("/routes/" + routeId,
-      Map(
-        "route_type" -> "full",
-        "route_action" -> "redirect",
-        "location" -> "/destination/page.html"))
-
-    then("We should be able to retreive the route information through the router API")
-    response = get("/route/" + routeId)
-
-    response.status should be(301)
-
-    def header(x: Option[Header]) = x match {
-      case Some(header) => header.value
-      case None => Unit
-    }
-
-    header( response.headers find {_.name == "Location"} ) should be("/destination/page.html")
   }
 
   test("a redirect route is given the application id of the application for redirect routes") {
@@ -330,45 +278,9 @@ class RoutesRouterIntegrationTest
     createdRoute.properties("location") should be("/redirect/another-route")
   }
 
-  test("can proxy requests to and return responses from backend server") {
-    var response = get("/route/fulltest/test.html")
-    response.status should be(200)
-    response.body.contains("router flat route") should be(true)
-
-    response = get("/route/prefixtest/bang/test.html")
-    response.status should be(200)
-    response.body.contains("router prefix route") should be(true)
-  }
-
-  test("can proxy HEAD requests to and return responses from backend server") {
-    var response = head("/route/fulltest/test.html")
-    response.status should be(200)
-    response.body should be("")
-
-    response = head("/route/prefixtest/bang/test.html")
-    response.status should be(200)
-    response.body should be("")
-  }
-
-  test("can post form submissions to backend server") {
-    val response = post("/route/test/test-harness", Map("first" -> "sausage", "second" -> "chips"))
-    response.status should be(200)
-    response.body.contains("first=sausage") should be(true)
-    response.body.contains("second=chips") should be(true)
-  }
-
   test("Cannot create prefix routes with more than one path element") {
     val response = post("/routes/invalid/prefix/route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     response.status should be(500)
-  }
-
-  test("Router does not fallback to invalid prefix route when full route cannot be found") {
-    post("/routes/someprefix", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-    val registered = get("/route/someprefix")
-    val unregistered = get("/route/someprefix/unregistered")
-
-    registered.body.contains("prefix route") should be(true)
-    unregistered.body.contains("unregsitered") should be(false)
   }
 
   test("Can create full routes with more than one path element") {
@@ -418,11 +330,5 @@ class RoutesRouterIntegrationTest
     response = get("/route/football")
     response.body.contains("football") should be(true)
   }
-
-  test("Router returns 404 error page when route not found") {
-    val response = get("/route/asdasdasdasdasdasdasdasdasdasdsadas")
-    response.status should be(404)
-  }
-
-
 }
+

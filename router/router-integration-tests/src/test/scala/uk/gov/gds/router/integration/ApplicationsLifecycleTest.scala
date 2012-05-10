@@ -3,7 +3,7 @@ package uk.gov.gds.router.integration
 import uk.gov.gds.router.util.JsonSerializer._
 import uk.gov.gds.router.model._
 
-class ApplicationsRouterIntegrationTest
+class ApplicationsLifecycleTest
   extends RouterIntegrationTestSetup {
 
   test("can create and delete applications") {
