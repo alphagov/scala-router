@@ -11,3 +11,7 @@ logs/
 .rakeTasks
 pkg/
 *.DS_Store
+.classpath
+.project
+.cache
+
