@@ -75,7 +75,6 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
     }
   }
 
-
   private def addMapToQuery(property: String, map: Map[String, String], query: MongoDBObjectBuilder) {
     val builder = MongoDBObject.newBuilder
 

@@ -25,83 +25,39 @@ class RouterApiController() extends ControllerBase {
   }
 
   post("/routes/*") {
-    val routeParameters : Map[String, Any] = validateParametersForRoute()
+    val incomingPath = requestInfo.pathParameter
+    val routeWithValidatedParameters = validateParametersForRoute()
 
     onSameDatabaseServer {
-      val persistenceStatus = Routes.store(
-        Route(
-          application_id = routeParameters("application_id").toString,
-          route_type = routeParameters("route_type").toString,
-          incoming_path = routeParameters("incoming_path").toString,
-          route_action = routeParameters("route_action").toString,
-          properties = routeParameters("properties").asInstanceOf[Map[String, String]]
-          )
-      )
+      val persistenceStatus = Routes.store(routeWithValidatedParameters)
 
       status(persistenceStatus)
-      Routes.load(routeParameters("incoming_path").toString)
+      Routes.load(incomingPath)
     }
   }
 
-
-  def validateParametersForRoute() : Map[String, Any] = {
-
-    var validatedParameters = Map[String, Any]()
-    validatedParameters += ("incoming_path" -> requestInfo.pathParameter)
-    validatedParameters += ("route_type" -> params("route_type"))
-
-    val action = params.getOrElse("route_action", "proxy")
-
-    val applicationId = action match {
-      case "proxy" => params("application_id")
-      case "redirect" => ApplicationForRedirectRoutes.id
-      case "gone" => ApplicationForGoneRoutes.id
-    }
-
-    validatedParameters += ("route_action" -> action)
-    validatedParameters += ("application_id" -> applicationId)
-
-    val location = params.get("location")
-
-    location match {
-      case Some(str) if (action == "redirect" && str.equals("")) =>
-        halt(500, "You must provide a location for a redirect route.")
-      case Some(_) if (action == "proxy" || action == "gone") =>
-        halt(500, "A location must not be provided if the route is not a redirect route.")
-      case None if (action == "redirect") =>
-        halt(500, "You must provide a location for a redirect route.")
-      case _ =>
-    }
-
-    def properties(location: Option[String]): Map[String, String] =
-      location match {
-        case None => Map.empty
-        case Some(location) => Map("location" -> location)
-      }
-
-    validatedParameters += ("properties" -> properties(location))
-    validatedParameters
-  }
-
-  put("/routes/*") {
+ put("/routes/*") {
     checkRequestParametersContainOnly(allowedRouteUpdateParams)
 
-    val routeParameters : Map[String, Any] = validateParametersForRoute()
+   val incomingPath = requestInfo.pathParameter
+   val routeWithValidatedParameters : Route = validateParametersForRoute()
 
-    onSameDatabaseServer {
-      val returnCode = Routes.simpleAtomicUpdate(routeParameters("incoming_path").toString, routeParameters) match {
-        case NotFound => Routes.store(Route(
-          application_id = routeParameters("application_id").toString,
-          route_type = routeParameters("route_type").toString,
-          incoming_path = routeParameters("incoming_path").toString,
-          route_action = routeParameters("route_action").toString,
-          properties = routeParameters("properties").asInstanceOf[Map[String, String]]
-        ))
+   onSameDatabaseServer {
+     //todo I think simple atomic update should take a route, but for now, we do this
+     //no need to validate as has been done creating the route above
+    val mapOfRouteParameters = Map[String, Any]("incoming_path" -> routeWithValidatedParameters.incoming_path,
+           "route_type" -> routeWithValidatedParameters.route_type,
+           "route_action" -> routeWithValidatedParameters.route_action,
+           "application_id" -> routeWithValidatedParameters.application_id,
+           "properties" -> routeWithValidatedParameters.properties)
+     val returnCode = Routes.simpleAtomicUpdate(incomingPath, mapOfRouteParameters) match {
+        case NotFound =>
+          Routes.store(routeWithValidatedParameters)
         case ps@_ => ps
       }
 
       status(returnCode)
-      Routes.load(routeParameters("incoming_path").toString)
+      Routes.load(incomingPath)
     }
   }
 
@@ -159,6 +115,42 @@ class RouterApiController() extends ControllerBase {
   get("/reinitialise") {
     MongoDatabase.initialiseMongo()
   }
+
+  private def validateParametersForRoute() : Route = {
+
+    val incomingPath = requestInfo.pathParameter
+    val routeType = params("route_type")
+
+    val action = params.getOrElse("route_action", "proxy")
+
+    val applicationId = action match {
+      case "proxy" => params("application_id")
+      case "redirect" => ApplicationForRedirectRoutes.id
+      case "gone" => ApplicationForGoneRoutes.id
+    }
+
+    val location = params.get("location")
+
+    location match {
+      case Some(str) if (action == "redirect" && str.equals("")) =>
+        halt(500, "You must provide a location for a redirect route.")
+      case Some(_) if (action == "proxy" || action == "gone") =>
+        halt(500, "A location must not be provided if the route is not a redirect route.")
+      case None if (action == "redirect") =>
+        halt(500, "You must provide a location for a redirect route.")
+      case _ =>
+    }
+
+    def properties(location: Option[String]): Map[String, String] =
+      location match {
+        case None => Map.empty
+        case Some(location) => Map("location" -> location)
+      }
+
+    val route = Route(applicationId, incomingPath, routeType, action, properties(location))
+    route
+  }
+
 
   private def checkRequestParametersContainOnly(validParams: List[String]) = {
     requestInfo.requestParameters map {
