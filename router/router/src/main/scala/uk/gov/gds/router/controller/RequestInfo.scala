@@ -18,8 +18,6 @@ object RequestInfo extends Logging {
             params: Map[String, String],
             multiParams: ScalatraKernel.MultiParams): RequestInfo = {
 
-    logger.info("////////" + request.getServerName + "*****" + request.getRequestURL)
-
     def unslashed(s: String) = if (s.startsWith("/")) s.replaceFirst("/", "") else s
     def slashed(s: String) = if (!s.startsWith("/")) "/" + s else s
 
