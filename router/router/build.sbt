@@ -44,7 +44,8 @@ resolvers ++= Seq(
     "GDS maven repo releases" at "http://alphagov.github.com/maven/releases",
     "Java.net Maven2 Repository" at "http://download.java.net/maven/2/",
     "repo.novus snaps" at "http://repo.novus.com/snapshots/",
-    "repo.codahale" at "http://repo.codahale.com"
+    "repo.codahale" at "http://repo.codahale.com",
+    "Sonatype OSS Groups" at "https://oss.sonatype.org/content/groups/scala-tools/"
 )
 
 port in container.Configuration := 11200
