@@ -12,12 +12,17 @@ private[configuration] object Config extends Logging {
   private val properties = new Properties
   readConfigFile()
 
+  def apply(name: String, default: String = null) =
+    prop(name).getOrElse(Option(default).getOrElse(throw new Exception("Can't find setting: " + name)))
+
   def setting(propertyName: String) =
     Option(properties.get(propertyName).asInstanceOf[String])
       .getOrElse(throw new RuntimeException("Can't find setting: " + propertyName))
 
+  private def prop(name: String) = Option(properties.get(name).asInstanceOf[String])
+
   private def readConfigFile() {
-   initialiseFromStream(selectConfig())
+    initialiseFromStream(selectConfig())
   }
 
   private def selectConfig() = {
