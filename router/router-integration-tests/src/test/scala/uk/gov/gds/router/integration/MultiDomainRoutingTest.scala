@@ -19,21 +19,19 @@ class MultiDomainRoutingTest
     RouterConfig.getPrefixForHost(hostName) should be("/businesslink/")
   }
 
-  test("host defaults to /govuk/ if one is not present in request") {
+  test("if no host is provided, an excetion is thrown") {
     val hostName = ""
-    RouterConfig.getPrefixForHost(hostName) should be("/govuk/")
+    val thrown = intercept[Exception] {
+      RouterConfig.getPrefixForHost(hostName)
+    }
+    thrown.getMessage should be("Can't find setting: host-")
   }
 
   test("if non-existant host is provided, an exception is thrown") {
     val hostName = "non-existent hostname"
-    RouterConfig.getPrefixForHost(hostName) should be("/govuk/")
+    val thrown = intercept[Exception] {
+      RouterConfig.getPrefixForHost(hostName)
+    }
+    thrown.getMessage should be("Can't find setting: host-non-existent hostname")
   }
-
-  //todo what do we want the non-existent host behaviour to be? above or below?
-//    test("if non-existant host is provided, an exception is thrown") {
-//    val hostName = "non-existent hostname"
-//    intercept[RuntimeException] {
-//      val result = RouterConfig.getPrefixForHost(hostName)
-//    }
-//  }
 }

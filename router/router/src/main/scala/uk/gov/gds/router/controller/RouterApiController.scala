@@ -43,8 +43,6 @@ class RouterApiController() extends ControllerBase {
    val routeWithValidatedParameters : Route = validateParametersForRoute()
 
    onSameDatabaseServer {
-     //todo I think simple atomic update should take a route, but for now, we do this
-     //no need to validate as has been done creating the route above
     val mapOfRouteParameters = Map[String, Any]("incoming_path" -> routeWithValidatedParameters.incoming_path,
            "route_type" -> routeWithValidatedParameters.route_type,
            "route_action" -> routeWithValidatedParameters.route_action,

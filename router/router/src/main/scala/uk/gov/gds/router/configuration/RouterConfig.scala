@@ -8,7 +8,7 @@ object RouterConfig {
 
   def getPrefixForHost(serverName: String): String = {
     val hostKey = "host-" + serverName
-    Config(name = hostKey, default = "/govuk/")
+    Config(name = hostKey)
   }
 
 }
