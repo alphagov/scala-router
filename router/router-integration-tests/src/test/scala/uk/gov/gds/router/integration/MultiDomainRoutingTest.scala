@@ -19,19 +19,22 @@ class MultiDomainRoutingTest
     RouterConfig.getPrefixForHost(hostName) should be("/businesslink/")
   }
 
-  test("if no host is provided, an excetion is thrown") {
-    val hostName = ""
-    val thrown = intercept[Exception] {
-      RouterConfig.getPrefixForHost(hostName)
-    }
-    thrown.getMessage should be("Can't find setting: host-")
-  }
+  //there is default now so these do not throw an exception
 
-  test("if non-existant host is provided, an exception is thrown") {
-    val hostName = "non-existent hostname"
-    val thrown = intercept[Exception] {
-      RouterConfig.getPrefixForHost(hostName)
-    }
-    thrown.getMessage should be("Can't find setting: host-non-existent hostname")
-  }
+//  test("if no host is provided, an exception is thrown") {
+//    val hostName = ""
+//    val thrown = intercept[Exception] {
+//      RouterConfig.getPrefixForHost(hostName)
+//    }
+//    thrown.getMessage should be("Can't find setting: host-")
+//  }
+//
+//  test("if non-existant host is provided, an exception is thrown") {
+//    val hostName = "non-existent hostname"
+//    val thrown = intercept[Exception] {
+//      RouterConfig.getPrefixForHost(hostName)
+//    }
+//    thrown.getMessage should be("Can't find setting: host-non-existent hostname")
+//  }
+
 }
