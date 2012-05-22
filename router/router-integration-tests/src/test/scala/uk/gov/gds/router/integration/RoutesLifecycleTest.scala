@@ -292,11 +292,24 @@ class RoutesLifecycleTest
     val creationResponse = post("/routes/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     creationResponse.status should be(201)
 
+    var tempResponse = get("/route/a-prefix-route/foo")
+    tempResponse.status should be(200)
+    tempResponse.body.contains("foo!") should be(true)
+
     val fullRouteResponse = post("/routes/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
     fullRouteResponse.status should be(201)
     val createdRoute = fromJson[Route](fullRouteResponse.body)
-
     createdRoute.incoming_path should be("a-prefix-route/foo/bar")
+
+    tempResponse = get("/route/a-prefix-route/foo")
+    tempResponse.status should be(200)
+    tempResponse.body.contains("foo!") should be(true)
+    tempResponse.body.contains("bar!") should be(false)
+
+    tempResponse = get("/route/a-prefix-route/foo/bar")
+    tempResponse.status should be(200)
+    tempResponse.body.contains("foo!") should be(false)
+    tempResponse.body.contains("bar!") should be(true)
   }
 
   test("Cannot create a full route that conflicts with an existing full route") {

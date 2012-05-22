@@ -30,6 +30,14 @@ class TestHarnessController extends ScalatraFilter {
     output(dumpParams)
   }
 
+  get("/a-prefix-route/foo") {
+    output("foo!")
+  }
+
+  get("/a-prefix-route/foo/bar") {
+    output("bar!")
+  }
+
   get("/foo") {
     output("fooOnly")
   }
