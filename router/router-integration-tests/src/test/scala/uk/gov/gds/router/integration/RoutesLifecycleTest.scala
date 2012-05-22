@@ -313,9 +313,9 @@ class RoutesLifecycleTest
   }
 
   test("Cannot create a full route that conflicts with an existing full route") {
-    createRoute(routePath = "foo/bar", applicationId = applicationId, routeType = "full")
+    createRoute(routeId = "foo/bar", applicationId = applicationId, routeType = "full")
 
-    val conflictedResponse = createRoute(routePath = "foo/bar", routeType = "full", applicationId = applicationId)
+    val conflictedResponse = createRoute(routeId = "foo/bar", routeType = "full", applicationId = applicationId)
     conflictedResponse.status should be(409)
     val conflictedRoute = fromJson[Route](conflictedResponse.body)
 
@@ -326,9 +326,9 @@ class RoutesLifecycleTest
     val fooApplicationId = createTestApplication
     val footballApplicationId = createTestApplication
 
-    createRoute(routeType = "prefix", routePath = "foo", applicationId = fooApplicationId)
+    createRoute(routeType = "prefix", routeId = "foo", applicationId = fooApplicationId)
 
-    var response = createRoute(routeType = "full", routePath = "football", applicationId = footballApplicationId)
+    var response = createRoute(routeType = "full", routeId = "football", applicationId = footballApplicationId)
     response.status should be(201)
 
     response = get("/route/foo")
