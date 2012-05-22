@@ -44,7 +44,6 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
   }
 
   def load(id: String) = {
-    logger.info("we are trying to load " + id)
     collection.findOne(MongoDBObject(idProperty -> id))
   }
 

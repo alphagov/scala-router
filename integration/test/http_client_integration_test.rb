@@ -16,7 +16,6 @@ class HttpClientTest < MiniTest::Unit::TestCase
     application_name = 'test_application'
     backend_url      = '/test/application'
 
-    # creating application
     response = @http_client.put("/applications/#{application_name}", {backend_url: backend_url})
     assert_equal( "201", response.code )
 
@@ -24,7 +23,6 @@ class HttpClientTest < MiniTest::Unit::TestCase
     assert_equal("test_application", response_body["application_id"])
     assert_equal("/test/application", response_body["backend_url"])
 
-    # updating application
     response = @http_client.put("/applications/#{application_name}", {backend_url: "/test/updated_application"})
     assert_equal( "200", response.code )
 

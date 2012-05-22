@@ -25,21 +25,21 @@ class RouterApiController() extends ControllerBase {
   }
 
   post("/routes/*") {
-    val incomingPath = requestInfo.pathParameter
+    val routeId = requestInfo.pathParameter
     val routeWithValidatedParameters = validateParametersForRoute()
 
     onSameDatabaseServer {
       val persistenceStatus = Routes.store(routeWithValidatedParameters)
 
       status(persistenceStatus)
-      Routes.load(incomingPath)
+      Routes.load(routeId)
     }
   }
 
  put("/routes/*") {
     checkRequestParametersContainOnly(allowedRouteUpdateParams)
 
-   val incomingPath = requestInfo.pathParameter
+   val routeId = requestInfo.pathParameter
    val routeWithValidatedParameters : Route = validateParametersForRoute()
 
    onSameDatabaseServer {
@@ -48,14 +48,14 @@ class RouterApiController() extends ControllerBase {
            "route_action" -> routeWithValidatedParameters.route_action,
            "application_id" -> routeWithValidatedParameters.application_id,
            "properties" -> routeWithValidatedParameters.properties)
-     val returnCode = Routes.simpleAtomicUpdate(incomingPath, mapOfRouteParameters) match {
+     val returnCode = Routes.simpleAtomicUpdate(routeId, mapOfRouteParameters) match {
         case NotFound =>
           Routes.store(routeWithValidatedParameters)
         case ps@_ => ps
       }
 
       status(returnCode)
-      Routes.load(incomingPath)
+      Routes.load(routeId)
     }
   }
 
@@ -68,7 +68,8 @@ class RouterApiController() extends ControllerBase {
   }
 
   delete("/routes/*") {
-    Routes.load(requestInfo.pathParameter) match {
+    val routeId = requestInfo.pathParameter
+    Routes.load(routeId) match {
       case Some(route) =>
         route.proxyType match {
           case FullRoute => Routes.deactivateFullRoute(route)
@@ -80,11 +81,13 @@ class RouterApiController() extends ControllerBase {
   }
 
   get("/routes/*") {
-    Routes.load(requestInfo.pathParameter).getOrElse(halt(404))
+    val routeId = requestInfo.pathParameter
+    Routes.load(routeId).getOrElse(halt(404))
   }
 
   post("/applications/*") {
-    val newApplication = Application(requestInfo.pathParameter, params("backend_url"))
+    val routeId = requestInfo.pathParameter
+    val newApplication = Application(routeId, params("backend_url"))
     status(Applications.store(newApplication))
     newApplication
   }
@@ -93,12 +96,13 @@ class RouterApiController() extends ControllerBase {
     checkRequestParametersContainOnly(allowedApplicationUpdateParams)
 
     onSameDatabaseServer {
-      val returnCode = Applications.simpleAtomicUpdate(requestInfo.pathParameter, requestInfo.requestParameters) match {
-        case NotFound => Applications.store(Application(requestInfo.pathParameter, params("backend_url")))
+      val routeId = requestInfo.pathParameter
+      val returnCode = Applications.simpleAtomicUpdate(routeId, requestInfo.requestParameters) match {
+        case NotFound => Applications.store(Application(routeId, params("backend_url")))
         case ps@_ => ps
       }
       status(returnCode)
-      Applications.load(requestInfo.pathParameter)
+      Applications.load(routeId)
     }
   }
 
@@ -116,7 +120,7 @@ class RouterApiController() extends ControllerBase {
 
   private def validateParametersForRoute() : Route = {
 
-    val incomingPath = requestInfo.pathParameter
+    val routeId = requestInfo.pathParameter
     val routeType = params("route_type")
 
     val action = params.getOrElse("route_action", "proxy")
@@ -145,7 +149,7 @@ class RouterApiController() extends ControllerBase {
         case Some(location) => Map("location" -> location)
       }
 
-    val route = Route(applicationId, incomingPath, routeType, action, properties(location))
+    val route = Route(routeId, applicationId, routeType, action, properties(location))
     route
   }
 

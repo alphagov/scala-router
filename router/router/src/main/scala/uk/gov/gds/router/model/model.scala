@@ -11,8 +11,8 @@ case class Application(application_id: String,
   def id = application_id
 }
 
-case class Route(application_id: String,
-                 incoming_path: String,
+case class Route(incoming_path: String,
+                 application_id: String,
                  route_type: String,
                  route_action: String = "proxy",
                  properties: Map[String,String] = Map.empty) extends HasIdentity {
