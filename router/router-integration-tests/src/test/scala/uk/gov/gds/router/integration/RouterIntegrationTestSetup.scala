@@ -4,7 +4,8 @@ import uk.gov.gds.router.MongoDatabaseBackedTest
 import org.scalatest.matchers.ShouldMatchers
 import org.scalatest.GivenWhenThen
 
-trait RouterIntegrationTestSetup extends MongoDatabaseBackedTest
+trait RouterIntegrationTestSetup
+  extends MongoDatabaseBackedTest
   with ShouldMatchers
   with GivenWhenThen
   with HttpTestInterface {

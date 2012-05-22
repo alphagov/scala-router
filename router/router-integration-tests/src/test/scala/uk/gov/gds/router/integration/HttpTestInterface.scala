@@ -12,8 +12,10 @@ import org.apache.http.impl.cookie.BasicClientCookie
 import java.util.Date
 import org.apache.http.client.params.{CookiePolicy, HttpClientParams}
 import org.apache.http.impl.client.{BasicCookieStore, DefaultHttpClient}
+import uk.gov.gds.router.util.Logging
 
-trait HttpTestInterface  {
+
+trait HttpTestInterface extends Logging  {
   private type PutOrPost = HttpEntityEnclosingRequest with HttpUriRequest
 
   protected val cookieStore = new BasicCookieStore
@@ -28,10 +30,12 @@ trait HttpTestInterface  {
   }
 
   def get(url: String, cookies: Map[String, String] = Map.empty) = {
+    logger.info("here next? with url of " + url)
     val remote = buildUrl(url)
-
+    logger.info("remote is " + remote)
     val httpGet = new HttpGet(remote)
     handleCookies(cookies)
+    logger.info("so we pass an HttpGet that has been built with a remote that still says /router/route")
     val response = Response(httpGet)
 
     response

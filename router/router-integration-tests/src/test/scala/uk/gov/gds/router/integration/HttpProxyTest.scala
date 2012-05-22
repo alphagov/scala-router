@@ -11,7 +11,9 @@ class HttpProxyTest
   test("Can get headers from response") {
     given("A URL on our test-harness application that sets the header X-Test")
     when("We get that URL through the router")
+    logger.info("looking for: /route/test/set-header")
     val response = get("/route/test/set-header")
+    response.status should be(200) //todo remove, this is just for debugging
 
     then("The header should be present in the response to the client")
     response.headers.contains(Header("X-Test", "test")) should be(true)
