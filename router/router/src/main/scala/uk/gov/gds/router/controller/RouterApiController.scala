@@ -17,7 +17,7 @@ class RouterApiController() extends ControllerBase {
 
   private implicit def persistenceStatus2httpStatus(ps: PersistenceStatus) = ps.statusCode
 
-  val allowedRouteUpdateParams = List("application_id", "incoming_path", "route_type", "route_action", "location")
+  val allowedRouteUpdateParams = List("application_id", "route_id", "route_type", "route_action", "location")
   val allowedApplicationUpdateParams = List("application_id", "backend_url")
 
   before() {
@@ -43,7 +43,7 @@ class RouterApiController() extends ControllerBase {
    val routeWithValidatedParameters : Route = validateParametersForRoute()
 
    onSameDatabaseServer {
-    val mapOfRouteParameters = Map[String, Any]("incoming_path" -> routeWithValidatedParameters.incoming_path,
+    val mapOfRouteParameters = Map[String, Any]("route_id" -> routeWithValidatedParameters.route_id,
            "route_type" -> routeWithValidatedParameters.route_type,
            "route_action" -> routeWithValidatedParameters.route_action,
            "application_id" -> routeWithValidatedParameters.application_id,
@@ -73,7 +73,7 @@ class RouterApiController() extends ControllerBase {
       case Some(route) =>
         route.proxyType match {
           case FullRoute => Routes.deactivateFullRoute(route)
-          case PrefixRoute => status(Routes.delete(route.incoming_path))
+          case PrefixRoute => status(Routes.delete(route.route_id))
         }
 
       case None => status(NotFound)

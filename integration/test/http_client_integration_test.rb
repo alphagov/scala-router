@@ -46,14 +46,14 @@ class HttpClientTest < MiniTest::Unit::TestCase
 
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
-    assert_equal("test_route/test", response_body["incoming_path"])
+    assert_equal("test_route/test", response_body["route_id"])
     
     response = @http_client.get("/routes/test_route/test")
     assert_equal("200", response.code)
     
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
-    assert_equal("test_route/test", response_body["incoming_path"])
+    assert_equal("test_route/test", response_body["route_id"])
     
     response = @http_client.delete("/routes/test_route/test")
     assert_equal("200", response.code)
@@ -77,14 +77,14 @@ class HttpClientTest < MiniTest::Unit::TestCase
 
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
-    assert_equal("test_route", response_body["incoming_path"])
+    assert_equal("test_route", response_body["route_id"])
     
     response = @http_client.get("/routes/test_route")
     assert_equal("200", response.code)
     
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
-    assert_equal("test_route", response_body["incoming_path"])
+    assert_equal("test_route", response_body["route_id"])
     
     response = @http_client.delete("/routes/test_route")
     assert_equal("204", response.code)

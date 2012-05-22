@@ -16,7 +16,7 @@ class RoutesLifecycleTest
 
   test("canot create route on application that does not exist") {
     when("We attempt to create a route for a backend application that does not exists")
-    val response = put("/routes/this-route-does-not-exist", Map("application_id" -> "this-app-does-not-exist", "incoming_path" -> "foo", "route_type" -> "foo"))
+    val response = put("/routes/this-route-does-not-exist", Map("application_id" -> "this-app-does-not-exist", "route_id" -> "foo", "route_type" -> "foo"))
 
     then("We should fail with a server error")
     response.status should be(500)
@@ -36,7 +36,7 @@ class RoutesLifecycleTest
     response.status should be(201)
     var route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.incoming_path should be(routeId)
+    route.route_id should be(routeId)
     route.proxyType should be(FullRoute)
     route.route_action should be("proxy")
 
@@ -45,7 +45,7 @@ class RoutesLifecycleTest
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.incoming_path should be(routeId)
+    route.route_id should be(routeId)
 
     given("A newly created application")
     val newApplicationId = createTestApplication("update-application")
@@ -60,10 +60,10 @@ class RoutesLifecycleTest
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(newApplicationId)
-    route.incoming_path should be(routeId)
+    route.route_id should be(routeId)
 
     when("We delete the route")
-    response = delete("/routes/" + route.incoming_path)
+    response = delete("/routes/" + route.route_id)
 
     then("The route should be gone")
     val deletedRoute = fromJson[Route](response.body)
@@ -92,7 +92,7 @@ class RoutesLifecycleTest
     response.status should be(201)
     var route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.incoming_path should be(routeId)
+    route.route_id should be(routeId)
     route.proxyType should be(PrefixRoute)
     route.route_action should be("proxy")
 
@@ -101,7 +101,7 @@ class RoutesLifecycleTest
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.incoming_path should be(routeId)
+    route.route_id should be(routeId)
 
     given("A newly created application")
     val newApplicationId = createTestApplication("update-application")
@@ -116,10 +116,10 @@ class RoutesLifecycleTest
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(newApplicationId)
-    route.incoming_path should be(routeId)
+    route.route_id should be(routeId)
 
     when("We delete the route")
-    response = delete("/routes/" + route.incoming_path)
+    response = delete("/routes/" + route.route_id)
 
     then("The route should be gone")
     response.status should be(204)
@@ -299,7 +299,7 @@ class RoutesLifecycleTest
     val fullRouteResponse = post("/routes/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
     fullRouteResponse.status should be(201)
     val createdRoute = fromJson[Route](fullRouteResponse.body)
-    createdRoute.incoming_path should be("a-prefix-route/foo/bar")
+    createdRoute.route_id should be("a-prefix-route/foo/bar")
 
     tempResponse = get("/route/a-prefix-route/foo")
     tempResponse.status should be(200)
@@ -319,7 +319,7 @@ class RoutesLifecycleTest
     conflictedResponse.status should be(409)
     val conflictedRoute = fromJson[Route](conflictedResponse.body)
 
-    conflictedRoute.incoming_path should be("foo/bar")
+    conflictedRoute.route_id should be("foo/bar")
   }
 
   test("Overlapping prefix routes should be possible and should map to the correct application") {

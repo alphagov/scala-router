@@ -4,19 +4,20 @@ import uk.gov.gds.router.model._
 import com.mongodb.casbah.Imports._
 import uk.gov.gds.router.repository._
 
-object Routes extends MongoRepository[Route]("routes", "incoming_path") {
+object Routes extends MongoRepository[Route]("routes", "route_id") {
 
   override def load(id: String) = super.load(id) match {
     case None =>
       val prefixPath = id.split("/").take(1).mkString("/")
-      collection.findOne(MongoDBObject("incoming_path" -> prefixPath, "route_type" -> "prefix"))
+
+      collection.findOne(MongoDBObject("route_id" -> prefixPath, "route_type" -> "prefix"))
 
     case Some(route) =>
       Some(route)
   }
 
-  override def store(toStore: Route) = super.load(toStore.id) match {
-    case Some(route) if (toStore.incoming_path == route.incoming_path) => Conflict
+  override def store(toStore: Route) = super.load(toStore.route_id) match {
+    case Some(route) if (toStore.route_id == route.route_id) => Conflict
     case None =>
       collection += toStore
       NewlyCreated
@@ -41,7 +42,7 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
       route =>
         route.proxyType match {
           case FullRoute => deactivateFullRoute(route)
-          case PrefixRoute => collection -= MongoDBObject("incoming_path" -> route.incoming_path)
+          case PrefixRoute => collection -= MongoDBObject("route_id" -> route.route_id)
         }
     }
   }

@@ -11,7 +11,7 @@ case class Application(application_id: String,
   def id = application_id
 }
 
-case class Route(incoming_path: String,
+case class Route(route_id: String,
                  application_id: String,
                  route_type: String,
                  route_action: String = "proxy",
@@ -19,7 +19,7 @@ case class Route(incoming_path: String,
 
   val application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route " + this))
 
-  if ("prefix" == route_type && 1 != incoming_path.split("/").length)
+  if ("prefix" == route_type && 1 != route_id.split("/").length)
     throw new RuntimeException("Invalid route: prefix routes may only have one segment")
 
   def proxyType = route_type match {
@@ -35,7 +35,7 @@ case class Route(incoming_path: String,
     case _ => throw new Exception("Unknown proxy type " + route_action)
   }
 
-  def id = incoming_path
+  def id = route_id
 }
 
 object ApplicationForGoneRoutes extends Application("router-gone", "todo:remove this")
