@@ -43,7 +43,10 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
       NewlyCreated
   }
 
-  def load(id: String) = collection.findOne(MongoDBObject(idProperty -> id))
+  def load(id: String) = {
+    logger.info("we are trying to load " + id)
+    collection.findOne(MongoDBObject(idProperty -> id))
+  }
 
   def delete(id: String) = load(id) match {
     case Some(route) =>
