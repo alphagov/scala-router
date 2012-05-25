@@ -1,4 +1,5 @@
 #! /bin/bash
 set -e -x
 cd ${WORKSPACE:?}/integration
-./sbt clean test package
+bundle install --path "${HOME}/bundles/${JOB_NAME:?}"
+bundle exec rake
