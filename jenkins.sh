@@ -1,5 +1,6 @@
 #!/bin/sh
-cd `dirname $0`
+set -x -e
 router/jenkins.sh
 client/jenkins.sh
 integration/jenkins.sh
+cd router && ./sbt clean package
