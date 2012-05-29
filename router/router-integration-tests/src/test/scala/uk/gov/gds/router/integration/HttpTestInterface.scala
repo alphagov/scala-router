@@ -30,12 +30,9 @@ trait HttpTestInterface extends Logging  {
   }
 
   def get(url: String, cookies: Map[String, String] = Map.empty) = {
-    logger.info("here next? with url of " + url)
     val remote = buildUrl(url)
-    logger.info("remote is " + remote)
     val httpGet = new HttpGet(remote)
     handleCookies(cookies)
-    logger.info("so we pass an HttpGet that has been built with a remote that still says /router/route")
     val response = Response(httpGet)
 
     response

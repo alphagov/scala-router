@@ -87,4 +87,5 @@ abstract class MongoRepository[A <: CaseClass with HasIdentity](collectionName: 
   }
 
   def all = collection.find().toList
+
 }

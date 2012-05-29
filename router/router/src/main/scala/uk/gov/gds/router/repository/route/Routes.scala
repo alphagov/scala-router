@@ -1,8 +1,8 @@
 package uk.gov.gds.router.repository.route
 
 import uk.gov.gds.router.model._
-import com.mongodb.casbah.Imports._
 import uk.gov.gds.router.repository._
+import com.mongodb.casbah.Imports._
 
 object Routes extends MongoRepository[Route]("routes", "route_id") {
 
@@ -33,6 +33,16 @@ object Routes extends MongoRepository[Route]("routes", "route_id") {
       application_id = ApplicationForGoneRoutes.application_id,
       route_action = "gone"
     )
+  }
+
+  def rename_incoming_path() = {
+
+    //todo need to check they exist, or figure out why this query fails a second time:
+    //    db.routes.find( { "incoming_path" : { $exists : true } } )
+    //    collection.find( ("incoming_path", ( $exists , true ) )
+
+    val a = collection.update(MongoDBObject(), $rename(("incoming_path","route_id")), false, true)
+    logger.info("renamed incoming_path in database: " + a)
   }
 
   private[repository] def deactivateAllRoutesForApplication(id: String) {
