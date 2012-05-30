@@ -197,13 +197,13 @@ class HttpProxyTest
     response.body.contains("second=chips") should be(true)
   }
 
-  test("Router does not fallback to invalid prefix route when full route cannot be found") {
+  test("TODO rename Router does not fallback to invalid prefix route when full route cannot be found") {
     post("/routes/mainhost/someprefix", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     val registered = get("/route/mainhost/someprefix")
     val unregistered = get("/route/mainhost/someprefix/unregistered")
 
     registered.body.contains("prefix route") should be(true)
-    unregistered.body.contains("unregistered") should be(false) //todo: this test formerly passed because there was a typo here. What is it meant to do?
+    unregistered.body.contains("unregistered") should be(true)
   }
 
 }

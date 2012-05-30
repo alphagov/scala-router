@@ -4,7 +4,7 @@ import org.scalatra.ScalatraFilter
 import javax.servlet.http.Cookie
 import scala.collection.JavaConversions._
 
-class TestHarnessController extends ScalatraFilter {
+class AlsoSupportedHarnessController extends ScalatraFilter {
 
   before() {
     response.setContentType("text/html")

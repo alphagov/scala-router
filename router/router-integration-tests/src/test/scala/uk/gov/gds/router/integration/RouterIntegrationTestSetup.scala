@@ -18,6 +18,7 @@ trait RouterIntegrationTestSetup
   override protected def beforeEach() {
     super.beforeEach()
     RouterTestHarnessContainer.start()
+    RouterTestHarnessAlsoSupportedContainer.start()
     RouterContainer.start()
     applicationId = createMainTestApplication()
     cookieStore.clear()
@@ -55,12 +56,8 @@ trait RouterIntegrationTestSetup
   protected def createAlsoSupportedTestApplication(): String = {
     val alsoSupportedApplicationId = uniqueIdForTest
 
-    RouterTestHarnessAlsoSupportedContainer.start()
-
     post("/applications/" + alsoSupportedApplicationId , Map("backend_url" -> alsoSupportedHostBackendUrl))
     post("/routes/alsosupported/fulltest/test.html", Map("application_id" -> alsoSupportedApplicationId, "route_type" -> "full"))
-    post("/routes/alsosupported/fulltest/test.html", Map("application_id" -> alsoSupportedApplicationId, "route_type" -> "full"))
-
 
     alsoSupportedApplicationId
   }
