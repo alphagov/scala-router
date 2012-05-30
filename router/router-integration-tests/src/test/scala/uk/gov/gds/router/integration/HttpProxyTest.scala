@@ -203,7 +203,7 @@ class HttpProxyTest
     val unregistered = get("/route/mainhost/someprefix/unregistered")
 
     registered.body.contains("prefix route") should be(true)
-    unregistered.body.contains("unregistred") should be(false)    //todo note: this test is passing because of typo, not functionality. return to.
+    unregistered.body.contains("unregistred") should be(false)    //todo note: this test is passing because of typo, not functionality. check with mat what he's trying to do
   }
 
 }

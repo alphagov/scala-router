@@ -11,17 +11,17 @@ class ApplicationsLifecycleTest
     val applicationId = uniqueIdForTest
 
     when("We create an application with the new ID pointing at our test harness application")
-    var response = post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+    var response = post("/applications/" + applicationId, Map("backend_url" -> mainHostBackendUrl))
 
     then("We should get a 201 (created) response that contains a JSON representation of our application")
 
     response.status should be(201)
     var application = fromJson[Application](response.body)
     application.application_id should be(applicationId)
-    application.backend_url should be(backendUrl)
+    application.backend_url should be(mainHostBackendUrl)
 
     when("We attempt to re-create the same application")
-    response = post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+    response = post("/applications/" + applicationId, Map("backend_url" -> mainHostBackendUrl))
 
     then("we should get a 409 (conflict) response")
     response.status should be(409)
@@ -33,7 +33,7 @@ class ApplicationsLifecycleTest
     response.status should be(200)
     application = fromJson[Application](response.body)
     application.application_id should be(applicationId)
-    application.backend_url should be(backendUrl)
+    application.backend_url should be(mainHostBackendUrl)
 
     when("We issue a PUT request to our applications URL that updates its backend URL to a new URL")
     response = put("/applications/" + applicationId, Map("backend_url" -> "new_backend_url"))
@@ -94,7 +94,7 @@ class ApplicationsLifecycleTest
 
     when("We attempt to create an application using PUT")
 
-    val response = put("/applications/" + applicationId, Map("backend_url" -> backendUrl))
+    val response = put("/applications/" + applicationId, Map("backend_url" -> mainHostBackendUrl))
 
     then("We should get a 201 response signifying succesful creation")
     response.status should be(201)
