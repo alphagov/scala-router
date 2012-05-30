@@ -18,7 +18,7 @@ trait RouterIntegrationTestSetup
     super.beforeEach()
     RouterTestHarnessContainer.start()
     RouterContainer.start()
-    applicationId = createTestApplication()
+    applicationId = createMainTestApplication()
     cookieStore.clear()
   }
 
@@ -35,17 +35,17 @@ trait RouterIntegrationTestSetup
   protected def createRoute(applicationId: String, routeId: String, routeType: String) =
     post("/routes/" + routeId, Map("application_id" -> applicationId, "route_type" -> routeType))
 
-  protected def createTestApplication(): String = {
+  protected def createMainTestApplication(): String = {
     val applicationId = uniqueIdForTest
-    createTestApplication(applicationId)
+    createMainTestApplication(applicationId)
     applicationId
   }
 
-  protected def createTestApplication(applicationId: String): String = {
+  protected def createMainTestApplication(applicationId: String): String = {
     post("/applications/" + applicationId, Map("backend_url" -> backendUrl))
-    post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
-    post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-    post("/routes/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/mainhost/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/mainhost/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/mainhost/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
 
     applicationId
   }

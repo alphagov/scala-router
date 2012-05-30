@@ -8,7 +8,7 @@ object Routes extends MongoRepository[Route]("routes", "route_id") {
 
   override def load(id: String) = super.load(id) match {
     case None =>
-      val prefixPath = id.split("/").take(1).mkString("/")
+      val prefixPath = id.split("/").take(2).mkString("/")
 
       collection.findOne(MongoDBObject("route_id" -> prefixPath, "route_type" -> "prefix"))
 

@@ -48,7 +48,7 @@ class RoutesLifecycleTest
     route.route_id should be(routeId)
 
     given("A newly created application")
-    val newApplicationId = createTestApplication("update-application")
+    val newApplicationId = createMainTestApplication("update-application")
 
     when("We attempt to update the previously created route to point to this new application")
     response = put("/routes/" + routeId,
@@ -104,7 +104,7 @@ class RoutesLifecycleTest
     route.route_id should be(routeId)
 
     given("A newly created application")
-    val newApplicationId = createTestApplication("update-application")
+    val newApplicationId = createMainTestApplication("update-application")
 
     when("We attempt to update the previously created route to point to this new application")
     response = put("/routes/" + routeId,
@@ -289,58 +289,58 @@ class RoutesLifecycleTest
   }
 
   test("can create a full route that overrides an existing prefix route") {
-    val creationResponse = post("/routes/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    val creationResponse = post("/routes/mainhost/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     creationResponse.status should be(201)
 
-    var tempResponse = get("/route/a-prefix-route/foo")
+    var tempResponse = get("/route/mainhost/a-prefix-route/foo")
     tempResponse.status should be(200)
     tempResponse.body.contains("foo!") should be(true)
 
-    val fullRouteResponse = post("/routes/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
+    val fullRouteResponse = post("/routes/mainhost/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
     fullRouteResponse.status should be(201)
     val createdRoute = fromJson[Route](fullRouteResponse.body)
-    createdRoute.route_id should be("a-prefix-route/foo/bar")
+    createdRoute.route_id should be("mainhost/a-prefix-route/foo/bar")
 
-    tempResponse = get("/route/a-prefix-route/foo")
+    tempResponse = get("/route/mainhost/a-prefix-route/foo")
     tempResponse.status should be(200)
     tempResponse.body.contains("foo!") should be(true)
     tempResponse.body.contains("bar!") should be(false)
 
-    tempResponse = get("/route/a-prefix-route/foo/bar")
+    tempResponse = get("/route/mainhost/a-prefix-route/foo/bar")
     tempResponse.status should be(200)
     tempResponse.body.contains("foo!") should be(false)
     tempResponse.body.contains("bar!") should be(true)
   }
 
   test("Cannot create a full route that conflicts with an existing full route") {
-    createRoute(routeId = "foo/bar", applicationId = applicationId, routeType = "full")
+    createRoute(routeId = "mainhost/foo/bar", applicationId = applicationId, routeType = "full")
 
-    val conflictedResponse = createRoute(routeId = "foo/bar", routeType = "full", applicationId = applicationId)
+    val conflictedResponse = createRoute(routeId = "mainhost/foo/bar", routeType = "full", applicationId = applicationId)
     conflictedResponse.status should be(409)
     val conflictedRoute = fromJson[Route](conflictedResponse.body)
 
-    conflictedRoute.route_id should be("foo/bar")
+    conflictedRoute.route_id should be("mainhost/foo/bar")
   }
 
   test("Overlapping prefix routes should be possible and should map to the correct application") {
-    val fooApplicationId = createTestApplication
-    val footballApplicationId = createTestApplication
+    val fooApplicationId = createMainTestApplication
+    val footballApplicationId = createMainTestApplication
 
-    createRoute(routeType = "prefix", routeId = "foo", applicationId = fooApplicationId)
+    createRoute(routeType = "prefix", routeId = "mainhost/foo", applicationId = fooApplicationId)
 
-    var response = createRoute(routeType = "full", routeId = "football", applicationId = footballApplicationId)
+    var response = createRoute(routeType = "full", routeId = "mainhost/football", applicationId = footballApplicationId)
     response.status should be(201)
 
-    response = get("/route/foo")
+    response = get("/route/mainhost/foo")
     response.body.contains("fooOnly") should be(true)
 
-    response = get("/route/foo/")
+    response = get("/route/mainhost/foo/")
     response.body.contains("fooOnly") should be(true)
 
-    response = get("/route/foo/bar")
+    response = get("/route/mainhost/foo/bar")
     response.body.contains("fooOnly") should be(true)
 
-    response = get("/route/football")
+    response = get("/route/mainhost/football")
     response.body.contains("football") should be(true)
   }
 }
