@@ -11,7 +11,7 @@ trait RouterIntegrationTestSetup
   with HttpTestInterface {
 
   protected val apiRoot = "http://localhost:4000/router"
-  protected val backendUrl = "localhost:4001/router-test-harness"
+  protected val backendUrl = "localhost:4001/router-test-harness-main-host"
   protected var applicationId: String = ""
 
   override protected def beforeEach() {

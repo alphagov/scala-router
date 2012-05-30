@@ -4,14 +4,14 @@ object RouterBuild extends Build {
  
   lazy val root =
     Project("router-universe", file("."))
-      .aggregate(routerApp, routerTestHarness, routerIntegrationTests)
+      .aggregate(routerApp, routerTestHarnessMainHost, routerIntegrationTests)
 
   lazy val routerApp = Project("router", file("router"))
 
-  lazy val routerTestHarness = Project("router-test-harness", file("router-test-harness"))
+  lazy val routerTestHarnessMainHost= Project("router-test-harness-main-host", file("router-test-harness-main-host"))
 
   lazy val routerIntegrationTests =
     Project("router-integration-tests", file("router-integration-tests"))
       .dependsOn(routerApp % "test->test;compile->compile")
-      .dependsOn(routerTestHarness % "compile->compile;test->compile")
+      .dependsOn(routerTestHarnessMainHost % "compile->compile;test->compile")
 }

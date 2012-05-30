@@ -19,7 +19,7 @@ object RouterTestHarnessContainer extends AppServer with LazyStop {
   val apps = List(RouterTestHarnessWebapp)
 
   object RouterTestHarnessWebapp extends ClasspathWebApp {
-    def srcPath = "router-test-harness"
+    def srcPath = "router-test-harness-main-host"
   }
 
 }
