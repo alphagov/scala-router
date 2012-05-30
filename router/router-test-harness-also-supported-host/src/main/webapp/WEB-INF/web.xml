@@ -1,0 +1,17 @@
+<!DOCTYPE web-app PUBLIC
+        "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+        "http://java.sun.com/dtd/web-app_2_3.dtd" >
+
+<web-app>
+    <display-name>router-test-harness</display-name>
+
+    <filter>
+        <filter-name>testHarness</filter-name>
+        <filter-class>uk.gov.gds.router.controller.TestHarnessController</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>testHarness</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>

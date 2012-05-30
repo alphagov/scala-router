@@ -51,7 +51,10 @@ trait RouterIntegrationTestSetup
     applicationId
   }
 
-  protected def createAlsoSupportedTestApplication(applicationId: String): String = {
+  protected def createAlsoSupportedTestApplication(): String = {
+    val applicationId = uniqueIdForTest
+
+    RouterTestHarnessAlsoSupportedContainer.start()
     post("/applications/" + applicationId, Map("backend_url" -> alsoSupportedHostBackendUrl))
     post("/routes/alsosupported/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/alsosupported/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))

@@ -24,4 +24,15 @@ object RouterTestHarnessContainer extends AppServer with LazyStop {
 
 }
 
+object RouterTestHarnessAlsoSupportedContainer extends AppServer with LazyStop {
+  override def port = 4002
+
+  val apps = List(RouterTestHarnessAlsoSupportedWebapp)
+
+  object RouterTestHarnessAlsoSupportedWebapp extends ClasspathWebApp {
+    def srcPath = "router-test-harness-also-supported-host"
+  }
+
+}
+
 
