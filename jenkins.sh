@@ -6,7 +6,6 @@ rm -f "$artifact"
 
 router/jenkins.sh
 client/jenkins.sh
-integration/jenkins.sh
 
 echo "post-build artifact stashed by Jenkins for the 'Deploy Router' project:"
 md5sum "$artifact"

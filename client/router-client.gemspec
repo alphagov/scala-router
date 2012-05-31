@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
@@ -22,4 +21,5 @@ Gem::Specification.new do |spec|
   spec.test_files = Dir['test/**/*']
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'gemfury'
+  spec.add_development_dependency 'mongo', '1.5.2'
 end

@@ -1,6 +1,7 @@
 require "bundler"
 Bundler.require(:default)
 require "minitest/autorun"
+require "mongo"
 
 Thread.abort_on_exception = true
 
