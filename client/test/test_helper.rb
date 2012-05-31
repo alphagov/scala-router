@@ -31,7 +31,7 @@ module RouterTestHelper
 
       Thread.new do
         while (line = $router_io.gets.chomp) !~ /exit/
-          line.empty? ? sleep(0.1) : $stderr.puts(line)        
+          line.empty? ? sleep(0.1) : $stderr.puts(line)
         end
       end.run
     end

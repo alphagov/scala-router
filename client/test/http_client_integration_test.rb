@@ -31,12 +31,12 @@ class HttpClientTest < MiniTest::Unit::TestCase
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
     assert_equal("/test/updated_application", response_body["backend_url"])
-    
+
     response = @http_client.delete("/applications/test_application")
     assert_equal("204", response.code)
 
     response = @http_client.get("/applications/test_application")
-    assert_equal("404", response.code) 
+    assert_equal("404", response.code)
   end
 
   def test_returns_correct_responses_for_full_route_manipulations
@@ -49,23 +49,23 @@ class HttpClientTest < MiniTest::Unit::TestCase
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
     assert_equal("test_route/test", response_body["incoming_path"])
-    
+
     response = @http_client.get("/routes/test_route/test")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
     assert_equal("test_route/test", response_body["incoming_path"])
-    
+
     response = @http_client.delete("/routes/test_route/test")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("gone", response_body["route_action"])
 
     response = @http_client.get("/routes/test_route/test")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("gone", response_body["route_action"])
   end
@@ -80,17 +80,17 @@ class HttpClientTest < MiniTest::Unit::TestCase
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
     assert_equal("test_route", response_body["incoming_path"])
-    
+
     response = @http_client.get("/routes/test_route")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
     assert_equal("test_route", response_body["incoming_path"])
-    
+
     response = @http_client.delete("/routes/test_route")
     assert_equal("204", response.code)
- 
+
     response = @http_client.get("/routes/test_route")
     assert_equal("404", response.code)
   end
@@ -103,7 +103,7 @@ class HttpClientTest < MiniTest::Unit::TestCase
     assert_equal("500", response.code)
   end
 
-  def test_returns_error_response_when_creating_prefix_route_without_application  
+  def test_returns_error_response_when_creating_prefix_route_without_application
     response = @http_client.put("/routes/test_route", { route_type: "prefix", application_id: "test_application_test1" })
     assert_equal("500", response.code)
   end
