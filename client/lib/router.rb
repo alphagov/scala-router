@@ -6,7 +6,7 @@ class Router
   class ServerError < Exception; end
 
   def initialize(router_endpoint_url, logger=nil)
-    @http_client = Router::HttpClient.new(router_endpoint_url)
+    @http_client = Router::HttpClient.new(router_endpoint_url, logger)
   end
 
   def reinitialise
