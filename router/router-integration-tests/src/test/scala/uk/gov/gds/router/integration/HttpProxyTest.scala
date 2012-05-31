@@ -197,10 +197,13 @@ class HttpProxyTest
     response.body.contains("second=chips") should be(true)
   }
 
-  test("TODO rename Router does not fallback to invalid prefix route when full route cannot be found") {
+  test("prefix routes do not work until the prefix is registered") {
+    var unregistered = get("/route/mainhost/someprefix/unregistered")
+    unregistered.body.contains("unregistered") should be(false)
+
     post("/routes/mainhost/someprefix", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     val registered = get("/route/mainhost/someprefix")
-    val unregistered = get("/route/mainhost/someprefix/unregistered")
+    unregistered = get("/route/mainhost/someprefix/unregistered")
 
     registered.body.contains("prefix route") should be(true)
     unregistered.body.contains("unregistered") should be(true)

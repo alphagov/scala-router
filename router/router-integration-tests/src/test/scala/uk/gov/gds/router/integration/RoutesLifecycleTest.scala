@@ -322,6 +322,24 @@ class RoutesLifecycleTest
     conflictedRoute.route_id should be("mainhost/foo/bar")
   }
 
+  test("A full route can 'punch a hole' in a prefix route"){
+    val prefixAppId = createMainTestApplication
+    val fullAppId = createMainTestApplication
+
+    createRoute(routeType = "prefix", routeId = "mainhost/punchhole", applicationId = prefixAppId)
+    createRoute(routeType = "full", routeId = "mainhost/punchhole/full/route", applicationId = fullAppId)
+
+    var response = get("/route/mainhost/punchhole/prefix/route")
+    response.status should be(200)
+    response.body.contains("prefix route") should be(true)
+    response.body.contains("full route") should be(false)
+
+    response = get("/route/mainhost/punchhole/full/route")
+    response.status should be(200)
+    response.body.contains("prefix route") should be(false)
+    response.body.contains("full route") should be(true)
+  }
+
   test("Overlapping prefix routes should be possible and should map to the correct application") {
     val fooApplicationId = createMainTestApplication
     val footballApplicationId = createMainTestApplication

@@ -111,6 +111,14 @@ class MainTestHarnessController extends ScalatraFilter {
     throw new Exception("exception")
   }
 
+  get("/punchhole/prefix/route") {
+    output("prefix route")
+  }
+
+  get("/punchhole/full/route") {
+    output("full route")
+  }
+
   private def output(block: => String) =
     <html>
       <head>
