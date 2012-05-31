@@ -2,6 +2,9 @@ require "bundler"
 Bundler.require(:default)
 require "minitest/autorun"
 require "mongo"
+require "simplecov"
+
+SimpleCov.start
 
 Thread.abort_on_exception = true
 

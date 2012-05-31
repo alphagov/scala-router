@@ -22,4 +22,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'gemfury'
   spec.add_development_dependency 'mongo', '1.5.2'
+  spec.add_development_dependency 'simplecov'
 end
