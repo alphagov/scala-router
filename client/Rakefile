@@ -7,4 +7,10 @@ Rake::TestTask.new("test") do |task|
   task.verbose = true
 end
 
+task :publish_gem do |t|
+  require "gem_publisher"
+  gem = GemPublisher.publish_if_updated("router-client.gemspec", :gemfury)
+  puts "Published #{gem}" if gem
+end
+
 task :default => :test

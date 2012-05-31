@@ -21,6 +21,7 @@ Gem::Specification.new do |spec|
   spec.test_files = Dir['test/**/*']
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'gemfury'
+  spec.add_development_dependency 'gem_publisher', '~> 1.0.0'
   spec.add_development_dependency 'mongo', '1.5.2'
   spec.add_development_dependency 'simplecov'
 end
