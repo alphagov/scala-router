@@ -19,10 +19,8 @@ case class Route(route_id: String,
 
   val application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route " + this))
 
-  val routePath = "/" + route_id.split("/").drop(2).mkString("/")
+//  val routePath = "/" + route_id.split("/").drop(1).mkString("/")
 
-//  val hostName = route_id.split("/").take(1)
-//  val prefix = route_id.split("/").take(2)
   if ("prefix" == route_type && route_id.split("/").drop(2).length > 0)
     throw new RuntimeException("Invalid route: prefix routes may only have two segments, e.g. /host/prefix")
 
