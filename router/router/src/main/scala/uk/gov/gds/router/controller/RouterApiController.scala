@@ -118,6 +118,7 @@ class RouterApiController() extends ControllerBase {
     MongoDatabase.initialiseMongo()
   }
 
+
   private def validateParametersForRoute() : Route = {
 
     val incomingPath = requestInfo.pathParameter
