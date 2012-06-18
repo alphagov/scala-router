@@ -118,7 +118,6 @@ class RouterApiController() extends ControllerBase {
     MongoDatabase.initialiseMongo()
   }
 
-
   private def validateParametersForRoute() : Route = {
 
     val incomingPath = requestInfo.pathParameter
@@ -153,7 +152,6 @@ class RouterApiController() extends ControllerBase {
     val route = Route(incomingPath, applicationId, routeType, action, properties(location))
     route
   }
-
 
   private def checkRequestParametersContainOnly(validParams: List[String]) = {
     requestInfo.requestParameters map {

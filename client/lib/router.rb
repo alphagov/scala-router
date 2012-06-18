@@ -35,26 +35,26 @@ class Router
     @http_client.delete("/applications/#{application_name}")
   end 
 
-  def create_route(route, route_type, application_name)
-    response = @http_client.put("/routes/#{route}", { route_type: route_type, application_id: application_name })
+  def create_route(incoming_path, route_type, application_name)
+    response = @http_client.put("/routes/#{incoming_path}", { route_type: route_type, application_id: application_name })
 
     format_response_for response
   end
 
-  def create_redirect_route(route, route_type, location)
-    response = @http_client.put("/routes/#{route}", { route_type: route_type, route_action: "redirect", location: location })
+  def create_redirect_route(incoming_path, route_type, location)
+    response = @http_client.put("/routes/#{incoming_path}", { route_type: route_type, route_action: "redirect", location: location })
 
     format_response_for response
   end
 
-  def get_route(route)
-    response = @http_client.get("/routes/#{route}")
+  def get_route(incoming_path)
+    response = @http_client.get("/routes/#{incoming_path}")
 
     format_response_for response
   end
 
-  def delete_route(route)
-    @http_client.delete("/routes/#{route}")
+  def delete_route(incoming_path)
+    @http_client.delete("/routes/#{incoming_path}")
   end
 
   def format_response_for(response)
