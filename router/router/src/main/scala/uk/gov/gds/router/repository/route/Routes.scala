@@ -4,20 +4,20 @@ import uk.gov.gds.router.model._
 import uk.gov.gds.router.repository._
 import com.mongodb.casbah.Imports._
 
-object Routes extends MongoRepository[Route]("routes", "route_id") {
+object Routes extends MongoRepository[Route]("routes", "incoming_path") {
 
   override def load(id: String) = super.load(id) match {
     case None =>
       val prefixPath = id.split("/").take(2).mkString("/")
 
-      collection.findOne(MongoDBObject("route_id" -> prefixPath, "route_type" -> "prefix"))
+      collection.findOne(MongoDBObject("incoming_path" -> prefixPath, "route_type" -> "prefix"))
 
     case Some(route) =>
       Some(route)
   }
 
-  override def store(toStore: Route) = super.load(toStore.route_id) match {
-    case Some(route) if (toStore.route_id == route.route_id) => Conflict
+  override def store(toStore: Route) = super.load(toStore.incoming_path) match {
+    case Some(route) if (toStore.incoming_path == route.incoming_path) => Conflict
     case None =>
       collection += toStore
       NewlyCreated
@@ -35,16 +35,6 @@ object Routes extends MongoRepository[Route]("routes", "route_id") {
     )
   }
 
-  def rename_incoming_path() = {
-
-    //todo need to check they exist, or figure out why this query fails a second time:
-    //    db.routes.find( { "incoming_path" : { $exists : true } } )
-    //    collection.find( ("incoming_path", ( $exists , true ) )
-
-    val a = collection.update(MongoDBObject(), $rename(("incoming_path","route_id")), false, true)
-    logger.info("renamed incoming_path in database: " + a)
-  }
-
   private[repository] def deactivateAllRoutesForApplication(id: String) {
     val routesForApp: List[Route] = collection.find(MongoDBObject("application_id" -> id)).toList //todo make implicit to convert Seq here to List
 
@@ -52,7 +42,7 @@ object Routes extends MongoRepository[Route]("routes", "route_id") {
       route =>
         route.proxyType match {
           case FullRoute => deactivateFullRoute(route)
-          case PrefixRoute => collection -= MongoDBObject("route_id" -> route.route_id)
+          case PrefixRoute => collection -= MongoDBObject("incoming_path" -> route.incoming_path)
         }
     }
   }

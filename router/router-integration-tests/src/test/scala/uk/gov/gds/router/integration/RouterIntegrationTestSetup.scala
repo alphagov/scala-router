@@ -35,8 +35,8 @@ trait RouterIntegrationTestSetup
 
   override def buildUrl(path: String) = apiRoot + path
 
-  protected def createRoute(applicationId: String, routeId: String, routeType: String) =
-    post("/routes/" + routeId, Map("application_id" -> applicationId, "route_type" -> routeType))
+  protected def createRoute(applicationId: String, incomingPath: String, routeType: String) =
+    post("/routes/" + incomingPath, Map("application_id" -> applicationId, "route_type" -> routeType))
 
   protected def createMainTestApplication(): String = {
     val applicationId = uniqueIdForTest

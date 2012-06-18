@@ -16,7 +16,7 @@ class RoutesLifecycleTest
 
   test("canot create route on application that does not exist") {
     when("We attempt to create a route for a backend application that does not exists")
-    val response = put("/routes/this-route-does-not-exist", Map("application_id" -> "this-app-does-not-exist", "route_id" -> "foo", "route_type" -> "foo"))
+    val response = put("/routes/this-route-does-not-exist", Map("application_id" -> "this-app-does-not-exist", "incoming_path" -> "foo", "route_type" -> "foo"))
 
     then("We should fail with a server error")
     response.status should be(500)
@@ -24,10 +24,10 @@ class RoutesLifecycleTest
 
   test("Can create / update / delete full routes") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full")
-    var response = post("/routes/" + routeId,
+    var response = post("/routes/" + incomingPath,
       Map(
         "application_id" -> applicationId,
         "route_type" -> "full"))
@@ -36,22 +36,22 @@ class RoutesLifecycleTest
     response.status should be(201)
     var route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.route_id should be(routeId)
+    route.incoming_path should be(incomingPath)
     route.proxyType should be(FullRoute)
     route.route_action should be("proxy")
 
     then("We should be able to retrieve the route information through the router API")
-    response = get("/routes/" + routeId)
+    response = get("/routes/" + incomingPath)
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.route_id should be(routeId)
+    route.incoming_path should be(incomingPath)
 
     given("A newly created application")
     val newApplicationId = createMainTestApplication("update-application")
 
     when("We attempt to update the previously created route to point to this new application")
-    response = put("/routes/" + routeId,
+    response = put("/routes/" + incomingPath,
       Map(
         "application_id" -> newApplicationId,
         "route_type" -> "full"))
@@ -60,10 +60,10 @@ class RoutesLifecycleTest
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(newApplicationId)
-    route.route_id should be(routeId)
+    route.incoming_path should be(incomingPath)
 
     when("We delete the route")
-    response = delete("/routes/" + route.route_id)
+    response = delete("/routes/" + route.incoming_path)
 
     then("The route should be gone")
     val deletedRoute = fromJson[Route](response.body)
@@ -72,7 +72,7 @@ class RoutesLifecycleTest
     deletedRoute.application should be(ApplicationForGoneRoutes)
 
     when("We try to reload the route")
-    response = get("/routes/" + routeId)
+    response = get("/routes/" + incomingPath)
 
     then("the route still should be gone")
     fromJson[Route](response.body).route_action should be("gone")
@@ -80,10 +80,10 @@ class RoutesLifecycleTest
 
   test("Can create / update / delete prefix routes") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of prefix")
-    var response = post("/routes/" + routeId,
+    var response = post("/routes/" + incomingPath,
       Map(
         "application_id" -> applicationId,
         "route_type" -> "prefix"))
@@ -92,22 +92,22 @@ class RoutesLifecycleTest
     response.status should be(201)
     var route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.route_id should be(routeId)
+    route.incoming_path should be(incomingPath)
     route.proxyType should be(PrefixRoute)
     route.route_action should be("proxy")
 
     then("We should be able to retreive the route information through the router API")
-    response = get("/routes/" + routeId)
+    response = get("/routes/" + incomingPath)
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(applicationId)
-    route.route_id should be(routeId)
+    route.incoming_path should be(incomingPath)
 
     given("A newly created application")
     val newApplicationId = createMainTestApplication("update-application")
 
     when("We attempt to update the previously created route to point to this new application")
-    response = put("/routes/" + routeId,
+    response = put("/routes/" + incomingPath,
       Map(
         "application_id" -> newApplicationId,
         "route_type" -> "prefix"))
@@ -116,16 +116,16 @@ class RoutesLifecycleTest
     response.status should be(200)
     route = fromJson[Route](response.body)
     route.application_id should be(newApplicationId)
-    route.route_id should be(routeId)
+    route.incoming_path should be(incomingPath)
 
     when("We delete the route")
-    response = delete("/routes/" + route.route_id)
+    response = delete("/routes/" + route.incoming_path)
 
     then("The route should be gone")
     response.status should be(204)
 
     when("We try to reload the route")
-    response = get("/routes/" + routeId)
+    response = get("/routes/" + incomingPath)
 
     then("the route still should be gone")
     response.status should be(404)
@@ -133,10 +133,10 @@ class RoutesLifecycleTest
 
   test("a redirect route is given the application id of the application for redirect routes") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full, a route action of redirect and a location")
-    val response = post("/routes/" + routeId,
+    val response = post("/routes/" + incomingPath,
       Map(
         "route_type" -> "full",
         "route_action" -> "redirect",
@@ -149,10 +149,10 @@ class RoutesLifecycleTest
 
   test("a gone route is given the application id of the application for gone routes") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full, a route action of gone")
-    val response = post("/routes/" + routeId,
+    val response = post("/routes/" + incomingPath,
       Map(
         "route_type" -> "full",
         "route_action" -> "gone"))
@@ -164,10 +164,10 @@ class RoutesLifecycleTest
 
   test("a proxy route cannot have a location") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full, no route action and a location")
-    val response = post("/routes/" + routeId,
+    val response = post("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
@@ -179,10 +179,10 @@ class RoutesLifecycleTest
 
   test("a gone route cannot have a location") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full, a route action of gone and a location")
-    val response = post("/routes/" + routeId,
+    val response = post("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
@@ -195,10 +195,10 @@ class RoutesLifecycleTest
 
   test("a redirect route must have a location") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full, a route action of redirect and no location")
-    val response = post("/routes/" + routeId,
+    val response = post("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
@@ -208,10 +208,10 @@ class RoutesLifecycleTest
 
   test("a redirect route cannot have an empty string location") {
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full, a route action of redirect and an empty location")
-    val response = post("/routes/" + routeId,
+    val response = post("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
@@ -222,10 +222,10 @@ class RoutesLifecycleTest
 
   test("a prefix redirect route can be updated"){
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of prefix, a route action of redirect and a location")
-    var response = put("/routes/" + routeId,
+    var response = put("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "prefix",
@@ -237,7 +237,7 @@ class RoutesLifecycleTest
     createdRoute.properties("location") should be("/redirect")
 
     when("we update that route")
-    response = put("/routes/" + routeId,
+    response = put("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
@@ -251,10 +251,10 @@ class RoutesLifecycleTest
 
   test("a full redirect route can be updated"){
     given("A unique route ID that is not present in the router")
-    val routeId = uniqueIdForTest
+    val incomingPath = uniqueIdForTest
 
     when("We create that route with a route type of full, a route action of redirect and a location")
-    var response = put("/routes/" + routeId,
+    var response = put("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
@@ -266,7 +266,7 @@ class RoutesLifecycleTest
     createdRoute.properties("location") should be("/redirect/route")
 
     when("we update that route")
-    response = put("/routes/" + routeId,
+    response = put("/routes/" + incomingPath,
       Map(
         "application_id" -> ApplicationForRedirectRoutes.application_id,
         "route_type" -> "full",
@@ -299,7 +299,7 @@ class RoutesLifecycleTest
     val fullRouteResponse = post("/routes/mainhost/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
     fullRouteResponse.status should be(201)
     val createdRoute = fromJson[Route](fullRouteResponse.body)
-    createdRoute.route_id should be("mainhost/a-prefix-route/foo/bar")
+    createdRoute.incoming_path should be("mainhost/a-prefix-route/foo/bar")
 
     tempResponse = get("/route/mainhost/a-prefix-route/foo")
     tempResponse.status should be(200)
@@ -313,21 +313,21 @@ class RoutesLifecycleTest
   }
 
   test("Cannot create a full route that conflicts with an existing full route") {
-    createRoute(routeId = "mainhost/foo/bar", applicationId = applicationId, routeType = "full")
+    createRoute(incomingPath = "mainhost/foo/bar", applicationId = applicationId, routeType = "full")
 
-    val conflictedResponse = createRoute(routeId = "mainhost/foo/bar", routeType = "full", applicationId = applicationId)
+    val conflictedResponse = createRoute(incomingPath = "mainhost/foo/bar", routeType = "full", applicationId = applicationId)
     conflictedResponse.status should be(409)
     val conflictedRoute = fromJson[Route](conflictedResponse.body)
 
-    conflictedRoute.route_id should be("mainhost/foo/bar")
+    conflictedRoute.incoming_path should be("mainhost/foo/bar")
   }
 
   test("A full route can 'punch a hole' in a prefix route"){
     val prefixAppId = createMainTestApplication
     val fullAppId = createMainTestApplication
 
-    createRoute(routeType = "prefix", routeId = "mainhost/punchhole", applicationId = prefixAppId)
-    createRoute(routeType = "full", routeId = "mainhost/punchhole/full/route", applicationId = fullAppId)
+    createRoute(routeType = "prefix", incomingPath = "mainhost/punchhole", applicationId = prefixAppId)
+    createRoute(routeType = "full", incomingPath = "mainhost/punchhole/full/route", applicationId = fullAppId)
 
     var response = get("/route/mainhost/punchhole/prefix/route")
     response.status should be(200)
@@ -344,9 +344,9 @@ class RoutesLifecycleTest
     val fooApplicationId = createMainTestApplication
     val footballApplicationId = createMainTestApplication
 
-    createRoute(routeType = "prefix", routeId = "mainhost/foo", applicationId = fooApplicationId)
+    createRoute(routeType = "prefix", incomingPath = "mainhost/foo", applicationId = fooApplicationId)
 
-    var response = createRoute(routeType = "full", routeId = "mainhost/football", applicationId = footballApplicationId)
+    var response = createRoute(routeType = "full", incomingPath = "mainhost/football", applicationId = footballApplicationId)
     response.status should be(201)
 
     response = get("/route/mainhost/foo")
