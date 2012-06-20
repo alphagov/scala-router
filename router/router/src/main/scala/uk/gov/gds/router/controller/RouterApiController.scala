@@ -47,6 +47,7 @@ class RouterApiController() extends ControllerBase {
            "route_type" -> routeWithValidatedParameters.route_type,
            "route_action" -> routeWithValidatedParameters.route_action,
            "application_id" -> routeWithValidatedParameters.application_id,
+//           "host" -> routeWithValidatedParameters.host,
            "properties" -> routeWithValidatedParameters.properties)
      val returnCode = Routes.simpleAtomicUpdate(incomingPath, mapOfRouteParameters) match {
         case NotFound =>
@@ -120,7 +121,12 @@ class RouterApiController() extends ControllerBase {
 
   private def validateParametersForRoute() : Route = {
 
+    //val requestedPath = requestInfo.pathParameter
+    //val host = requestedPath.split("/").take(2).mkString("/")
+    //val incomingPath = requestedPath.substring(host.length(), requestedPath.length());
+
     val incomingPath = requestInfo.pathParameter
+
     val routeType = params("route_type")
 
     val action = params.getOrElse("route_action", "proxy")
