@@ -8,7 +8,19 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
 
   override def load(id: String) = super.load(id) match {
     case None =>
-      val prefixPath = id.split("/").take(2).mkString("/")
+
+      logger.info("id is " + id)
+      val host = id.split("/").take(1).mkString("/")
+      logger.info("host is " + host)
+
+      var prefixPath = ""
+      if (host.startsWith("www") || host.startsWith("mainhost") || host.startsWith("alsosupported")) {
+        prefixPath = id.split("/").take(2).mkString("/")
+        logger.info("string manipulation: " + prefixPath)
+      }
+      else {
+        prefixPath = host
+      }
 
       collection.findOne(MongoDBObject("incoming_path" -> prefixPath, "route_type" -> "prefix"))
 

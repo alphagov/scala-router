@@ -67,6 +67,25 @@ class MultiHomingTest extends RouterIntegrationTestSetup {
     RouterConfig.getPrefixForHost(hostName) should be("govuk")
   }
 
+  //todo these tests should have the route default to mainhost (/govuk)
+//  test("full routes without hosts still work") {
+//    val creationResponse = post("/routes/a-full-route/foo", Map("application_id" -> applicationId, "route_type" -> "full"))
+//    creationResponse.status should be(201)
+//
+//    var tempResponse = get("/route/a-full-route/foo")
+//    tempResponse.status should be(200)
+//    tempResponse.body.contains("foo!") should be(true)
+//  }
+//
+//  test("prefix routes without hosts still work") {
+//    val creationResponse = post("/routes/anna-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+//    creationResponse.status should be(201)
+//
+//    var tempResponse = get("/route/anna-prefix-route/foo")
+//    tempResponse.status should be(200)
+//    tempResponse.body.contains("foo!") should be(true)
+//  }
+
 
 //  test("where incoming path has no host and is a prefix route, it is correctly loaded"){
 //
