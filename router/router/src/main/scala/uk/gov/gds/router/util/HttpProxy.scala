@@ -84,8 +84,8 @@ object HttpProxy extends Logging {
     val requestedPath = request.targetUrl
     val host = requestedPath.split("/").take(2).mkString("/")
     var restOfPath = ""
-    if (host.contains("www") || host.contains("mainhost") || host.contains("alsosupported")) {
-      restOfPath = requestedPath.substring(host.length(), requestedPath.length());
+    if (host.startsWith("/www") || host.startsWith("/mainhost") || host.startsWith("/alsosupported")) {
+      restOfPath = requestedPath.substring((host.length()), requestedPath.length());
     }
     else {
       restOfPath = requestedPath
