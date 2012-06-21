@@ -15,7 +15,7 @@ case class Route(incoming_path: String,
                  application_id: String,
                  route_type: String,
                  route_action: String = "proxy",
-                 properties: Map[String,String] = Map.empty, host: String = "x") extends HasIdentity {
+                 properties: Map[String,String] = Map.empty) extends HasIdentity {
 
   val application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route " + this))
 
