@@ -29,12 +29,12 @@ class HttpClientTest < MiniTest::Unit::TestCase
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
     assert_equal("/test/updated_application", response_body["backend_url"])
-    
+
     response = @http_client.delete("/applications/test_application")
     assert_equal("204", response.code)
 
     response = @http_client.get("/applications/test_application")
-    assert_equal("404", response.code) 
+    assert_equal("404", response.code)
   end
 
   def test_returns_correct_responses_for_full_route_manipulations
@@ -50,20 +50,20 @@ class HttpClientTest < MiniTest::Unit::TestCase
     
     response = @http_client.get("/routes/test_host/test_route/test")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
     assert_equal("test_host/test_route/test", response_body["incoming_path"])
     
     response = @http_client.delete("/routes/test_host/test_route/test")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("gone", response_body["route_action"])
 
     response = @http_client.get("/routes/test_host/test_route/test")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("gone", response_body["route_action"])
   end
@@ -81,9 +81,10 @@ class HttpClientTest < MiniTest::Unit::TestCase
     
     response = @http_client.get("/routes/test_host/test_route")
     assert_equal("200", response.code)
-    
+
     response_body = JSON.parse(response.body)
     assert_equal("test_application", response_body["application_id"])
+
     assert_equal("test_host/test_route", response_body["incoming_path"])
     
     response = @http_client.delete("/routes/test_host/test_route")

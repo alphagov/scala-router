@@ -4,7 +4,7 @@ require 'json'
 
 class Router
   class HttpClient
-   
+
     def initialize(base_url, logger = nil)
       @base_url = base_url
       @logger = logger || NullLogger.instance
@@ -37,7 +37,7 @@ class Router
       request = verb.new(uri.path)
       request.form_data = form_data if form_data
       @logger.debug "#{verb::METHOD}: #{uri} #{form_data.inspect}"
-      
+
       response = Net::HTTP.new(uri.host, uri.port).start do |http|
         http.request(request)
       end

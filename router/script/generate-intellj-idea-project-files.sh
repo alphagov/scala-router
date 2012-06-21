@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd ../
+pushd `dirname $0`/../
 ./sbt gen-idea
-cd script
+popd

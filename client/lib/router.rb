@@ -6,7 +6,7 @@ class Router
   class ServerError < Exception; end
 
   def initialize(router_endpoint_url, logger=nil)
-    @http_client = Router::HttpClient.new(router_endpoint_url)
+    @http_client = Router::HttpClient.new(router_endpoint_url, logger)
   end
 
   def reinitialise
@@ -15,7 +15,7 @@ class Router
 
   def create_application(application_name, backend_url)
     response = @http_client.put("/applications/#{application_name}", {backend_url: url_without_scheme(backend_url)})
-    
+
     format_response_for response
   end
 
@@ -27,13 +27,13 @@ class Router
 
   def get_application(application_name)
     response = @http_client.get("/applications/#{application_name}")
- 
+
     format_response_for response
   end
-  
+
   def delete_application(application_name)
     @http_client.delete("/applications/#{application_name}")
-  end 
+  end
 
   def create_route(incoming_path, route_type, application_name)
     response = @http_client.put("/routes/#{incoming_path}", { route_type: route_type, application_id: application_name })
@@ -60,12 +60,12 @@ class Router
   def format_response_for(response)
     case response.code
     when "200", "201"
-      JSON.parse(response.body).symbolize_keys 
+      JSON.parse(response.body).symbolize_keys
     when "500"
       raise ServerError.new
     end
   end
- 
+
   def url_without_scheme(url)
     parsed_url = URI.parse(url)
       if parsed_url.scheme

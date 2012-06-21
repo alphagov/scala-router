@@ -23,11 +23,11 @@ class ApplicationTest < MiniTest::Unit::TestCase
     response = @router.update_application("test_application", "/test/updated_application")
     assert_equal("test_application", response[:application_id])
     assert_equal("/test/updated_application", response[:backend_url])
-    
+
     @router.delete_application("test_application")
-    
+
     response = @router.get_application("test_application")
-    assert_nil response  
+    assert_nil response
   end
 
   def test_can_create_and_deactivate_full_routes

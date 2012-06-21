@@ -1,5 +1,3 @@
-# -*- encoding: utf-8 -*-
-
 require "bundler/gem_tasks"
 require 'rake/testtask'
 
@@ -7,6 +5,12 @@ Rake::TestTask.new("test") do |task|
   task.libs << "test"
   task.test_files = FileList["test/**/*_test.rb"]
   task.verbose = true
+end
+
+task :publish_gem do |t|
+  require "gem_publisher"
+  gem = GemPublisher.publish_if_updated("router-client.gemspec", :gemfury)
+  puts "Published #{gem}" if gem
 end
 
 task :default => :test
