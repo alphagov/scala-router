@@ -82,6 +82,7 @@ object HttpProxy extends Logging {
 
   private def targetUrl(route: Route)(implicit request: RequestInfo) = {
     val requestedPath = request.targetUrl
+    logger.info("requested path: " + requestedPath)
     val host = requestedPath.split("/").take(2).mkString("/")
     var restOfPath = ""
     if (host.startsWith("/www") || host.startsWith("/mainhost") || host.startsWith("/alsosupported")) {
@@ -90,6 +91,7 @@ object HttpProxy extends Logging {
     else {
       restOfPath = requestedPath
     }
+    logger.info(route.application.backend_url.concat(restOfPath))
     "http://".concat(route.application.backend_url.concat(restOfPath))
   }
 

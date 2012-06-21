@@ -67,6 +67,12 @@ class MultiHomingTest extends RouterIntegrationTestSetup {
     RouterConfig.getPrefixForHost(hostName) should be("govuk")
   }
 
+
+//  test("where incoming path has no host and is a prefix route, it is correctly loaded"){
+//
+//
+//  }
+
 //  test("if non-existant host is provided, an exception is thrown") {
 //
 //    val hostName = "non-existent hostname"
