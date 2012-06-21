@@ -80,10 +80,16 @@ object HttpProxy extends Logging {
     }
   }
 
- private def targetUrl(route: Route)(implicit request: RequestInfo) = {
+  private def targetUrl(route: Route)(implicit request: RequestInfo) = {
     val requestedPath = request.targetUrl
     val host = requestedPath.split("/").take(2).mkString("/")
-    val restOfPath = requestedPath.substring(host.length(), requestedPath.length());
+    var restOfPath = ""
+    if (host.contains("www") || host.contains("mainhost") || host.contains("alsosupported")) {
+      restOfPath = requestedPath.substring(host.length(), requestedPath.length());
+    }
+    else {
+      restOfPath = requestedPath
+    }
     "http://".concat(route.application.backend_url.concat(restOfPath))
   }
 
