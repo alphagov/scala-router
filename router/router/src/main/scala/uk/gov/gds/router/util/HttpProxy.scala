@@ -31,7 +31,6 @@ object HttpProxy extends Logging {
     HTTP.TARGET_HOST)
 
   def get(route: Route)(implicit requestInfo: RequestInfo, response: HttpServletResponse) {
-    logger.info("in http proxy the route is " + route.toString)
     time(route, proxy(new HttpGet(targetUrl(route))))
   }
 
@@ -83,7 +82,6 @@ object HttpProxy extends Logging {
 
   private def targetUrl(route: Route)(implicit request: RequestInfo) = {
     val requestedPath = request.targetUrl
-    logger.info("requested path: " + requestedPath)
     val host = requestedPath.split("/").take(2).mkString("/")
     var restOfPath = ""
     if (host.startsWith("/www") || host.startsWith("/mainhost") || host.startsWith("/alsosupported")) {
@@ -92,7 +90,6 @@ object HttpProxy extends Logging {
     else {
       restOfPath = requestedPath
     }
-    logger.info("target url: " + route.application.backend_url.concat(restOfPath))
     "http://".concat(route.application.backend_url.concat(restOfPath))
   }
 
