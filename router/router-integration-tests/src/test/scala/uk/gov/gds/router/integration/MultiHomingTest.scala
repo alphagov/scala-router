@@ -63,9 +63,28 @@ class MultiHomingTest extends RouterIntegrationTestSetup {
   test("host defaults to govuk if one is not present in request") {
 
     val hostName = ""
-
     RouterConfig.getPrefixForHost(hostName) should be("govuk")
   }
+
+//  test("if first part of prefix path is www, mainhost, alsosupported, or router, then that refers to a host. Otherwise, first part is the prefix"){
+//    val alsoSupportedApplicationId = createAlsoSupportedTestApplication()
+//
+//    var creationResponse = post("/routes/mainhost/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+//    creationResponse.status should be(201)
+//
+//    val mainHostResponse = get("/route/mainhost/a-prefix-route/foo")
+//    mainHostResponse.status should be(200)
+//    mainHostResponse.body.contains("foo!") should be(true)
+//
+//
+//    creationResponse = post("/routes/alsosupported/a-prefix-route", Map("application_id" -> alsoSupportedApplicationId, "route_type" -> "prefix")) //this is not creating
+//    creationResponse.status should be(201)
+//
+//    val alsoSupportedHostResponse = get("/route/alsosupported/a-prefix-route/foo") //so this is defaulting to main? why?
+//    alsoSupportedHostResponse.status should be(200)
+//    alsoSupportedHostResponse.body.contains("foo!") should be(false)
+//    alsoSupportedHostResponse.body.contains("oof!") should be(true)
+//  }
 
   //todo these tests should have the route default to mainhost (/govuk)
 //  test("full routes without hosts still work") {

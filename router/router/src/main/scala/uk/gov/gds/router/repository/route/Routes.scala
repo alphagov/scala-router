@@ -14,7 +14,7 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
       logger.info("host is " + host)
 
       var prefixPath = ""
-      if (host.startsWith("www") || host.startsWith("mainhost") || host.startsWith("alsosupported")) {
+      if (host.startsWith("www") || host.startsWith("mainhost") || host.startsWith("alsosupported") || host.startsWith("router") ) {
         prefixPath = id.split("/").take(2).mkString("/")
         logger.info("string manipulation: " + prefixPath)
       }
