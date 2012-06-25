@@ -82,14 +82,20 @@ object HttpProxy extends Logging {
 
   private def targetUrl(route: Route)(implicit request: RequestInfo) = {
     val requestedPath = request.targetUrl
+    logger.info("requested path is " + requestedPath)
+
     val host = requestedPath.split("/").take(2).mkString("/")
+    logger.info("host: " + host)
     var restOfPath = ""
     if (host.startsWith("/www") || host.startsWith("/mainhost") || host.startsWith("/alsosupported") || host.startsWith("/router")) {
       restOfPath = requestedPath.substring((host.length()), requestedPath.length());
+      logger.info("if host was in the list, rest of path is: " + restOfPath)
     }
     else {
       restOfPath = requestedPath
+      logger.info("rest of path is " + restOfPath)
     }
+    logger.info("route we are trying to retrieve is " + "http://".concat(route.application.backend_url.concat(restOfPath)))
     "http://".concat(route.application.backend_url.concat(restOfPath))
   }
 
