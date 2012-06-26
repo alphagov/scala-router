@@ -118,7 +118,6 @@ object HttpProxy extends Logging {
 
   private def configureDeadConnectionCleaner() = Executors.newScheduledThreadPool(1).scheduleAtFixedRate(new Runnable {
     override def run = {
-      logger.info("Cleaning dead connections")
       connectionManager.closeExpiredConnections
       connectionManager.closeIdleConnections(10, SECONDS)
     }
