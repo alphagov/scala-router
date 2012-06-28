@@ -10,6 +10,7 @@ class RouteController() extends ControllerBase {
   get("/route/*") {
 
     val incomingPath = requestInfo.pathParameter
+    logger.info("incoming path: " + incomingPath)
 
     Routes.load(incomingPath) match {
       case Some(route) if ("proxy".equals(route.route_action)) => HttpProxy.get(route)
