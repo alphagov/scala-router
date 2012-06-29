@@ -11,9 +11,12 @@ trait RouterIntegrationTestSetup
   with HttpTestInterface {
 
   protected val apiRoot = "http://localhost:4000/router"
+  
   protected val mainHostBackendUrl = "localhost:4001/router-test-harness-main-host"
-  protected val alsoSupportedHostBackendUrl = "localhost:4002/router-test-harness-also-supported-host"
   protected var applicationId: String = ""
+
+  protected val alsoSupportedHostBackendUrl = "localhost:4002/router-test-harness-also-supported-host"
+  protected var alsoSupportedApplicationId: String = ""
 
   override protected def beforeEach() {
     super.beforeEach()
@@ -21,6 +24,8 @@ trait RouterIntegrationTestSetup
     RouterTestHarnessAlsoSupportedContainer.start()
     RouterContainer.start()
     applicationId = createMainTestApplication()
+    alsoSupportedApplicationId = createAlsoSupportedTestApplication()
+
     cookieStore.clear()
   }
 
@@ -46,9 +51,13 @@ trait RouterIntegrationTestSetup
 
   protected def createMainTestApplication(applicationId: String): String = {
     post("/applications/" + applicationId, Map("backend_url" -> mainHostBackendUrl))
-    post("/routes/mainhost/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
-    post("/routes/mainhost/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-    post("/routes/mainhost/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+
+    // route with a hostname, optionally supplied by nginx/varnish/etc
+    post("/routes/host/mainTest/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
 
     applicationId
   }
@@ -57,7 +66,9 @@ trait RouterIntegrationTestSetup
     val alsoSupportedApplicationId = uniqueIdForTest
 
     post("/applications/" + alsoSupportedApplicationId , Map("backend_url" -> alsoSupportedHostBackendUrl))
-    post("/routes/alsosupported/fulltest/test.html", Map("application_id" -> alsoSupportedApplicationId, "route_type" -> "full"))
+
+    // route with a hostname, optionally supplied by nginx/varnish/etc
+    post("/routes/host/alsoSupported/fulltest/test.html", Map("application_id" -> alsoSupportedApplicationId, "route_type" -> "full"))
 
     alsoSupportedApplicationId
   }

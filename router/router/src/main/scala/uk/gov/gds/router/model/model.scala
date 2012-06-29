@@ -1,6 +1,7 @@
 package uk.gov.gds.router.model
 
 import uk.gov.gds.router.repository.application.Applications
+import uk.gov.gds.router.util.IncomingPath
 
 trait HasIdentity {
   def id: String
@@ -19,8 +20,8 @@ case class Route(incoming_path: String,
 
   val application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route " + this))
 
-  if ("prefix" == route_type && incoming_path.split("/").drop(2).length > 0)
-    throw new RuntimeException("Invalid route: prefix routes may only have two segments, e.g. /host/prefix")
+  if ("prefix" == route_type && IncomingPath.prefix(incoming_path) != IncomingPath.path(incoming_path))
+    throw new RuntimeException("Invalid route: a prefix route must be a single path segment, e.g. '/prefix' or '/host/www.example.com/prefix'")
 
   def proxyType = route_type match {
     case "full" => FullRoute

@@ -81,8 +81,8 @@ object HttpProxy extends Logging {
   }
 
   private def targetUrl(route: Route)(implicit request: RequestInfo) = {
-    val pathToResource = IncomingPathStringManipulator.getPathToResource(request.targetUrl)
-    "http://".concat(route.application.backend_url.concat(pathToResource))
+    val path = IncomingPath.path(request.targetUrl)
+    "http://".concat(route.application.backend_url.concat(path))
   }
 
   private def configureHttpClient() = {

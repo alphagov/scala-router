@@ -289,52 +289,52 @@ class RoutesLifecycleTest
   }
 
   test("can create a full route that overrides an existing prefix route") {
-    val creationResponse = post("/routes/mainhost/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    val creationResponse = post("/routes/a-prefix-route", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     creationResponse.status should be(201)
 
-    var tempResponse = get("/route/mainhost/a-prefix-route/foo")
+    var tempResponse = get("/route/a-prefix-route/foo")
     tempResponse.status should be(200)
     tempResponse.body.contains("foo!") should be(true)
 
-    val fullRouteResponse = post("/routes/mainhost/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
+    val fullRouteResponse = post("/routes/a-prefix-route/foo/bar", Map("application_id" -> applicationId, "route_type" -> "full"))
     fullRouteResponse.status should be(201)
     val createdRoute = fromJson[Route](fullRouteResponse.body)
-    createdRoute.incoming_path should be("mainhost/a-prefix-route/foo/bar")
+    createdRoute.incoming_path should be("a-prefix-route/foo/bar")
 
-    tempResponse = get("/route/mainhost/a-prefix-route/foo")
+    tempResponse = get("/route/a-prefix-route/foo")
     tempResponse.status should be(200)
     tempResponse.body.contains("foo!") should be(true)
     tempResponse.body.contains("bar!") should be(false)
 
-    tempResponse = get("/route/mainhost/a-prefix-route/foo/bar")
+    tempResponse = get("/route/a-prefix-route/foo/bar")
     tempResponse.status should be(200)
     tempResponse.body.contains("foo!") should be(false)
     tempResponse.body.contains("bar!") should be(true)
   }
 
   test("Cannot create a full route that conflicts with an existing full route") {
-    createRoute(incomingPath = "mainhost/foo/bar", applicationId = applicationId, routeType = "full")
+    createRoute(incomingPath = "foo/bar", applicationId = applicationId, routeType = "full")
 
-    val conflictedResponse = createRoute(incomingPath = "mainhost/foo/bar", routeType = "full", applicationId = applicationId)
+    val conflictedResponse = createRoute(incomingPath = "foo/bar", routeType = "full", applicationId = applicationId)
     conflictedResponse.status should be(409)
     val conflictedRoute = fromJson[Route](conflictedResponse.body)
 
-    conflictedRoute.incoming_path should be("mainhost/foo/bar")
+    conflictedRoute.incoming_path should be("foo/bar")
   }
 
   test("A full route can 'punch a hole' in a prefix route"){
     val prefixAppId = createMainTestApplication
     val fullAppId = createMainTestApplication
 
-    createRoute(routeType = "prefix", incomingPath = "mainhost/punchhole", applicationId = prefixAppId)
-    createRoute(routeType = "full", incomingPath = "mainhost/punchhole/full/route", applicationId = fullAppId)
+    createRoute(routeType = "prefix", incomingPath = "punchhole", applicationId = prefixAppId)
+    createRoute(routeType = "full", incomingPath = "punchhole/full/route", applicationId = fullAppId)
 
-    var response = get("/route/mainhost/punchhole/prefix/route")
+    var response = get("/route/punchhole/prefix/route")
     response.status should be(200)
     response.body.contains("prefix route") should be(true)
     response.body.contains("full route") should be(false)
 
-    response = get("/route/mainhost/punchhole/full/route")
+    response = get("/route/punchhole/full/route")
     response.status should be(200)
     response.body.contains("prefix route") should be(false)
     response.body.contains("full route") should be(true)
@@ -344,21 +344,21 @@ class RoutesLifecycleTest
     val fooApplicationId = createMainTestApplication
     val footballApplicationId = createMainTestApplication
 
-    createRoute(routeType = "prefix", incomingPath = "mainhost/foo", applicationId = fooApplicationId)
+    createRoute(routeType = "prefix", incomingPath = "foo", applicationId = fooApplicationId)
 
-    var response = createRoute(routeType = "full", incomingPath = "mainhost/football", applicationId = footballApplicationId)
+    var response = createRoute(routeType = "full", incomingPath = "football", applicationId = footballApplicationId)
     response.status should be(201)
 
-    response = get("/route/mainhost/foo")
+    response = get("/route/foo")
     response.body.contains("fooOnly") should be(true)
 
-    response = get("/route/mainhost/foo/")
+    response = get("/route/foo/")
     response.body.contains("fooOnly") should be(true)
 
-    response = get("/route/mainhost/foo/bar")
+    response = get("/route/foo/bar")
     response.body.contains("fooOnly") should be(true)
 
-    response = get("/route/mainhost/football")
+    response = get("/route/football")
     response.body.contains("football") should be(true)
   }
 }

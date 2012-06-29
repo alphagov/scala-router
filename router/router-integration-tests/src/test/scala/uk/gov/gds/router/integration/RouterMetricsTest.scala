@@ -27,7 +27,7 @@ class RouterMetricsTest
     get("/management/status/reset")
 
     when("We make a GET request through the router to an arbitrary page")
-    get("/route/mainhost/fulltest/test.html")
+    get("/route/fulltest/test.html")
 
     then("The hit should be recorded in the statistics for the router")
     val testApplicationMetrics = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)
@@ -42,7 +42,7 @@ class RouterMetricsTest
     get("/management/status/reset")
 
     when("We make a POST request through the router to an arbitrary page")
-    post("/route/mainhost/fulltest/test.html")
+    post("/route/fulltest/test.html")
 
     then("The hit should be recorded in the statistics for the router")
     val testApplicationMetrics: List[Map[String, String]] = JsonSerializer.fromJson[List[Map[String, String]]](get("/management/status").body)

@@ -3,7 +3,7 @@ package uk.gov.gds.router.repository.route
 import uk.gov.gds.router.model._
 import uk.gov.gds.router.repository._
 import com.mongodb.casbah.Imports._
-import uk.gov.gds.router.util.IncomingPathStringManipulator
+import uk.gov.gds.router.util.IncomingPath
 
 object Routes extends MongoRepository[Route]("routes", "incoming_path") {
 
@@ -12,8 +12,8 @@ object Routes extends MongoRepository[Route]("routes", "incoming_path") {
       Some(route)
 
     case None =>
-      val prefixPath = IncomingPathStringManipulator.getPrefixPath(incomingPath);
-      collection.findOne(MongoDBObject("incoming_path" -> prefixPath, "route_type" -> "prefix"))
+      val prefix = IncomingPath.prefix(incomingPath);
+      collection.findOne(MongoDBObject("incoming_path" -> prefix, "route_type" -> "prefix"))
   }
 
   override def store(toStore: Route) = super.load(toStore.incoming_path) match {

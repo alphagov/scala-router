@@ -76,14 +76,14 @@ class ApplicationsLifecycleTest
     get("/applications/" + applicationId).status should be(404)
 
     then("The full route returns a 410 Gone")
-    response = get("/route/mainhost/fulltest/test.html")
+    response = get("/route/fulltest/test.html")
     response.status should be(410)
 
     then("The prefix routes return 404")
-    response = get("/route/mainhost/prefixtest")
+    response = get("/route/prefixtest")
     response.status should be(404)
 
-    response = get("/route/mainhost/test")
+    response = get("/route/test")
     response.status should be(404)
   }
 
