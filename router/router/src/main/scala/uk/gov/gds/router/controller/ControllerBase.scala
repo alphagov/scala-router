@@ -16,7 +16,7 @@ abstract class ControllerBase extends ScalatraFilter with Logging {
   error {
     case s: SocketTimeoutException =>
       logger.error("Timeout", s)
-      errorDocument(503)
+      errorDocument(504)
     case e: Exception =>
       logger.error("Exception", e)
       errorDocument(500)

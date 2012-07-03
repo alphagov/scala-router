@@ -93,9 +93,9 @@ class HttpProxyTest
     response.body.contains("Authorization=hope-this-gets-through") should be(true)
   }
 
-  test("Router returns 503 error page when backend times out") {
+  test("Router returns 504 error page when backend times out") {
     val response = get("/route/test/timeout")
-    response.status should be(503)
+    response.status should be(504)
   }
 
   test("Router passes 410 status code when backend response has 410 status") {
