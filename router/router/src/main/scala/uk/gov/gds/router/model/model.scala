@@ -21,7 +21,7 @@ case class Route(incoming_path: String,
   val application = Applications.load(application_id).getOrElse(throw new Exception("Can't find application for route " + this))
 
   if ("prefix" == route_type && IncomingPath.prefix(incoming_path) != IncomingPath.path(incoming_path))
-    throw new RuntimeException("Invalid route: a prefix route must be a single path segment, e.g. '/prefix' or '/host/www.example.com/prefix'")
+    throw new RuntimeException("Invalid route: the prefix route must be a single path segment, e.g. '/prefix' or '/host/www.example.com/prefix'" + " : " + IncomingPath.prefix(incoming_path) + " : " +IncomingPath.path(incoming_path))
 
   def proxyType = route_type match {
     case "full" => FullRoute

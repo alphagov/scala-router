@@ -82,7 +82,13 @@ object HttpProxy extends Logging {
 
   private def targetUrl(route: Route)(implicit request: RequestInfo) = {
     val path = IncomingPath.path(request.targetUrl)
-    "http://".concat(route.application.backend_url.concat(path))
+    val backend_url = route.application.backend_url
+   
+    // add path separator for backwards compatability with the database
+    // .. but ideally we should concatonate the backend_urls as is ..
+    val sep = if (backend_url.endsWith("/") || path.startsWith("/")) "" else "/"
+   
+    "http://".concat(backend_url).concat(sep).concat(path)
   }
 
   private def configureHttpClient() = {

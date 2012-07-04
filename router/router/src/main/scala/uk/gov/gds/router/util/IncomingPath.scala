@@ -5,8 +5,8 @@ import scala.util.matching.Regex
 
 object IncomingPath extends Logging {
  
-  val hostPattern  = """^/*host/([^/]*)(.*)$""".r
-  val prefixPattern  = """^/*([^/]*)(.*)$""".r
+  val hostPattern  = """^/*host/([^/]*)/*(.*)$""".r
+  val prefixPattern  = """^/*([^/]*)/*(.*)$""".r
 
   def host(incoming_path: String) = incoming_path match {
     case hostPattern(host, path) =>
@@ -22,10 +22,10 @@ object IncomingPath extends Logging {
       incoming_path
   }
 
-  def prefix(incoming_path: String) = {
-    path(incoming_path) match {
-      case prefixPattern(prefix, path) =>
-        prefix
-    }
+  def prefix(incoming_path: String) = path(incoming_path) match {
+    case prefixPattern(prefix, path) =>
+      prefix
+    case _ =>
+      incoming_path
   }
 }

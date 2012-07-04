@@ -44,7 +44,7 @@ trait RouterIntegrationTestSetup
     post("/routes/" + incomingPath, Map("application_id" -> applicationId, "route_type" -> routeType))
 
   protected def createMainTestApplication(): String = {
-    val applicationId = uniqueIdForTest
+    val applicationId = uniqueIdForTest + "_maintest"
     createMainTestApplication(applicationId)
     applicationId
   }
@@ -54,22 +54,24 @@ trait RouterIntegrationTestSetup
     post("/routes/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
     post("/routes/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
     post("/routes/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
-    post("/routes/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
 
-    // route with a hostname, optionally supplied by nginx/varnish/etc
+    // route with a hostname, may be optionally supplied by nginx/varnish/etc
     post("/routes/host/mainTest/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/host/mainTest/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
 
     applicationId
   }
 
   protected def createAlsoSupportedTestApplication(): String = {
-    val alsoSupportedApplicationId = uniqueIdForTest
+    val applicationId = uniqueIdForTest + "_alsosupported"
 
-    post("/applications/" + alsoSupportedApplicationId , Map("backend_url" -> alsoSupportedHostBackendUrl))
+    post("/applications/" + applicationId , Map("backend_url" -> alsoSupportedHostBackendUrl))
 
-    // route with a hostname, optionally supplied by nginx/varnish/etc
-    post("/routes/host/alsoSupported/fulltest/test.html", Map("application_id" -> alsoSupportedApplicationId, "route_type" -> "full"))
+    // route with a hostname, may be optionally supplied by nginx/varnish/etc
+    post("/routes/host/alsoSupported/fulltest/test.html", Map("application_id" -> applicationId, "route_type" -> "full"))
+    post("/routes/host/alsoSupported/prefixtest", Map("application_id" -> applicationId, "route_type" -> "prefix"))
+    post("/routes/host/alsoSupported/test", Map("application_id" -> applicationId, "route_type" -> "prefix"))
 
-    alsoSupportedApplicationId
+    applicationId
   }
 }

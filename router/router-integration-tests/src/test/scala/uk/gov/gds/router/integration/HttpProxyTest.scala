@@ -209,7 +209,7 @@ class HttpProxyTest
     unregistered.body.contains("unregistered") should be(true)
   }
 
-  test("path with a host routes to a different application") {
+  test("full path with a host routes to a different application") {
     val mainTestResponse = get("/route/host/mainTest/fulltest/test.html")
 
     then("the response should be a 200 with the contents from the mainTest backend application")
@@ -223,4 +223,17 @@ class HttpProxyTest
     alsoSupportedResponse.body contains ("router also supported full route") should be(true)
   }
 
+  test("prefix with a host routes to a different application") {
+    val mainTestResponse = get("/route/host/mainTest/prefixtest/bang/test.html")
+    then("the response should be a 200 with the contents from the mainTest backend application")
+
+    mainTestResponse.status should be(200)
+    mainTestResponse.body contains ("router flat route") should be(true)
+
+    val alsoSupportedResponse = get("/route/host/alsoSupported/prefixtest/bang/test.html")
+
+    then("the response should be a 200 with the contents from the alsoSupported backend application")
+    alsoSupportedResponse.status should be(200)
+    alsoSupportedResponse.body contains ("also supported prefix route") should be(true)
+  }
 }
