@@ -3,7 +3,7 @@ require 'active_support/core_ext/hash'
 
 class Router
 
-  class ServerError < Exception; end
+  class ServerError < StandardError; end
 
   def initialize(router_endpoint_url, logger=nil)
     @http_client = Router::HttpClient.new(router_endpoint_url, logger)
