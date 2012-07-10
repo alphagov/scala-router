@@ -63,6 +63,8 @@ class Router
       JSON.parse(response.body).symbolize_keys
     when "500"
       raise ServerError.new
+    else
+      raise "Unexpected HTTP response: #{response.code}: #{response.message}"
     end
   end
 
