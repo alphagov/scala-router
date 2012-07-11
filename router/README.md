@@ -21,7 +21,7 @@ To build and run the router itself, enter the following in a shell:
     test
     jetty-start
 
-You should now have a scala router running on port 8080 on your local machine.
+You should now have a scala router running on port 11200 on your local machine.
 
 # To run the performance tests
 
