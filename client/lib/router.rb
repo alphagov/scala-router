@@ -61,6 +61,8 @@ class Router
     case response.code
     when "200", "201"
       JSON.parse(response.body).symbolize_keys
+    when "404"
+      nil
     when "500"
       raise ServerError.new
     else
