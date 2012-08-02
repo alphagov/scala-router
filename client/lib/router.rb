@@ -5,7 +5,7 @@ class Router
 
   class ServerError < StandardError; end
 
-  def initialize(router_endpoint_url="http://router.cluster:8080", logger=nil)
+  def initialize(router_endpoint_url="http://router.cluster:8080/router", logger=nil)
     @http_client = Router::HttpClient.new(router_endpoint_url, logger)
   end
 
