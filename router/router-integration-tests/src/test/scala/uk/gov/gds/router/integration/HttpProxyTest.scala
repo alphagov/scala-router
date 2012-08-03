@@ -161,6 +161,7 @@ class HttpProxyTest
     response = get("/route/" + routeId)
 
     response.status should be(301)
+    response.body should be("")
 
     def header(x: Option[Header]) = x match {
       case Some(header) => header.value
