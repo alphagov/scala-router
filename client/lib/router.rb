@@ -32,7 +32,9 @@ class Router
   end
 
   def delete_application(application_name)
-    @http_client.delete("/applications/#{application_name}")
+    response = @http_client.delete("/applications/#{application_name}")
+
+    format_response_for response
   end
 
   def create_route(incoming_path, route_type, application_name)
@@ -54,14 +56,18 @@ class Router
   end
 
   def delete_route(incoming_path)
-    @http_client.delete("/routes/#{incoming_path}")
+    response = @http_client.delete("/routes/#{incoming_path}")
+
+    format_response_for response
   end
 
   def format_response_for(response)
     case response.code
     when "200", "201"
       JSON.parse(response.body).symbolize_keys
-    when "404"
+    when "204" # 204 = no content
+      nil
+    when "404" # Legacy behaviour
       nil
     when "500"
       raise ServerError.new
