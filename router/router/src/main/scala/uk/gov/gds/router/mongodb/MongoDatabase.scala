@@ -17,7 +17,7 @@ object MongoDatabase extends Logging {
   val database = mongoConnection(RouterConfig.databaseName);
   database.setWriteConcern(WriteConcern.SAFE)
 
-  initialiseMongo()
+  //initialiseMongo()
 
   def initialiseMongo() {
     applicationsToCreateOnStartup.foreach {
