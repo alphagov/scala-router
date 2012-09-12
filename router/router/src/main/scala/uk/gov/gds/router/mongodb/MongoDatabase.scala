@@ -12,12 +12,20 @@ object MongoDatabase extends Logging {
 
   private lazy val inOperation = new DynamicVariable[Boolean](false)
   private val mongoConnection = MongoConnection(RouterConfig.databaseHosts.map(new ServerAddress(_)))
-  private val applicationsToCreateOnStartup = List(ApplicationForGoneRoutes,ApplicationForRedirectRoutes)
+  private val applicationsToCreateOnStartup = List(ApplicationForGoneRoutes, ApplicationForRedirectRoutes)
 
   val database = mongoConnection(RouterConfig.databaseName);
   database.setWriteConcern(WriteConcern.SAFE)
 
-  //initialiseMongo()
+  try {
+    initialiseMongo()
+  }
+  catch {
+    case e: Exception =>
+      logger.error("Error initialising connection to mongo database, is it configured correctly?")
+      logger.error("Router is trying to connect to " + RouterConfig.databaseHosts)
+      logger.error("Exception is: ", e)
+  }
 
   def initialiseMongo() {
     applicationsToCreateOnStartup.foreach {
@@ -37,7 +45,9 @@ object MongoDatabase extends Logging {
 
   def getCollection(collectionName: String) = {
     val collection = database(collectionName)
-    collection.slaveOk()
+
+    // Temporarily disabled slaveOK to ensure that all queries are to the master node to simplify roll outs
+    //collection.slaveOk()
     collection
   }
 
